@@ -18,13 +18,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onPatternsClicked"
+<<<<<<< HEAD
             android:text="@string/patterns" />
+=======
+            android:text="Patterns" />
+>>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:onClick="onColourPalettesClicked"
             android:text="@string/colour_palettes" />
+=======
+            android:text="Colour schemes" />
+>>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
     </LinearLayout>
 
 </RelativeLayout>

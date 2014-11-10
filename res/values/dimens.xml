@@ -4,6 +4,9 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="colour_size">20dp</dimen>
+<<<<<<< HEAD
     <dimen name="padding">20dp</dimen>
+=======
+>>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
 
 </resources>
