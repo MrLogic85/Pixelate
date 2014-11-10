@@ -14,9 +14,14 @@ public class BetterLog {
 			if (element.getClassName().equals(source.getClass().getName())) {
 				Log.d(source.getClass().getSimpleName(),
 						"" + element.getMethodName() + ":"
-								+ element.getLineNumber() + ", " + text);
+								+ element.getLineNumber()
+								+ (text != null ? ", " + text : ""));
 				return;
 			}
 		}
+	}
+
+	public static void d(Object source) {
+		d(source, null);
 	}
 }

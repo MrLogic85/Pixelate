@@ -8,11 +8,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.pixelate4craftign.ColourPalettesActivity"
     android:orientation="vertical"
-<<<<<<< HEAD
     android:padding="@dimen/padding"
-=======
-    android:padding="20dp"
->>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
     android:id="@android:id/list" >
 
 </LinearLayout>
