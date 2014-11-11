@@ -1,21 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-<<<<<<< HEAD
     package="com.sleepyduck.pixelate4crafting"
-=======
-    package="com.example.pixelate4craftign"
->>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
     android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
-<<<<<<< HEAD
         android:minSdkVersion="18"
         android:targetSdkVersion="19" />
-=======
-        android:minSdkVersion="8"
-        android:targetSdkVersion="21" />
->>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
 
     <application
         android:allowBackup="true"
@@ -31,15 +22,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-<<<<<<< HEAD
-        <activity android:name=".ColourPalettesActivity"
-            android:label="@string/app_name"/>
-=======
         <activity
-            android:name=".ColourPalettesActivity"
-            android:label="@string/title_activity_colour_palettes" >
-        </activity>
->>>>>>> 715c3eae28a9c3fb5e85506696b717f44002b669
+            android:name="com.sleepyduck.pixelate4crafting.view.colour.ColourPalettesActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.sleepyduck.pixelate4crafting.view.pattern.PatternsActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.sleepyduck.pixelate4crafting.view.pattern.ModifyPatternActivity"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

@@ -3,9 +3,29 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.sleepyduck.pixelate4crafting.view.pattern.PatternListView
-        android:id="@+id/patterns_list"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
+
+        <TextView
+            style="@android:style/TextAppearance.DeviceDefault.Large"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/padding_small"
+            android:paddingRight="@dimen/padding_small"
+            android:paddingTop="@dimen/padding_small"
+            android:text="@string/my_patterns" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/divider"
+            android:background="@drawable/divider" />
+
+        <com.sleepyduck.pixelate4crafting.view.pattern.PatternListView
+            android:id="@+id/patterns_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
 </ScrollView>

@@ -4,5 +4,6 @@
     <string name="app_name">Pixelate 4 Crafting</string>
     <string name="patterns">Patterns</string>
     <string name="colour_palettes">Colour palettes</string>
+    <string name="my_patterns">My Patterns</string>
 
 </resources>

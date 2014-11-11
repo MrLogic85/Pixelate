@@ -2,10 +2,15 @@ package com.sleepyduck.pixelate4crafting.data;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import android.util.AttributeSet;
+
 public class Patterns {
+	public static final String INTENT_EXTRA_ID = "EXTRA_ID";
+	
 	private static Map<Integer, Pattern> MAP = new HashMap<Integer, Pattern>();
 
 	private Patterns() {
@@ -13,10 +18,16 @@ public class Patterns {
 	}
 
 	public static void Load() {
-		Pattern pattern1 = new Pattern(0, "Test pattern 1");
-		Pattern pattern2 = new Pattern(1, "Test pattern 2");
-		Add(pattern1);
-		Add(pattern2);
+		Set<Integer> ids = ColourPalettes.GetIds();
+		Iterator<Integer> iterator = ids.iterator();
+		for (int i = 0; i < 6; i++) {
+			Pattern pattern = new Pattern(i, "Test pattern " + i);
+			pattern.setPaletteId(iterator.next());
+			if (!iterator.hasNext()) {
+				iterator = ids.iterator();
+			}
+			Add(pattern);
+		}
 	}
 
 	public static void Add(Pattern pattern) {
@@ -31,13 +42,27 @@ public class Patterns {
 		return MAP.values();
 	}
 
+	public static Pattern GetPattern(int id) {
+		return MAP.get(id);
+	}
+
 	public static class Pattern {
 		public final int Id;
 		public final String Title;
 
+		private int mPaletteId = -1;
+
 		public Pattern(int id, String title) {
 			Id = id;
 			Title = title;
+		}
+
+		public void setPaletteId(int id) {
+			mPaletteId = id;
+		}
+
+		public int getPaletteId() {
+			return mPaletteId;
 		}
 
 	}
