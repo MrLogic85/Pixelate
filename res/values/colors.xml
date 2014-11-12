@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="divider">#FF000000</color>
-    <color name="background_light">#FFFFFFFF</color>
-    <color name="background_blue">#8033B5E5</color>
-    
+
     <color name="blue">#33B5E5</color>
     <color name="blue_dark">#0099CC</color>
     <color name="purple">#FF4444</color>
@@ -14,4 +11,20 @@
     <color name="yellow_dark">#FF8800</color>
     <color name="red">#AA66CC</color>
     <color name="red_dark">#9933CC</color>
+
+    <color name="primary_100">#D1C4E9</color> <!-- Secondary areas -->
+    <color name="primary_500">#673AB7</color> <!-- Toolbars and large blocks -->
+    <color name="primary_700">#512DA8</color> <!-- Status bar -->
+    <color name="accent_a100">#FFD180</color> <!-- Accent fallback for button backgrounds -->
+    <color name="accent_a200">#FFAB40</color> <!-- Accent for primary buttons -->
+    <color name="accent_a400">#FF9100</color> <!-- Accent fallback -->
+    <color name="black_87">#DE000000</color> <!-- Text -->
+    <color name="black_54">#8A000000</color> <!-- Secondary text / Icons -->
+    <color name="black_26">#42000000</color> <!-- Disabled / Hint Text -->
+    <color name="black_12">#20000000</color> <!-- Dividers -->
+    <color name="white_100">#FFFFFF</color> <!-- Text / Icons -->
+    <color name="white_70">#B3FFFFFF</color> <!-- Secondary text -->
+    <color name="white_30">#4CFFFFFF</color> <!-- Disabled / Hint Text -->
+    <color name="white_12">#20FFFFFF</color> <!-- Dividers -->
+
 </resources>

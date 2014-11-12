@@ -31,6 +31,7 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 	private View mDivider;
 	private LinearLayout mPaletteLayout;
 	private int mMargins;
+	private int mMarginsBig;
 
 	public PatternItemView(Context context, Pattern pattern) {
 		super(context);
@@ -52,7 +53,9 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 
 	private void setup() {
 		BetterLog.d(this);
+
 		mMargins = (int) getResources().getDimension(R.dimen.padding_small);
+		mMarginsBig = (int) getResources().getDimension(R.dimen.padding);
 
 		mLayoutTransition = new LayoutTransition();
 		mLayoutTransition.enableTransitionType(LayoutTransition.CHANGING);
@@ -60,9 +63,8 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 		mLayoutTransition.enableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
 		setLayoutTransition(mLayoutTransition);
 
-		mTitleView = new TextView(getContext());
+		mTitleView = (TextView) inflate(getContext(), R.layout.text_view_medium, null);
 		mTitleView.setText(mPattern.Title);
-		mTitleView.setGravity(Gravity.CENTER_VERTICAL);
 		addView(mTitleView);
 
 		mPicture = new ImageView(getContext());
@@ -71,7 +73,7 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 		addView(mPicture);
 
 		mDivider = new View(getContext());
-		mDivider.setBackgroundResource(R.drawable.divider);
+		mDivider.setBackgroundColor(getResources().getColor(R.color.black_12));
 		addView(mDivider);
 
 		mPaletteLayout = new LinearLayout(getContext());
@@ -95,7 +97,7 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		int width = MeasureSpec.getSize(widthMeasureSpec);
-		int widthMeasured = MeasureSpec.makeMeasureSpec(width - mMargins * 2, MeasureSpec.EXACTLY);
+		int widthMeasured = MeasureSpec.makeMeasureSpec(width - mMarginsBig * 2, MeasureSpec.EXACTLY);
 		int widthMeasuredFull = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY);
 		int itemSize = (int) getResources().getDimension(R.dimen.item_size);
 		int itemSizeMeasured = MeasureSpec.makeMeasureSpec(itemSize, MeasureSpec.EXACTLY);
@@ -108,14 +110,14 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 		int totalHeightMeasured;
 		switch (mState) {
 			case STATE_NORMAL:
-				int titleWidthMeasured = MeasureSpec.makeMeasureSpec(width - itemSize - mMargins * 3,
+				int titleWidthMeasured = MeasureSpec.makeMeasureSpec(width - itemSize - mMarginsBig * 2 - mMargins,
 						MeasureSpec.EXACTLY);
 				mPicture.measure(itemSizeMeasured, itemSizeMeasured);
 				mTitleView.measure(titleWidthMeasured, titleHeightMeasured);
 				mPaletteLayout.measure(titleWidthMeasured, paletteHeightMeasured);
-				totalHeightMeasured = MeasureSpec
-						.makeMeasureSpec(mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMargins * 2,
-								MeasureSpec.EXACTLY);
+				totalHeightMeasured = MeasureSpec.makeMeasureSpec(
+						mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMarginsBig * 2,
+						MeasureSpec.EXACTLY);
 				setMeasuredDimension(widthMeasureSpec, totalHeightMeasured);
 				break;
 			case STATE_FOCUSED:
@@ -126,8 +128,8 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 				mPaletteLayout.measure(widthMeasured, paletteHeightMeasured);
 				totalHeightMeasured = MeasureSpec.makeMeasureSpec(
 						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight()
-								+ mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMargins * 4,
-						MeasureSpec.EXACTLY);
+								+ mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMarginsBig * 2
+								+ mMargins * 2, MeasureSpec.EXACTLY);
 				setMeasuredDimension(widthMeasureSpec, totalHeightMeasured);
 				break;
 		}
@@ -137,34 +139,40 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		switch (mState) {
 			case STATE_NORMAL:
-				mPicture.layout(mMargins, mMargins, mPicture.getMeasuredWidth() + mMargins,
-						mPicture.getMeasuredHeight() + mMargins);
-				mTitleView.layout(mPicture.getMeasuredWidth() + mMargins * 2, mMargins * 2, mPicture.getMeasuredWidth()
-						+ mTitleView.getMeasuredWidth() + mMargins * 2, mTitleView.getMeasuredHeight() + mMargins * 2);
-				mPaletteLayout.layout(mPicture.getMeasuredWidth() + mMargins * 2, mPicture.getMeasuredHeight()
-						- mPaletteLayout.getMeasuredHeight(),
-						mPicture.getMeasuredWidth() + mPaletteLayout.getMeasuredWidth() + mMargins * 3,
-						mPicture.getMeasuredHeight());
-				mDivider.layout(0, mPicture.getMeasuredHeight() + mMargins * 2, mDivider.getMeasuredWidth(),
-						mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMargins * 2);
+				mPicture.layout(mMarginsBig, mMarginsBig, mPicture.getMeasuredWidth() + mMarginsBig,
+						mPicture.getMeasuredHeight() + mMarginsBig);
+				mTitleView.layout(mPicture.getMeasuredWidth() + mMarginsBig + mMargins, mMarginsBig + mMargins,
+						mPicture.getMeasuredWidth() + mTitleView.getMeasuredWidth() + mMarginsBig + mMargins,
+						mTitleView.getMeasuredHeight() + mMarginsBig + mMargins);
+				mPaletteLayout.layout(mPicture.getMeasuredWidth() + mMarginsBig + mMargins,
+						mPicture.getMeasuredHeight() - mPaletteLayout.getMeasuredHeight() + mMarginsBig - mMargins,
+						mPicture.getMeasuredWidth() + mPaletteLayout.getMeasuredWidth() + mMarginsBig + mMargins,
+						mPicture.getMeasuredHeight() + mMarginsBig - mMargins);
+				mDivider.layout(0, mPicture.getMeasuredHeight() + mMarginsBig * 2, mDivider.getMeasuredWidth(),
+						mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMarginsBig * 2);
 				break;
 			case STATE_FOCUSED:
-				mTitleView.layout(mMargins, mMargins, mTitleView.getMeasuredWidth() + mMargins,
-						mTitleView.getMeasuredHeight() + mMargins);
-				mPaletteLayout.layout(mMargins, mTitleView.getMeasuredHeight() + mMargins * 2,
-						mPaletteLayout.getMeasuredWidth() + mMargins,
-						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight() + mMargins * 2);
+				mTitleView.layout(mMarginsBig, mMarginsBig, mTitleView.getMeasuredWidth() + mMarginsBig,
+						mTitleView.getMeasuredHeight() + mMarginsBig);
+				mPaletteLayout.layout(mMarginsBig, mTitleView.getMeasuredHeight() + mMarginsBig + mMargins,
+						mPaletteLayout.getMeasuredWidth() + mMarginsBig, mTitleView.getMeasuredHeight()
+								+ mPaletteLayout.getMeasuredHeight() + mMarginsBig + mMargins);
 				int dxPicture = ((r - l) - mPicture.getMeasuredWidth()) / 2;
-				mPicture.layout(dxPicture, mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight()
-						+ mMargins * 3, dxPicture + mPicture.getMeasuredWidth(), mTitleView.getMeasuredHeight()
-						+ mPaletteLayout.getMeasuredHeight() + mPicture.getMeasuredHeight() + mMargins * 3);
+				mPicture.layout(
+						dxPicture,
+						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight() + mMarginsBig + mMargins
+								* 2,
+						dxPicture + mPicture.getMeasuredWidth(),
+						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight()
+								+ mPicture.getMeasuredHeight() + mMarginsBig + mMargins * 2);
 				mDivider.layout(
 						0,
 						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight()
-								+ mPicture.getMeasuredHeight() + mMargins * 4,
+								+ mPicture.getMeasuredHeight() + mMarginsBig * 2 + mMargins * 2,
 						mDivider.getMeasuredWidth(),
 						mTitleView.getMeasuredHeight() + mPaletteLayout.getMeasuredHeight()
-								+ mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMargins * 4);
+								+ mPicture.getMeasuredHeight() + mDivider.getMeasuredHeight() + mMarginsBig * 2
+								+ mMargins * 2);
 				break;
 		}
 	}
@@ -186,7 +194,7 @@ public class PatternItemView extends ViewGroup implements Comparable<PatternItem
 				setBackground(null);
 				break;
 			case STATE_FOCUSED:
-				setBackgroundColor(getResources().getColor(R.color.background_blue));
+				setBackgroundColor(getResources().getColor(R.color.accent_a100));
 			default:
 				break;
 		}

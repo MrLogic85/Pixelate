@@ -1,30 +1,48 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
+    android:layout_height="wrap_content"
+    android:background="@color/primary_100"
+    android:orientation="vertical"
     tools:context="com.example.pixelate4craftign.MenuActivity" >
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <TextView
+        style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:background="@color/primary_500"
+        android:padding="@dimen/padding"
+        android:text="@string/app_name"
+        android:textColor="@color/white_100" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onPatternsClicked"
-            android:text="@string/patterns" />
+    <TextView
+        style="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="onPatternsClicked"
+        android:padding="@dimen/padding"
+        android:text="@string/patterns"
+        android:textColor="@color/black_87" />
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onColourPalettesClicked"
-            android:text="@string/colour_palettes" />
-    </LinearLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
 
-</RelativeLayout>
+    <TextView
+        style="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:onClick="onColourPalettesClicked"
+        android:padding="@dimen/padding"
+        android:text="@string/colour_palettes"
+        android:textColor="@color/black_87" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
+</LinearLayout>
