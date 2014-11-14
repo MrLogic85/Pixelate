@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import com.sleepyduck.pixelate4crafting.view.pattern.ListPatternItemView;
+
 import android.util.AttributeSet;
 
 public class Patterns {
@@ -18,7 +20,7 @@ public class Patterns {
 	}
 
 	public static void Load() {
-		Set<Integer> ids = ColourPalettes.GetIds();
+		Set<Integer> ids = ColorPalettes.GetIds();
 		Iterator<Integer> iterator = ids.iterator();
 		for (int i = 0; i < 6; i++) {
 			Pattern pattern = new Pattern(i, "Test pattern " + i);
@@ -46,7 +48,7 @@ public class Patterns {
 		return MAP.get(id);
 	}
 
-	public static class Pattern {
+	public static class Pattern implements Comparable<Pattern> {
 		public final int Id;
 		public final String Title;
 
@@ -63,6 +65,11 @@ public class Patterns {
 
 		public int getPaletteId() {
 			return mPaletteId;
+		}
+
+		@Override
+		public int compareTo(Pattern another) {
+			return this.Title.compareTo(another.Title);
 		}
 
 	}

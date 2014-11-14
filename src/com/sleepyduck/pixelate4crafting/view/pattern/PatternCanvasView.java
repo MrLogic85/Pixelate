@@ -4,19 +4,19 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
-public class ModifyPatternCanvasView extends ViewGroup {
+public class PatternCanvasView extends ViewGroup {
 
-	public ModifyPatternCanvasView(Context context, AttributeSet attrs, int defStyle) {
+	public PatternCanvasView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ModifyPatternCanvasView(Context context, AttributeSet attrs) {
+	public PatternCanvasView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// TODO Auto-generated constructor stub
 	}
 
-	public ModifyPatternCanvasView(Context context) {
+	public PatternCanvasView(Context context) {
 		super(context);
 		// TODO Auto-generated constructor stub
 	}

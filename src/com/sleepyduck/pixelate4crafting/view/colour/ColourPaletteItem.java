@@ -5,7 +5,7 @@ import java.util.List;
 import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.R.dimen;
-import com.sleepyduck.pixelate4crafting.data.ColourPalettes.Palette;
+import com.sleepyduck.pixelate4crafting.data.ColorPalettes.Palette;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -20,7 +20,7 @@ public class ColourPaletteItem extends LinearLayout {
 	public ColourPaletteItem(Context context, Palette colourPalette) {
 		super(context);
 		setup();
-		addColours(colourPalette.getColours());
+		addColours(colourPalette.getColors());
 		setTitle(colourPalette.Title);
 	}
 
@@ -43,7 +43,7 @@ public class ColourPaletteItem extends LinearLayout {
 	}
 
 	public void addColours(List<Integer> list) {
-		float colourSize = getResources().getDimension(R.dimen.colour_size);
+		float colourSize = getResources().getDimension(R.dimen.color_size);
 		BetterLog.d(this, "addClours(): colourSize = " + colourSize);
 		for (int color : list) {
 			View view = new View(getContext());

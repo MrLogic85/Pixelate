@@ -26,10 +26,10 @@
             android:name="com.sleepyduck.pixelate4crafting.view.colour.ColourPalettesActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.PatternsActivity"
+            android:name="com.sleepyduck.pixelate4crafting.view.pattern.ListPatternActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.ModifyPatternActivity"
+            android:name="com.sleepyduck.pixelate4crafting.view.pattern.PatternActivity"
             android:label="@string/app_name" />
     </application>
 

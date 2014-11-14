@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ModifyPatternMenuView extends LinearLayout implements OnClickListener {
+public class PatternMenuView extends LinearLayout implements OnClickListener {
 
 	public static final int STATE_COLLAPSED = 0x1;
 	public static final int STATE_EXPANDED = 0x2;
@@ -20,17 +20,17 @@ public class ModifyPatternMenuView extends LinearLayout implements OnClickListen
 	private Pattern mPattern;
 	private TextView mTitleView;
 
-	public ModifyPatternMenuView(Context context, AttributeSet attrs, int defStyle) {
+	public PatternMenuView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		setup();
 	}
 
-	public ModifyPatternMenuView(Context context, AttributeSet attrs) {
+	public PatternMenuView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setup();
 	}
 
-	public ModifyPatternMenuView(Context context, Pattern pattern) {
+	public PatternMenuView(Context context, Pattern pattern) {
 		super(context);
 		setup();
 	}

@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.sleepyduck.pixelate4crafting.view.pattern.ModifyPatternMenuView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<com.sleepyduck.pixelate4crafting.view.pattern.PatternMenuView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/title"
-        style="@android:style/TextAppearance.DeviceDefault.Large"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_small"
+        android:text="@string/choose_image" />
 
-</com.sleepyduck.pixelate4crafting.view.pattern.ModifyPatternMenuView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_small"
+        android:text="@string/select_palette" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
+</com.sleepyduck.pixelate4crafting.view.pattern.PatternMenuView>

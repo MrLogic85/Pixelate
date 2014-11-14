@@ -11,10 +11,10 @@ import com.sleepyduck.pixelate4crafting.R;
 import android.content.Context;
 import android.graphics.Color;
 
-public class ColourPalettes {
+public class ColorPalettes {
 	private static Map<Integer, Palette> MAP = new HashMap<Integer, Palette>();
 
-	private ColourPalettes() {
+	private ColorPalettes() {
 		super();
 	}
 
@@ -75,7 +75,7 @@ public class ColourPalettes {
 			}
 		}
 
-		public List<Integer> getColours() {
+		public List<Integer> getColors() {
 			return mColours;
 		}
 	}

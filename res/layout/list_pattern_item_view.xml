@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.sleepyduck.pixelate4crafting.view.pattern.ListPatternItemView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/ButtonStyle"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" >
+
+    <Space
+        android:id="@+id/top_left"
+        android:layout_width="@dimen/padding"
+        android:layout_height="@dimen/padding"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true" />
+
+    <Space
+        android:id="@+id/bottom_right"
+        android:layout_width="@dimen/padding"
+        android:layout_height="@dimen/padding"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true" />
+
+    <com.sleepyduck.pixelate4crafting.view.RoundedImageView
+        android:id="@+id/imageView"
+        android:layout_width="@dimen/small_picture_size"
+        android:layout_height="@dimen/small_picture_size"
+        android:layout_below="@id/top_left"
+        android:layout_margin="0dp"
+        android:layout_toRightOf="@id/top_left"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/titleView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/imageView"
+        android:layout_toLeftOf="@id/bottom_right"
+        android:layout_toRightOf="@+id/imageView"
+        android:paddingLeft="@dimen/padding_small"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <LinearLayout
+        android:id="@+id/palette"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/imageView"
+        android:layout_alignLeft="@+id/titleView"
+        android:layout_toLeftOf="@id/bottom_right"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/padding_small" />
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/padding"
+        android:layout_below="@id/imageView" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:layout_below="@id/space"
+        android:background="@color/black_12" />
+
+</com.sleepyduck.pixelate4crafting.view.pattern.ListPatternItemView>

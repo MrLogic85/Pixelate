@@ -4,7 +4,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.NoActionBar">
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -16,10 +16,21 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <item name="android:windowBackground">@color/white_100</item>
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Style700</item>
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
     </style>
 
-    <style name="ActionBar.Solid.Style700" parent="@android:style/Widget.Holo.Light.ActionBar.Solid">
-        <item name="android:background">@color/primary_700</item>
+    <style name="ActionBar.Solid.Style700" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@color/primary_500</item>
+    </style>
+    
+    <style name="ButtonStyle" parent="@android:style/Widget.Holo.Light.Button">
+        <item name="android:background">@drawable/button</item>
+        <item name="android:textColor">@color/black_87</item>
+    </style>
+    
+    <style name="ButtonStyleAccent" parent="@android:style/Widget.Holo.Light.Button">
+        <item name="android:background">@drawable/button_accent</item>
+        <item name="android:textColor">@color/white_100</item>
     </style>
 
 </resources>

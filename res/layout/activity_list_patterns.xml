@@ -6,24 +6,15 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@color/primary_100" >
-
-        <TextView
-            style="@android:style/TextAppearance.DeviceDefault.Large"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/primary_500"
-            android:padding="@dimen/padding"
-            android:text="@string/my_patterns"
-            android:textColor="@color/white_100" />
+        android:background="@color/primary_100"
+        android:orientation="vertical" >
 
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/divider"
             android:background="@color/black_12" />
 
-        <com.sleepyduck.pixelate4crafting.view.pattern.PatternListView
+        <com.sleepyduck.pixelate4crafting.view.pattern.ListPatternView
             android:id="@+id/patterns_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
