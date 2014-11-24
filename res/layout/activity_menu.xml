@@ -34,4 +34,18 @@
         android:layout_height="@dimen/divider"
         android:background="@color/black_12" />
 
+    <Button
+        style="@android:style/TextAppearance.DeviceDefault.Medium"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:onClick="onShortCutClicked"
+        android:padding="@dimen/padding"
+        android:text="Short cut" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
 </LinearLayout>

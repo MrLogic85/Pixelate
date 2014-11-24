@@ -2,8 +2,9 @@ package com.sleepyduck.pixelate4crafting;
 
 import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
 import com.sleepyduck.pixelate4crafting.data.Patterns;
-import com.sleepyduck.pixelate4crafting.view.colour.ColourPalettesActivity;
+import com.sleepyduck.pixelate4crafting.view.color.ColorPalettesActivity;
 import com.sleepyduck.pixelate4crafting.view.pattern.ListPatternActivity;
+import com.sleepyduck.pixelate4crafting.view.pattern.PatternActivity;
 
 import android.view.View;
 import android.app.Activity;
@@ -26,6 +27,12 @@ public class MenuActivity extends Activity {
     }
     
     public void onColourPalettesClicked(View view) {
-    	startActivity(new Intent(this, ColourPalettesActivity.class));
+    	startActivity(new Intent(this, ColorPalettesActivity.class));
+    }
+    
+    public void onShortCutClicked(View view) {
+    	Intent intent = new Intent(this, PatternActivity.class);
+    	intent.putExtra(Patterns.INTENT_EXTRA_ID, 1);
+    	startActivity(intent);
     }
 }

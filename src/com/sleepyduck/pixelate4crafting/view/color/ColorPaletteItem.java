@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.view.colour;
+package com.sleepyduck.pixelate4crafting.view.color;
 
 import java.util.List;
 
@@ -13,18 +13,18 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ColourPaletteItem extends LinearLayout {
+public class ColorPaletteItem extends LinearLayout {
 	TextView mTitle;
 	LinearLayout mColoursLayout;
 
-	public ColourPaletteItem(Context context, Palette colourPalette) {
+	public ColorPaletteItem(Context context, Palette colourPalette) {
 		super(context);
 		setup();
 		addColours(colourPalette.getColors());
 		setTitle(colourPalette.Title);
 	}
 
-	public ColourPaletteItem(Context context, AttributeSet attrs) {
+	public ColorPaletteItem(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setup();
 	}

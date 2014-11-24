@@ -2,7 +2,6 @@ package com.sleepyduck.pixelate4crafting.view.pattern;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.data.Constants;
 import com.sleepyduck.pixelate4crafting.data.Constants.MENU_STATE;
 import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
 
@@ -11,27 +10,27 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
 
-public class PatternMenuView extends LinearLayout {
-	private Constants.MENU_STATE mState = MENU_STATE.STATE_COLLAPSED;
-	private Pattern mPattern;
+public class PatternMenuSizeView extends LinearLayout {
 
-	public PatternMenuView(Context context, AttributeSet attrs, int defStyle) {
+	private MENU_STATE mState = MENU_STATE.STATE_COLLAPSED;
+
+	public PatternMenuSizeView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		setup();
 	}
 
-	public PatternMenuView(Context context, AttributeSet attrs) {
+	public PatternMenuSizeView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setup();
 	}
 
-	public PatternMenuView(Context context, Pattern pattern) {
+	public PatternMenuSizeView(Context context, Pattern pattern) {
 		super(context);
 		setup();
 	}
 
 	private void setup() {
-		setBackgroundColor(getResources().getColor(R.color.primary_100));
+		setBackgroundColor(getResources().getColor(R.color.accent_a100));
 	}
 
 	public MENU_STATE getState() {

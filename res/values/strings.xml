@@ -7,5 +7,9 @@
     <string name="my_patterns">Patterns</string>
     <string name="choose_image">Choose Image</string>
     <string name="select_palette">Select Palette</string>
+    <string name="pixels_width">Width</string>
+    <string name="pixels_height">Height</string>
+    <string name="change_size">Change size</string>
+    <string name="square_pixels">Square</string>
 
 </resources>

@@ -7,6 +7,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:onClick="onChooseImageClicked"
         android:padding="@dimen/padding_small"
         android:text="@string/choose_image" />
 
@@ -20,6 +21,31 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/padding_small"
         android:text="@string/select_palette" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_small"
+        android:onClick="onChangeSizeClicked"
+        android:text="@string/change_size" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider"
+        android:background="@color/black_12" />
+
+    <ToggleButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onColorSelectionModelClicked"
+        android:padding="@dimen/padding_small"
+        android:textOff="Mean"
+        android:textOn="Average" />
 
     <View
         android:layout_width="match_parent"
