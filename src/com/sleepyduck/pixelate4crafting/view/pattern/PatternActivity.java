@@ -1,7 +1,6 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
-import java.io.IOException;
-
+import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.data.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.data.Constants;
@@ -19,10 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.NumberPicker;
 import android.widget.ImageView.ScaleType;
 import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 public class PatternActivity extends Activity {
@@ -53,7 +52,7 @@ public class PatternActivity extends Activity {
 		mView.getCanvasView().setId(CANVAS_VIEW_ID);
 		mView.getCanvasView().setScaleType(ScaleType.FIT_CENTER);
 
-		getActionBar().setTitle(mPattern.Title);
+		getActionBar().setTitle(mPattern.getTitle());
 		getActionBar().setHomeButtonEnabled(true);
 
 		mWidthPicker = (NumberPicker) findViewById(R.id.width_number);
@@ -63,12 +62,14 @@ public class PatternActivity extends Activity {
 			@Override
 			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 				PatternCanvasView canvasView = mView.getCanvasView();
-				int newHeight = newVal * canvasView.getBitmapHeight() / canvasView.getBitmapWidth();
-				newHeight = Math.min(mHeightPicker.getMaxValue(), newHeight);
-				newHeight = Math.max(mHeightPicker.getMinValue(), newHeight);
-				mHeightPicker.setValue(newHeight);
-				canvasView.setPixelWidth(newVal);
-				canvasView.setPixelHeight(newHeight);
+				if (canvasView.getBitmapHeight() > -1) {
+					int newHeight = newVal * canvasView.getBitmapHeight() / canvasView.getBitmapWidth();
+					newHeight = Math.min(mHeightPicker.getMaxValue(), newHeight);
+					newHeight = Math.max(mHeightPicker.getMinValue(), newHeight);
+					mHeightPicker.setValue(newHeight);
+					canvasView.setPixelWidth(newVal);
+					canvasView.setPixelHeight(newHeight);
+				}
 			}
 		});
 		mHeightPicker = (NumberPicker) findViewById(R.id.height_number);
@@ -78,16 +79,26 @@ public class PatternActivity extends Activity {
 			@Override
 			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
 				PatternCanvasView canvasView = mView.getCanvasView();
-				int newWidth = newVal * canvasView.getBitmapWidth() / canvasView.getBitmapHeight();
-				newWidth = Math.min(mWidthPicker.getMaxValue(), newWidth);
-				newWidth = Math.max(mWidthPicker.getMinValue(), newWidth);
-				mWidthPicker.setValue(newWidth);
-				canvasView.setPixelHeight(newVal);
-				canvasView.setPixelWidth(newWidth);
+				if (canvasView.getBitmapWidth() > -1) {
+					int newWidth = newVal * canvasView.getBitmapWidth() / canvasView.getBitmapHeight();
+					newWidth = Math.min(mWidthPicker.getMaxValue(), newWidth);
+					newWidth = Math.max(mWidthPicker.getMinValue(), newWidth);
+					mWidthPicker.setValue(newWidth);
+					canvasView.setPixelHeight(newVal);
+					canvasView.setPixelWidth(newWidth);
+				}
+			}
+		});
+
+		mView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+			@Override
+			public void onGlobalLayout() {
+				mView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+				updateFile(mPattern.getFileName());
 			}
 		});
 	}
-	
+
 	@Override
 	protected void onResume() {
 		mWidthPicker.setValue(mView.getCanvasView().getPixelWidth());
@@ -141,21 +152,34 @@ public class PatternActivity extends Activity {
 			}
 			if ("content".equals(imageUri.getScheme())) {
 				String fileName = BitmapHandler.getFileName(this, imageUri);
-				try {
-					Bitmap bitmap = BitmapHandler.getFromUri(this, imageUri);
-					mView.getCanvasView().setImageBitmap(bitmap);
-					mWidthPicker.setMaxValue(Math.min(bitmap.getWidth(), 200));
-					mHeightPicker.setMaxValue(Math.min(bitmap.getHeight(), 200));
-					mWidthPicker.setValue(mView.getCanvasView().getPixelWidth());
-					mHeightPicker.setValue(mView.getCanvasView().getPixelHeight());
-				} catch (IOException e) {
-					e.printStackTrace();
-					Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
-				}
+				BitmapHandler.storeLocally(this, imageUri, fileName);
+				mPattern.setFileName(fileName);
+				mPattern.setTitle(Pattern.createTitleFromFileName(fileName));
+				getActionBar().setTitle(mPattern.getTitle());
+				Patterns.Save(this);
+				updateFile(fileName);
 			}
 		}
 
 		mView.getMenu().setState(MENU_STATE.STATE_COLLAPSED);
 		mView.getMenuSize().setState(MENU_STATE.STATE_COLLAPSED);
+	}
+
+	private void updateFile(String fileName) {
+		BetterLog.d(this);
+		if (fileName != null) {
+			Bitmap bitmap = BitmapHandler.getFromFileName(this, fileName);
+			if (bitmap != null) {
+				mView.getCanvasView().setImageBitmap(bitmap);
+				mWidthPicker.setMaxValue(Math.min(bitmap.getWidth(), Constants.MAX_PIXELS));
+				mHeightPicker.setMaxValue(Math.min(bitmap.getHeight(), Constants.MAX_PIXELS));
+				mWidthPicker.setValue(mView.getCanvasView().getPixelWidth());
+				mHeightPicker.setValue(mView.getCanvasView().getPixelHeight());
+			} else {
+				BetterLog.d(this, "Found no bitmap");
+			}
+		} else {
+			BetterLog.d(this, "No file name");
+		}
 	}
 }

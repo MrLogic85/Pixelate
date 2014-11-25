@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
 import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
@@ -37,11 +36,10 @@ public class ListPatternItemView extends RelativeLayout {
 
 	public void setPattern(Pattern pattern) {
 		mPattern = pattern;
-		BetterLog.d(this, "" + findViewById(R.id.titleView));
 		mTitleView = (TextView) findViewById(R.id.titleView);
 		mPaletteLayout = (LinearLayout) findViewById(R.id.palette);
 		mPicture = (ImageView) findViewById(R.id.imageView);
-		mTitleView.setText(mPattern.Title);
+		mTitleView.setText(mPattern.getTitle());
 		int colorSize = (int) getResources().getDimension(R.dimen.color_size);
 		LayoutParams lp = new LayoutParams(colorSize, colorSize);
 		View view;

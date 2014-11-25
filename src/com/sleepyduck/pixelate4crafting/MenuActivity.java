@@ -19,7 +19,7 @@ public class MenuActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_menu);
         ColorPalettes.Load(this);
-        Patterns.Load();
+        Patterns.Load(this);
     }
     
     public void onPatternsClicked(View view) {

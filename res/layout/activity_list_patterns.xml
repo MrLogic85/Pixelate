@@ -14,11 +14,11 @@
             android:layout_height="@dimen/divider"
             android:background="@color/black_12" />
 
-        <com.sleepyduck.pixelate4crafting.view.pattern.ListPatternView
+        <LinearLayout
             android:id="@+id/patterns_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            orientation="vertical" />
+            android:orientation="vertical"/>
     </LinearLayout>
 
 </ScrollView>

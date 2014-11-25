@@ -5,7 +5,6 @@ import java.util.List;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 public class ListPatternView extends LinearLayout {
@@ -25,7 +24,7 @@ public class ListPatternView extends LinearLayout {
 
 	public void addPattern(ListPatternItemView item) {
 		mPatternViews.add(item);
-		addView(item);
+		addView(item, item.getLayoutParams());
 	}
 
 }

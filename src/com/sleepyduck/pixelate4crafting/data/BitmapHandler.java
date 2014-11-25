@@ -1,5 +1,8 @@
 package com.sleepyduck.pixelate4crafting.data;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -13,11 +16,17 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 
 public class BitmapHandler {
-	public static Bitmap getFromUri(Context context, Uri uri) throws IOException {
-		BetterLog.d(BitmapHandler.class, uri.toString());
-		InputStream is = context.getContentResolver().openInputStream(uri);
-		Bitmap image = BitmapFactory.decodeStream(is);
-		return image;
+
+	public static Bitmap getFromFileName(Context context, String fileName) {
+		BetterLog.d(BitmapHandler.class, fileName);
+		InputStream is;
+		try {
+			is = context.openFileInput(fileName);
+			return BitmapFactory.decodeStream(is);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public static String getFileName(Context context, Uri uri) {
@@ -35,25 +44,20 @@ public class BitmapHandler {
 		return null;
 	}
 
-	public static void getPixels(Bitmap bitmap, int[] pixels, int startX, int startY, int width, int height) {
-		int endX = startX + width;
-		int endY = startY + height;
-		int counter = 0;
-		for (int y = startY; y < endY; ++y) {
-			for (int x = startX; x < endX; ++x) {
-				pixels[counter++] = bitmap.getPixel(x, y);
-			}
-		}
-	}
-
-	public static void setPixels(Bitmap bitmap, int[] pixels, int startX, int startY, int width, int height) {
-		int endX = startX + width;
-		int endY = startY + height;
-		int counter = 0;
-		for (int y = startY; y < endY; ++y) {
-			for (int x = startX; x < endX; ++x) {
-				bitmap.setPixel(x, y, pixels[counter++]);
-			}
+	public static void storeLocally(Context context, Uri uri, String fileName) {
+		try {
+			InputStream is = context.getContentResolver().openInputStream(uri);
+			File file = new File(context.getFilesDir(), fileName);
+			FileOutputStream os = new FileOutputStream(file);
+			byte[] buffer = new byte[256];
+			int read = 0;
+			do {
+				read = is.read(buffer);
+				os.write(buffer, 0, read);
+			} while (read == buffer.length);
+			os.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 }

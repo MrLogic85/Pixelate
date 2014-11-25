@@ -2,6 +2,7 @@ package com.sleepyduck.pixelate4crafting.view.pattern;
 
 import java.util.Arrays;
 
+import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.data.Constants;
 
 import android.app.Activity;
@@ -77,6 +78,7 @@ public class PatternCanvasView extends ImageView {
 	@Override
 	public void setImageBitmap(Bitmap bm) {
 		if (bm != null) {
+			BetterLog.d(this);
 			mImageBitmap = bm;
 			setPixelHeight(mPixelsWidth * bm.getHeight() / bm.getWidth());
 			executeRedraw();
@@ -84,6 +86,7 @@ public class PatternCanvasView extends ImageView {
 	}
 
 	public void executeRedraw() {
+		BetterLog.d(this);
 		mBitmapAsyncTask.cancel(true);
 		mBitmapAsyncTask = new BitmapAsyncTask();
 		mBitmapAsyncTask.execute(mImageBitmap);
@@ -107,11 +110,13 @@ public class PatternCanvasView extends ImageView {
 
 		@Override
 		protected Bitmap doInBackground(Bitmap... params) {
+			BetterLog.d(this);
 			Bitmap bitmap = params[0];
 			if (bitmap == null || getWidth() == 0) {
 				return null;
 			}
 
+			BetterLog.d(this);
 			mPixels = new int[mPixelsWidth][mPixelsHeight];
 			float pixelWidth = (float) bitmap.getWidth() / (float) mPixelsWidth;
 			float pixelHeight = (float) bitmap.getHeight() / (float) mPixelsHeight;
@@ -126,6 +131,7 @@ public class PatternCanvasView extends ImageView {
 				}
 			}
 
+			BetterLog.d(this);
 			boolean drawGrid = true;
 			mPixelSize = Math.min(getWidth() / mPixelsWidth, getHeight() / mPixelsHeight);
 			if (drawGrid) {
@@ -157,6 +163,7 @@ public class PatternCanvasView extends ImageView {
 				}
 			}
 
+			BetterLog.d(this);
 			return mPixelBitmap;
 		}
 
@@ -280,11 +287,19 @@ public class PatternCanvasView extends ImageView {
 	}
 
 	public int getBitmapWidth() {
-		return mImageBitmap.getWidth();
+		if (mImageBitmap != null) {
+			return mImageBitmap.getWidth();
+		} else {
+			return -1;
+		}
 	}
 
 	public int getBitmapHeight() {
-		return mImageBitmap.getHeight();
+		if (mImageBitmap != null) {
+			return mImageBitmap.getHeight();
+		} else {
+			return -1;
+		}
 	}
 
 }
