@@ -12,25 +12,12 @@ import android.util.AttributeSet;
 
 public class Patterns {
 	public static final String INTENT_EXTRA_ID = "EXTRA_ID";
-	
+
 	private static Map<Integer, Pattern> MAP = new HashMap<Integer, Pattern>();
 
-	private Patterns() {
+	private Patterns() {}
 
-	}
-
-	public static void Load() {
-		Set<Integer> ids = ColorPalettes.GetIds();
-		Iterator<Integer> iterator = ids.iterator();
-		for (int i = 0; i < 6; i++) {
-			Pattern pattern = new Pattern(i, "Test pattern " + i);
-			pattern.setPaletteId(iterator.next());
-			if (!iterator.hasNext()) {
-				iterator = ids.iterator();
-			}
-			Add(pattern);
-		}
-	}
+	public static void Load() {}
 
 	public static void Add(Pattern pattern) {
 		MAP.put(pattern.Id, pattern);
@@ -56,6 +43,11 @@ public class Patterns {
 
 		public Pattern(int id, String title) {
 			Id = id;
+			Title = title;
+		}
+
+		public Pattern(String title) {
+			Id = (int) (Math.random() * Integer.MAX_VALUE);
 			Title = title;
 		}
 

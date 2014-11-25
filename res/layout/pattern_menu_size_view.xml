@@ -29,7 +29,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:checked="true"
-        android:text="@string/square_pixels" />
+        android:text="@string/square_pixels"
+        android:enabled="false" />
 
     <View
         android:layout_width="match_parent"

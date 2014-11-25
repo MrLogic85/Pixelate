@@ -45,11 +45,12 @@ public class ListPatternItemView extends RelativeLayout {
 		int colorSize = (int) getResources().getDimension(R.dimen.color_size);
 		LayoutParams lp = new LayoutParams(colorSize, colorSize);
 		View view;
-		for (int color : ColorPalettes.Get(mPattern.getPaletteId()).getColors()) {
-			view = new View(getContext());
-			view.setBackgroundColor(color);
-			mPaletteLayout.addView(view, lp);
+		if (mPattern.getPaletteId() > -1) {
+			for (int color : ColorPalettes.Get(mPattern.getPaletteId()).getColors()) {
+				view = new View(getContext());
+				view.setBackgroundColor(color);
+				mPaletteLayout.addView(view, lp);
+			}
 		}
 	}
-
 }

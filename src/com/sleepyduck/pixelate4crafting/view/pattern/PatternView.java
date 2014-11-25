@@ -21,6 +21,7 @@ public class PatternView extends ViewGroup {
 
 	private Pattern mPattern;
 	private int mPadding;
+	private int mVisibleMenu;
 
 	public PatternView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -44,6 +45,7 @@ public class PatternView extends ViewGroup {
 		setLayoutTransition(mLayoutTransition);
 
 		mPadding = (int) getResources().getDimension(R.dimen.padding);
+		mVisibleMenu = (int) getResources().getDimension(R.dimen.pattern_menu_collapsed);
 
 		mCanvasView = new PatternCanvasView(getContext());
 		mCanvasView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
@@ -69,15 +71,16 @@ public class PatternView extends ViewGroup {
 		int heightMeasuredMenuSize = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
 		mMenuSizeView.measure(widthMeasuredMenuSize, heightMeasuredMenuSize);
 
+		int widthMeasuredMenu = MeasureSpec.makeMeasureSpec((int) (width * 0.8), MeasureSpec.EXACTLY);
+		int heightMeasuredMenu = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
+		mMenuView.measure(widthMeasuredMenu, heightMeasuredMenu);
+
 		int widthOffset = (mMenuSizeView.getState() == MENU_STATE.STATE_EXPANDED ? mMenuSizeView.getMeasuredWidth() : 0);
+		widthOffset = Math.max(widthOffset, mVisibleMenu);
 		int widthMeasuredCanvas = MeasureSpec.makeMeasureSpec(width - mPadding * 2 - widthOffset, MeasureSpec.EXACTLY);
 		int heightMeasuredCanvas = MeasureSpec.makeMeasureSpec(height - mPadding * 2, MeasureSpec.EXACTLY);
 		BetterLog.d(this, "widthOffset = " + widthOffset);
 		mCanvasView.measure(widthMeasuredCanvas, heightMeasuredCanvas);
-
-		int widthMeasuredMenu = MeasureSpec.makeMeasureSpec((int) (width * 0.8), MeasureSpec.EXACTLY);
-		int heightMeasuredMenu = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-		mMenuView.measure(widthMeasuredMenu, heightMeasuredMenu);
 	}
 
 	@Override
@@ -86,25 +89,17 @@ public class PatternView extends ViewGroup {
 			case STATE_COLLAPSED:
 				BetterLog.d(this);
 				mMenuSizeView.layout(0 - mMenuSizeView.getMeasuredWidth(), 0, 0, mMenuSizeView.getMeasuredHeight());
-				mCanvasView.layout(mPadding, mPadding, mCanvasView.getMeasuredWidth() + mPadding,
-						mCanvasView.getMeasuredHeight() + mPadding);
 				break;
 			case STATE_EXPANDED:
 				BetterLog.d(this);
 				mMenuSizeView.layout(0, 0, mMenuSizeView.getMeasuredWidth(), mMenuSizeView.getMeasuredHeight());
-				mCanvasView.layout(mPadding + mMenuSizeView.getMeasuredWidth(), mPadding,
-						mCanvasView.getMeasuredWidth() + mPadding + mMenuSizeView.getMeasuredWidth(),
-						mCanvasView.getMeasuredHeight() + mPadding);
 				break;
 			default:
 				break;
 		}
-		mCanvasView.layout(mPadding, mPadding, mCanvasView.getMeasuredWidth() + mPadding,
-				mCanvasView.getMeasuredHeight() + mPadding);
 		switch (mMenuView.getState()) {
 			case STATE_COLLAPSED:
-				int visibleMenu = (int) getResources().getDimension(R.dimen.pattern_menu_collapsed);
-				mMenuView.layout(visibleMenu - mMenuView.getMeasuredWidth(), 0, visibleMenu,
+				mMenuView.layout(mVisibleMenu - mMenuView.getMeasuredWidth(), 0, mVisibleMenu,
 						mMenuView.getMeasuredHeight());
 				break;
 			case STATE_EXPANDED:
@@ -113,6 +108,10 @@ public class PatternView extends ViewGroup {
 			default:
 				break;
 		}
+		int widthOffset = (mMenuSizeView.getState() == MENU_STATE.STATE_EXPANDED ? mMenuSizeView.getMeasuredWidth() : 0);
+		widthOffset = Math.max(widthOffset, mVisibleMenu);
+		mCanvasView.layout(mPadding + widthOffset, mPadding, mCanvasView.getMeasuredWidth() + mPadding + widthOffset,
+				mCanvasView.getMeasuredHeight() + mPadding);
 	}
 
 	public PatternCanvasView getCanvasView() {

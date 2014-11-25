@@ -17,7 +17,8 @@
         <com.sleepyduck.pixelate4crafting.view.pattern.ListPatternView
             android:id="@+id/patterns_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            orientation="vertical" />
     </LinearLayout>
 
 </ScrollView>

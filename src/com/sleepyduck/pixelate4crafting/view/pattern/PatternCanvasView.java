@@ -2,14 +2,15 @@ package com.sleepyduck.pixelate4crafting.view.pattern;
 
 import java.util.Arrays;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
-import com.sleepyduck.pixelate4crafting.data.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.data.Constants;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -21,13 +22,10 @@ public class PatternCanvasView extends ImageView {
 		Average, Median
 	}
 
-	private static int UPDATE_FREQUENCE = 5;
-
-	private int mPixelsWidth;
-	private int mPixelsHeight;
+	private int mPixelsWidth = Constants.NUM_PIXELS;
+	private int mPixelsHeight = Constants.NUM_PIXELS;
 	private Bitmap mImageBitmap;
 	private Bitmap mPixelBitmap;
-	//private Bitmap mDrawBitmap;
 	private BitmapAsyncTask mBitmapAsyncTask = new BitmapAsyncTask();
 	private ColorSelectionModel mColorSelectionModel = ColorSelectionModel.Median;
 
@@ -54,6 +52,9 @@ public class PatternCanvasView extends ImageView {
 		Parcelable superState = super.onSaveInstanceState();
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("super", superState);
+		bundle.putInt("pixel_width", mPixelsWidth);
+		bundle.putInt("pixel_height", mPixelsHeight);
+		bundle.putSerializable("color_model", mColorSelectionModel);
 		bundle.putParcelable("image_bitmap", mImageBitmap);
 		bundle.putParcelable("pixel_bitmap", mPixelBitmap);
 		return bundle;
@@ -63,22 +64,26 @@ public class PatternCanvasView extends ImageView {
 	protected void onRestoreInstanceState(Parcelable state) {
 		if (state instanceof Bundle) {
 			Bundle bundle = (Bundle) state;
+			mPixelsWidth = bundle.getInt("pixel_width");
+			mPixelsHeight = bundle.getInt("pixel_height");
+			mColorSelectionModel = (ColorSelectionModel) bundle.getSerializable("color_model");
 			mPixelBitmap = (Bitmap) bundle.get("pixel_bitmap");
 			setImageBitmap((Bitmap) bundle.get("image_bitmap"));
+			super.setImageBitmap(mPixelBitmap);
 			super.onRestoreInstanceState(bundle.getParcelable("super"));
 		}
 	}
 
 	@Override
 	public void setImageBitmap(Bitmap bm) {
-		BetterLog.d(this);
-		mImageBitmap = bm;
-		mPixelsWidth = Constants.NUM_PIXELS;
-		mPixelsHeight = Constants.NUM_PIXELS * bm.getHeight() / bm.getWidth();
-		executeRedraw();
+		if (bm != null) {
+			mImageBitmap = bm;
+			setPixelHeight(mPixelsWidth * bm.getHeight() / bm.getWidth());
+			executeRedraw();
+		}
 	}
 
-	private void executeRedraw() {
+	public void executeRedraw() {
 		mBitmapAsyncTask.cancel(true);
 		mBitmapAsyncTask = new BitmapAsyncTask();
 		mBitmapAsyncTask.execute(mImageBitmap);
@@ -91,96 +96,165 @@ public class PatternCanvasView extends ImageView {
 
 	public void setColorSelectionModel(ColorSelectionModel model) {
 		if (mColorSelectionModel != model) {
-			BetterLog.d(this);
 			mColorSelectionModel = model;
 			executeRedraw();
 		}
 	}
 
 	private final class BitmapAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
-		int[] pixels;
+		int mPixelSize;
+		private int[][] mPixels;
 
 		@Override
 		protected Bitmap doInBackground(Bitmap... params) {
-			BetterLog.d(this);
 			Bitmap bitmap = params[0];
-			if (bitmap == null) {
+			if (bitmap == null || getWidth() == 0) {
 				return null;
 			}
-			if (mPixelBitmap == null || mPixelBitmap.getWidth() != bitmap.getWidth()
-					|| mPixelBitmap.getHeight() != bitmap.getHeight()) {
-				mPixelBitmap = bitmap.copy(bitmap.getConfig(), true);
-				//mDrawBitmap = bitmap.copy(bitmap.getConfig(), true);
-			}
-			int pixelWidth = bitmap.getWidth() / mPixelsWidth;
-			int pixelHeight = bitmap.getHeight() / mPixelsHeight;
-			int tmpPixelsWidth = bitmap.getWidth() / pixelWidth;
-			int tmpPixelsHeight = bitmap.getHeight() / pixelHeight;
-			pixels = new int[pixelWidth * pixelHeight];
-			BetterLog.d(this, "bitmapWidth = " + bitmap.getWidth() + ", bitmapHeight = " + bitmap.getHeight()
-					+ ", pixelWidth = " + pixelWidth + ", pixelHeight = " + pixelHeight + ", mPixelsWidth = "
-					+ mPixelsWidth + ", mPixelsHeight = " + mPixelsHeight + "");
-			int updateCounter = 0;
-			for (int y = 0; y < tmpPixelsHeight; ++y) {
-				for (int x = 0; x < tmpPixelsWidth; ++x) {
-					int color = getColor(bitmap, x * pixelWidth, y * pixelHeight, pixelWidth, pixelHeight);
-					Arrays.fill(pixels, color);
-					BitmapHandler.setPixels(mPixelBitmap, pixels, x * pixelWidth, y * pixelHeight, pixelWidth,
+
+			mPixels = new int[mPixelsWidth][mPixelsHeight];
+			float pixelWidth = (float) bitmap.getWidth() / (float) mPixelsWidth;
+			float pixelHeight = (float) bitmap.getHeight() / (float) mPixelsHeight;
+			for (int y = 0; y < mPixelsHeight; ++y) {
+				for (int x = 0; x < mPixelsWidth; ++x) {
+					int color = getColor(bitmap, (float) x * pixelWidth, (float) y * pixelHeight, pixelWidth,
 							pixelHeight);
+					mPixels[x][y] = color;
 				}
-				Arrays.fill(pixels, Color.WHITE);
-				BitmapHandler.setPixels(mPixelBitmap, pixels, tmpPixelsWidth * pixelWidth, tmpPixelsHeight
-						* pixelHeight, mPixelBitmap.getWidth() - tmpPixelsWidth * pixelWidth - 1,
-						mPixelBitmap.getHeight() - tmpPixelsHeight * pixelHeight - 1);
 				if (isCancelled()) {
 					return null;
-				} else if (updateCounter++ >= UPDATE_FREQUENCE) {
-					publishProgress(mPixelBitmap);//.copy(bitmap.getConfig(), false));
-					updateCounter = 0;
 				}
 			}
-			return mPixelBitmap;//.copy(bitmap.getConfig(), false);
+
+			boolean drawGrid = true;
+			mPixelSize = Math.min(getWidth() / mPixelsWidth, getHeight() / mPixelsHeight);
+			if (drawGrid) {
+				mPixelSize++;
+			}
+			int resultWidth = mPixelsWidth * mPixelSize;
+			int resultHeight = mPixelsHeight * mPixelSize;
+			if (drawGrid) {
+				resultWidth += mPixelSize;
+				resultHeight += mPixelSize;
+			}
+			mPixelBitmap = Bitmap.createBitmap(resultWidth, resultHeight, Config.ARGB_8888);
+			for (int y = 0; y < mPixelsHeight; ++y) {
+				for (int x = 0; x < mPixelsWidth; ++x) {
+					setColor(mPixelBitmap, mPixels[x][y], x, y, drawGrid);
+				}
+				if (isCancelled()) {
+					return null;
+				}
+			}
+			if (drawGrid) {
+				for (int y = 0; y <= mPixelsHeight; ++y) {
+					for (int x = 0; x <= mPixelsWidth; ++x) {
+						drawGrid(mPixelBitmap, x, y);
+					}
+					if (isCancelled()) {
+						return null;
+					}
+				}
+			}
+
+			return mPixelBitmap;
 		}
 
-		private int getColor(Bitmap bitmap, int x, int y, int pixelWidth, int pixelHeight) {
+		private void drawGrid(Bitmap bitmap, int x, int y) {
+			boolean isTenthY = (y % 10 == 0);
+			boolean isTenthX = (x % 10 == 0);
+			for (int Y = y * mPixelSize; Y < (y + 1) * mPixelSize; ++Y) {
+				int X = (x + 1) * mPixelSize - 1;
+				if (isTenthX || y > 0) {
+					bitmap.setPixel(X, Y, Color.BLACK);
+				}
+				if (isTenthX) {
+					bitmap.setPixel(X - 1, Y, Color.BLACK);
+				}
+			}
+			for (int X = x * mPixelSize; X < (x + 1) * mPixelSize; ++X) {
+				int Y = (y + 1) * mPixelSize - 1;
+				if (isTenthY || x > 0) {
+					bitmap.setPixel(X, Y, Color.BLACK);
+				}
+				if (isTenthY) {
+					bitmap.setPixel(X, Y - 1, Color.BLACK);
+				}
+			}
+		}
+
+		private void setColor(Bitmap bitmap, int color, int x, int y, boolean drawGrid) {
+			if (drawGrid) {
+				x++;
+				y++;
+			}
+			for (int Y = y * mPixelSize; Y < (y + 1) * mPixelSize; ++Y) {
+				for (int X = x * mPixelSize; X < (x + 1) * mPixelSize; ++X) {
+					bitmap.setPixel(X, Y, color);
+				}
+			}
+		}
+
+		private int getColor(Bitmap bitmap, float x, float y, float width, float height) {
 			switch (mColorSelectionModel) {
 				case Median:
-					return bitmap.getPixel(x + pixelWidth / 2, y + pixelHeight / 2);
+					return bitmap.getPixel((int) (x + width / 2.0), (int) (y + height / 2.0));
 				case Average:
-					BitmapHandler.getPixels(bitmap, pixels, x, y, pixelWidth, pixelHeight);
-					return getAverageValue(pixels);
+					int intX = (int) x;
+					int intY = (int) y;
+					int intW = (int) Math.ceil(x + width) - intX;
+					int intH = (int) Math.ceil(y + height) - intY;
+					float weightMinX = (float) (intX + 1) - x;
+					float weightMaxX = x + width - (float) (intW - 1) - intX;
+					float weightMinY = (float) (intY + 1) - y;
+					float weightMaxY = y + height - (float) (intH - 1) - intY;
+					double A = 0,
+					R = 0,
+					G = 0,
+					B = 0;
+					int color;
+					double weight,
+					totalWeight = 0;
+					for (int X = intX; X < intX + intW; ++X) {
+						for (int Y = intY; Y < intY + intH; ++Y) {
+							// Due to rounding errors we need to check if we are
+							// within the bitmap
+							if (X >= bitmap.getWidth() || Y >= bitmap.getHeight()) {
+								color = 0;
+								weight = 0;
+							} else {
+								color = bitmap.getPixel(X, Y);
+								weight = 1;
+								if (X == intX) {
+									weight *= weightMinX;
+								} else if (X == intX + intW - 1) {
+									weight *= weightMaxX;
+								}
+								if (Y == intY) {
+									weight *= weightMinY;
+								} else if (Y == intY + intH - 1) {
+									weight *= weightMaxY;
+								}
+							}
+							totalWeight += weight;
+							A += Color.alpha(color) * weight;
+							R += Color.red(color) * weight;
+							G += Color.green(color) * weight;
+							B += Color.blue(color) * weight;
+						}
+					}
+					A /= totalWeight;
+					R /= totalWeight;
+					G /= totalWeight;
+					B /= totalWeight;
+					return Color.argb((int) A, (int) R, (int) G, (int) B);
 			}
 			return Color.TRANSPARENT;
-		}
-
-		private int getAverageValue(int[] pixels) {
-			long A = 0, R = 0, G = 0, B = 0;
-			for (int color : pixels) {
-				A += Color.alpha(color);
-				R += Color.red(color);
-				G += Color.green(color);
-				B += Color.blue(color);
-			}
-			int length = pixels.length;
-			A /= length;
-			R /= length;
-			G /= length;
-			B /= length;
-			return Color.argb((int) A, (int) R, (int) G, (int) B);
-		}
-
-		@Override
-		protected void onProgressUpdate(Bitmap... values) {
-			//mDrawBitmap.recycle();
-			//mDrawBitmap = values[0];
-			PatternCanvasView.super.setImageBitmap(values[0]);
 		}
 
 		@Override
 		protected void onPostExecute(Bitmap bitmap) {
 			if (bitmap != null) {
-				//mDrawBitmap.recycle();
-				//mDrawBitmap = bitmap;
 				PatternCanvasView.super.setImageBitmap(bitmap);
 			}
 		}
@@ -203,6 +277,14 @@ public class PatternCanvasView extends ImageView {
 	public void setPixelHeight(int newVal) {
 		mPixelsHeight = newVal;
 		executeRedraw();
+	}
+
+	public int getBitmapWidth() {
+		return mImageBitmap.getWidth();
+	}
+
+	public int getBitmapHeight() {
+		return mImageBitmap.getHeight();
 	}
 
 }

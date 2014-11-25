@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 
 public class ListPatternActivity extends Activity implements OnClickListener {
 
@@ -36,17 +38,73 @@ public class ListPatternActivity extends Activity implements OnClickListener {
 			item.setPattern(pattern);
 			listPattern.addPattern(item);
 		}
+
+		Button button = new Button(this);
+		button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		int padding = (int) getResources().getDimension(R.dimen.padding);
+		button.setPadding(padding, padding, padding, padding);
+		button.setText(R.string.new_pattern);
+		listPattern.addView(button);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Pattern pattern = new Pattern("New Pattern");
+				Patterns.Add(pattern);
+				launch(pattern.Id);
+			}
+		});
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		setContentView(R.layout.activity_list_patterns);
+		getActionBar().setTitle(R.string.patterns);
+		getActionBar().setHomeButtonEnabled(true);
+
+		ListPatternView listPattern = (ListPatternView) findViewById(R.id.patterns_list);
+		listPattern.removeAllViews();
+		List<Pattern> patterns = new ArrayList<Pattern>(Patterns.GetPatterns());
+		Collections.sort(patterns);
+		ListPatternItemView item;
+
+		for (Pattern pattern : patterns) {
+			item = (ListPatternItemView) View.inflate(this, R.layout.list_pattern_item_view, null);
+			item.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+			item.setOnClickListener(this);
+			item.setPattern(pattern);
+			listPattern.addPattern(item);
+		}
+
+		Button button = new Button(this);
+		button.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+		int padding = (int) getResources().getDimension(R.dimen.padding);
+		button.setPadding(padding, padding, padding, padding);
+		button.setText(R.string.new_pattern);
+		listPattern.addView(button);
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Pattern pattern = new Pattern("New Pattern");
+				Patterns.Add(pattern);
+				launch(pattern.Id);
+			}
+		});
 	}
 
 	@Override
 	public void onClick(View view) {
 		if (view instanceof ListPatternItemView) {
-			Intent intent = new Intent(this, PatternActivity.class);
-			intent.putExtra(Patterns.INTENT_EXTRA_ID, ((ListPatternItemView) view).getPattern().Id);
-			startActivity(intent);
+			launch(((ListPatternItemView) view).getPattern().Id);
 		}
 	}
-	
+
+	private void launch(int patternId) {
+		Intent intent = new Intent(this, PatternActivity.class);
+		intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
+		startActivity(intent);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		BetterLog.d(this, "" + item + ", " + item.getOrder());

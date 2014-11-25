@@ -31,8 +31,5 @@ public class MenuActivity extends Activity {
     }
     
     public void onShortCutClicked(View view) {
-    	Intent intent = new Intent(this, PatternActivity.class);
-    	intent.putExtra(Patterns.INTENT_EXTRA_ID, 1);
-    	startActivity(intent);
     }
 }

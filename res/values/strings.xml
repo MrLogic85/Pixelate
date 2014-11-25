@@ -11,5 +11,6 @@
     <string name="pixels_height">Height</string>
     <string name="change_size">Change size</string>
     <string name="square_pixels">Square</string>
+    <string name="new_pattern">Add new pattern</string>
 
 </resources>
