@@ -4,7 +4,6 @@ import java.util.List;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.R.dimen;
 import com.sleepyduck.pixelate4crafting.data.ColorPalettes.Palette;
 
 import android.content.Context;

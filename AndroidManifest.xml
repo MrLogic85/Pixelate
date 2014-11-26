@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sleepyduck.pixelate4crafting"
-    android:versionCode="3"
-    android:versionName="0.14.11.26.1" >
+    android:versionCode="4"
+    android:versionName="0.14.11.26.2" >
 
     <uses-sdk
-        android:minSdkVersion="19"
+        android:minSdkVersion="4"
         android:targetSdkVersion="19" />
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

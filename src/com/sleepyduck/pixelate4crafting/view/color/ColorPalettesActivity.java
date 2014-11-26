@@ -1,7 +1,6 @@
 package com.sleepyduck.pixelate4crafting.view.color;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.R.layout;
 import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
 
 import android.app.Activity;

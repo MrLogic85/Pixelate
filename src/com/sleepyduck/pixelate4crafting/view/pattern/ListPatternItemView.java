@@ -6,7 +6,6 @@ import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
 import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
 
 import android.content.Context;
-import android.media.ThumbnailUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;

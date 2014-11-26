@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
-import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
