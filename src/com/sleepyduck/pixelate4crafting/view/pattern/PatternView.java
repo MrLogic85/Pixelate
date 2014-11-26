@@ -1,14 +1,11 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.data.Constants;
 import com.sleepyduck.pixelate4crafting.data.Constants.MENU_STATE;
 import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
-import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 
@@ -19,7 +16,6 @@ public class PatternView extends ViewGroup {
 	private PatternCanvasView mCanvasView;
 	private PatternMenuSizeView mMenuSizeView;
 
-	private Pattern mPattern;
 	private int mPadding;
 	private int mVisibleMenu;
 
@@ -35,7 +31,7 @@ public class PatternView extends ViewGroup {
 
 	public PatternView(Context context, Pattern pattern) {
 		super(context);
-		mPattern = pattern;
+		//mPattern = pattern;
 		setup();
 	}
 
@@ -79,7 +75,6 @@ public class PatternView extends ViewGroup {
 		widthOffset = Math.max(widthOffset, mVisibleMenu);
 		int widthMeasuredCanvas = MeasureSpec.makeMeasureSpec(width - mPadding * 2 - widthOffset, MeasureSpec.EXACTLY);
 		int heightMeasuredCanvas = MeasureSpec.makeMeasureSpec(height - mPadding * 2, MeasureSpec.EXACTLY);
-		BetterLog.d(this, "widthOffset = " + widthOffset);
 		mCanvasView.measure(widthMeasuredCanvas, heightMeasuredCanvas);
 	}
 
@@ -87,11 +82,9 @@ public class PatternView extends ViewGroup {
 	protected void onLayout(boolean changed, int l, int t, int r, int b) {
 		switch (mMenuSizeView.getState()) {
 			case STATE_COLLAPSED:
-				BetterLog.d(this);
 				mMenuSizeView.layout(0 - mMenuSizeView.getMeasuredWidth(), 0, 0, mMenuSizeView.getMeasuredHeight());
 				break;
 			case STATE_EXPANDED:
-				BetterLog.d(this);
 				mMenuSizeView.layout(0, 0, mMenuSizeView.getMeasuredWidth(), mMenuSizeView.getMeasuredHeight());
 				break;
 			default:

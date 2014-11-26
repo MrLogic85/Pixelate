@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.data.Constants;
 import com.sleepyduck.pixelate4crafting.data.Constants.MENU_STATE;
@@ -13,7 +12,6 @@ import android.widget.LinearLayout;
 
 public class PatternMenuView extends LinearLayout {
 	private Constants.MENU_STATE mState = MENU_STATE.STATE_COLLAPSED;
-	private Pattern mPattern;
 
 	public PatternMenuView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -47,7 +45,6 @@ public class PatternMenuView extends LinearLayout {
 
 	@Override
 	public boolean onInterceptTouchEvent(MotionEvent ev) {
-		BetterLog.d(this);
 		if (mState == MENU_STATE.STATE_COLLAPSED) {
 			mState = MENU_STATE.STATE_EXPANDED;
 			requestLayout();

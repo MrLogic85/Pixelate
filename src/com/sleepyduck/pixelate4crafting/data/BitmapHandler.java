@@ -1,5 +1,7 @@
 package com.sleepyduck.pixelate4crafting.data;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -7,11 +9,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
+import com.sleepyduck.pixelate4crafting.R;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 
@@ -48,14 +53,27 @@ public class BitmapHandler {
 		try {
 			InputStream is = context.getContentResolver().openInputStream(uri);
 			File file = new File(context.getFilesDir(), fileName);
-			FileOutputStream os = new FileOutputStream(file);
+			FileOutputStream fos = new FileOutputStream(file);
 			byte[] buffer = new byte[256];
 			int read = 0;
 			do {
 				read = is.read(buffer);
-				os.write(buffer, 0, read);
+				fos.write(buffer, 0, read);
 			} while (read == buffer.length);
-			os.close();
+			is.close();
+			fos.close();
+
+			// Store thumbnail
+			int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
+			Bitmap thumb = ThumbnailUtils.extractThumbnail(getFromFileName(context, fileName), thumbSize, thumbSize);
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			thumb.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
+			byte[] bitmapdata = bos.toByteArray();
+			file = new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL);
+			fos = new FileOutputStream(file);
+			fos.write(bitmapdata, 0, bitmapdata.length);
+			bos.close();
+			fos.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

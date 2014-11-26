@@ -1,10 +1,12 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.data.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
 import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
 
 import android.content.Context;
+import android.media.ThumbnailUtils;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ImageView;
@@ -39,6 +41,7 @@ public class ListPatternItemView extends RelativeLayout {
 		mTitleView = (TextView) findViewById(R.id.titleView);
 		mPaletteLayout = (LinearLayout) findViewById(R.id.palette);
 		mPicture = (ImageView) findViewById(R.id.imageView);
+
 		mTitleView.setText(mPattern.getTitle());
 		int colorSize = (int) getResources().getDimension(R.dimen.color_size);
 		LayoutParams lp = new LayoutParams(colorSize, colorSize);
@@ -49,6 +52,10 @@ public class ListPatternItemView extends RelativeLayout {
 				view.setBackgroundColor(color);
 				mPaletteLayout.addView(view, lp);
 			}
+		}
+
+		if (mPattern.getFileNameThumbnail() != null && mPattern.getFileNameThumbnail().length() > 0) {
+			mPicture.setImageBitmap(BitmapHandler.getFromFileName(getContext(), mPattern.getFileNameThumbnail()));
 		}
 	}
 }

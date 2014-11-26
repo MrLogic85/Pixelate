@@ -1,17 +1,12 @@
 package com.sleepyduck.pixelate4crafting.view.pattern;
 
-import java.util.Arrays;
-
-import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.data.Constants;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -26,7 +21,6 @@ public class PatternCanvasView extends ImageView {
 	private int mPixelsWidth = Constants.NUM_PIXELS;
 	private int mPixelsHeight = Constants.NUM_PIXELS;
 	private Bitmap mImageBitmap;
-	private Bitmap mPixelBitmap;
 	private BitmapAsyncTask mBitmapAsyncTask = new BitmapAsyncTask();
 	private ColorSelectionModel mColorSelectionModel = ColorSelectionModel.Median;
 
@@ -57,7 +51,6 @@ public class PatternCanvasView extends ImageView {
 		bundle.putInt("pixel_height", mPixelsHeight);
 		bundle.putSerializable("color_model", mColorSelectionModel);
 		bundle.putParcelable("image_bitmap", mImageBitmap);
-		bundle.putParcelable("pixel_bitmap", mPixelBitmap);
 		return bundle;
 	}
 
@@ -68,9 +61,7 @@ public class PatternCanvasView extends ImageView {
 			mPixelsWidth = bundle.getInt("pixel_width");
 			mPixelsHeight = bundle.getInt("pixel_height");
 			mColorSelectionModel = (ColorSelectionModel) bundle.getSerializable("color_model");
-			mPixelBitmap = (Bitmap) bundle.get("pixel_bitmap");
 			setImageBitmap((Bitmap) bundle.get("image_bitmap"));
-			super.setImageBitmap(mPixelBitmap);
 			super.onRestoreInstanceState(bundle.getParcelable("super"));
 		}
 	}
@@ -78,15 +69,12 @@ public class PatternCanvasView extends ImageView {
 	@Override
 	public void setImageBitmap(Bitmap bm) {
 		if (bm != null) {
-			BetterLog.d(this);
 			mImageBitmap = bm;
-			setPixelHeight(mPixelsWidth * bm.getHeight() / bm.getWidth());
 			executeRedraw();
 		}
 	}
 
 	public void executeRedraw() {
-		BetterLog.d(this);
 		mBitmapAsyncTask.cancel(true);
 		mBitmapAsyncTask = new BitmapAsyncTask();
 		mBitmapAsyncTask.execute(mImageBitmap);
@@ -105,57 +93,59 @@ public class PatternCanvasView extends ImageView {
 	}
 
 	private final class BitmapAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
-		int mPixelSize;
-		private int[][] mPixels;
+		int pixelSize;
+		private int[][] pixels;
+		private Bitmap pixelBitmap;
+		int pixelsWidth, pixelsHeight;
 
 		@Override
 		protected Bitmap doInBackground(Bitmap... params) {
-			BetterLog.d(this);
 			Bitmap bitmap = params[0];
 			if (bitmap == null || getWidth() == 0) {
 				return null;
 			}
+			
+			pixelsWidth = mPixelsWidth;
+			pixelsHeight = mPixelsHeight;
 
-			BetterLog.d(this);
-			mPixels = new int[mPixelsWidth][mPixelsHeight];
-			float pixelWidth = (float) bitmap.getWidth() / (float) mPixelsWidth;
-			float pixelHeight = (float) bitmap.getHeight() / (float) mPixelsHeight;
-			for (int y = 0; y < mPixelsHeight; ++y) {
-				for (int x = 0; x < mPixelsWidth; ++x) {
+			pixels = new int[pixelsWidth][pixelsHeight];
+			float pixelWidth = (float) bitmap.getWidth() / (float) pixelsWidth;
+			float pixelHeight = (float) bitmap.getHeight() / (float) pixelsHeight;
+			for (int y = 0; y < pixelsHeight; ++y) {
+				for (int x = 0; x < pixelsWidth; ++x) {
 					int color = getColor(bitmap, (float) x * pixelWidth, (float) y * pixelHeight, pixelWidth,
 							pixelHeight);
-					mPixels[x][y] = color;
+					pixels[x][y] = color;
 				}
 				if (isCancelled()) {
 					return null;
 				}
 			}
 
-			BetterLog.d(this);
 			boolean drawGrid = true;
-			mPixelSize = Math.min(getWidth() / mPixelsWidth, getHeight() / mPixelsHeight);
+			pixelSize = Math.min(getWidth() / pixelsWidth, getHeight() / pixelsHeight);
 			if (drawGrid) {
-				mPixelSize++;
+				pixelSize++;
 			}
-			int resultWidth = mPixelsWidth * mPixelSize;
-			int resultHeight = mPixelsHeight * mPixelSize;
+			int resultWidth = pixelsWidth * pixelSize;
+			int resultHeight = pixelsHeight * pixelSize;
 			if (drawGrid) {
-				resultWidth += mPixelSize;
-				resultHeight += mPixelSize;
+				resultWidth += pixelSize;
+				resultHeight += pixelSize;
 			}
-			mPixelBitmap = Bitmap.createBitmap(resultWidth, resultHeight, Config.ARGB_8888);
-			for (int y = 0; y < mPixelsHeight; ++y) {
-				for (int x = 0; x < mPixelsWidth; ++x) {
-					setColor(mPixelBitmap, mPixels[x][y], x, y, drawGrid);
+			pixelBitmap = Bitmap.createBitmap(resultWidth, resultHeight, Config.ARGB_8888);
+			for (int y = 0; y < pixelsHeight; ++y) {
+				for (int x = 0; x < pixelsWidth; ++x) {
+					setColor(pixelBitmap, pixels[x][y], x, y, drawGrid);
 				}
 				if (isCancelled()) {
 					return null;
 				}
 			}
 			if (drawGrid) {
-				for (int y = 0; y <= mPixelsHeight; ++y) {
-					for (int x = 0; x <= mPixelsWidth; ++x) {
-						drawGrid(mPixelBitmap, x, y);
+				for (int y = 0; y <= pixelsHeight; ++y) {
+					for (int x = 0; x <= pixelsWidth; ++x) {
+						drawGrid(pixelBitmap, x, y);
 					}
 					if (isCancelled()) {
 						return null;
@@ -163,15 +153,14 @@ public class PatternCanvasView extends ImageView {
 				}
 			}
 
-			BetterLog.d(this);
-			return mPixelBitmap;
+			return pixelBitmap;
 		}
 
 		private void drawGrid(Bitmap bitmap, int x, int y) {
 			boolean isTenthY = (y % 10 == 0);
 			boolean isTenthX = (x % 10 == 0);
-			for (int Y = y * mPixelSize; Y < (y + 1) * mPixelSize; ++Y) {
-				int X = (x + 1) * mPixelSize - 1;
+			for (int Y = y * pixelSize; Y < (y + 1) * pixelSize; ++Y) {
+				int X = (x + 1) * pixelSize - 1;
 				if (isTenthX || y > 0) {
 					bitmap.setPixel(X, Y, Color.BLACK);
 				}
@@ -179,8 +168,8 @@ public class PatternCanvasView extends ImageView {
 					bitmap.setPixel(X - 1, Y, Color.BLACK);
 				}
 			}
-			for (int X = x * mPixelSize; X < (x + 1) * mPixelSize; ++X) {
-				int Y = (y + 1) * mPixelSize - 1;
+			for (int X = x * pixelSize; X < (x + 1) * pixelSize; ++X) {
+				int Y = (y + 1) * pixelSize - 1;
 				if (isTenthY || x > 0) {
 					bitmap.setPixel(X, Y, Color.BLACK);
 				}
@@ -195,8 +184,8 @@ public class PatternCanvasView extends ImageView {
 				x++;
 				y++;
 			}
-			for (int Y = y * mPixelSize; Y < (y + 1) * mPixelSize; ++Y) {
-				for (int X = x * mPixelSize; X < (x + 1) * mPixelSize; ++X) {
+			for (int Y = y * pixelSize; Y < (y + 1) * pixelSize; ++Y) {
+				for (int X = x * pixelSize; X < (x + 1) * pixelSize; ++X) {
 					bitmap.setPixel(X, Y, color);
 				}
 			}

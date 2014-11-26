@@ -51,13 +51,16 @@ public class PatternActivity extends Activity {
 		});
 		mView.getCanvasView().setId(CANVAS_VIEW_ID);
 		mView.getCanvasView().setScaleType(ScaleType.FIT_CENTER);
+		mView.getCanvasView().setPixelWidth(mPattern.getPixelWidth());
+		mView.getCanvasView().setPixelHeight(mPattern.getPixelHeight());
 
 		getActionBar().setTitle(mPattern.getTitle());
 		getActionBar().setHomeButtonEnabled(true);
 
 		mWidthPicker = (NumberPicker) findViewById(R.id.width_number);
-		mWidthPicker.setMaxValue(1000);
+		mWidthPicker.setMaxValue(Constants.MAX_PIXELS);
 		mWidthPicker.setMinValue(1);
+		mWidthPicker.setValue(mPattern.getPixelWidth());
 		mWidthPicker.setOnValueChangedListener(new OnValueChangeListener() {
 			@Override
 			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -69,12 +72,16 @@ public class PatternActivity extends Activity {
 					mHeightPicker.setValue(newHeight);
 					canvasView.setPixelWidth(newVal);
 					canvasView.setPixelHeight(newHeight);
+					mPattern.setPixelWidth(newVal);
+					mPattern.setPixelHeight(newHeight);
+					Patterns.Save(PatternActivity.this);
 				}
 			}
 		});
 		mHeightPicker = (NumberPicker) findViewById(R.id.height_number);
-		mHeightPicker.setMaxValue(1000);
+		mHeightPicker.setMaxValue(Constants.MAX_PIXELS);
 		mHeightPicker.setMinValue(1);
+		mHeightPicker.setValue(mPattern.getPixelHeight());
 		mHeightPicker.setOnValueChangedListener(new OnValueChangeListener() {
 			@Override
 			public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -86,6 +93,9 @@ public class PatternActivity extends Activity {
 					mWidthPicker.setValue(newWidth);
 					canvasView.setPixelHeight(newVal);
 					canvasView.setPixelWidth(newWidth);
+					mPattern.setPixelWidth(newWidth);
+					mPattern.setPixelHeight(newVal);
+					Patterns.Save(PatternActivity.this);
 				}
 			}
 		});
@@ -101,8 +111,6 @@ public class PatternActivity extends Activity {
 
 	@Override
 	protected void onResume() {
-		mWidthPicker.setValue(mView.getCanvasView().getPixelWidth());
-		mHeightPicker.setValue(mView.getCanvasView().getPixelHeight());
 		mView.getCanvasView().executeRedraw();
 		super.onResume();
 	}
@@ -166,15 +174,15 @@ public class PatternActivity extends Activity {
 	}
 
 	private void updateFile(String fileName) {
-		BetterLog.d(this);
 		if (fileName != null) {
 			Bitmap bitmap = BitmapHandler.getFromFileName(this, fileName);
 			if (bitmap != null) {
 				mView.getCanvasView().setImageBitmap(bitmap);
-				mWidthPicker.setMaxValue(Math.min(bitmap.getWidth(), Constants.MAX_PIXELS));
-				mHeightPicker.setMaxValue(Math.min(bitmap.getHeight(), Constants.MAX_PIXELS));
-				mWidthPicker.setValue(mView.getCanvasView().getPixelWidth());
-				mHeightPicker.setValue(mView.getCanvasView().getPixelHeight());
+				int height = mWidthPicker.getValue() * bitmap.getHeight() / bitmap.getWidth();
+				mView.getCanvasView().setPixelHeight(height);
+				mHeightPicker.setValue(height);
+				mPattern.setPixelHeight(height);
+				Patterns.Save(this);
 			} else {
 				BetterLog.d(this, "Found no bitmap");
 			}
