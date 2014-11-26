@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
+import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -52,6 +53,10 @@ public class Patterns {
 
 	public static void Add(Pattern pattern) {
 		MAP.put(pattern.Id, pattern);
+	}
+
+	public static void Remove(Pattern pattern) {
+		MAP.remove(pattern.Id);
 	}
 
 	public static Set<Integer> GetIds() {
