@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">Pixelate 4 Crafting</string>
     <string name="patterns">Patterns</string>
     <string name="colour_palettes">Colour palettes</string>
@@ -12,5 +10,4 @@
     <string name="change_size">Change size</string>
     <string name="square_pixels">Square</string>
     <string name="new_pattern">Add new pattern</string>
-
 </resources>
