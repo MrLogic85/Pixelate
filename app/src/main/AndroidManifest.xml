@@ -10,23 +10,26 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MenuActivity"
+            android:name=".old.MenuActivity"
             android:label="@string/app_name" >
+        </activity>
+        <activity
+            android:name=".old.view.color.ColorPalettesActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".old.view.pattern.ListPatternActivity"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".old.view.pattern.PatternActivity"
+            android:label="@string/app_name" />
+
+        <activity android:name=".MainActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.color.ColorPalettesActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.ListPatternActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.PatternActivity"
-            android:label="@string/app_name" />
     </application>
 
 </manifest>

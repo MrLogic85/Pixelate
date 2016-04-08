@@ -25,13 +25,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.color.ColorPalettesActivity"
+            android:name=".old.view.color.ColorPalettesActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.ListPatternActivity"
+            android:name=".old.view.pattern.ListPatternActivity"
             android:label="@string/app_name" />
         <activity
-            android:name="com.sleepyduck.pixelate4crafting.view.pattern.PatternActivity"
+            android:name=".old.view.pattern.PatternActivity"
             android:label="@string/app_name" />
     </application>
 

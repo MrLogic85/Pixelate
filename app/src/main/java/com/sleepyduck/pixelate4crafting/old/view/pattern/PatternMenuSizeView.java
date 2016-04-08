@@ -1,9 +1,9 @@
-package com.sleepyduck.pixelate4crafting.view.pattern;
+package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.data.Constants.MENU_STATE;
-import com.sleepyduck.pixelate4crafting.data.Patterns.Pattern;
+import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
+import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
 
 import android.content.Context;
 import android.util.AttributeSet;
