@@ -1,6 +1,6 @@
-package com.sleepyduck.pixelate4crafting.view.pattern;
+package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.data.Constants;
+import com.sleepyduck.pixelate4crafting.old.Constants;
 
 import android.content.Context;
 import android.graphics.Bitmap;

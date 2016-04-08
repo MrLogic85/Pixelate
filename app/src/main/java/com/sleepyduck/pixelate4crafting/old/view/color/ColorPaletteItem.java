@@ -1,10 +1,10 @@
-package com.sleepyduck.pixelate4crafting.view.color;
+package com.sleepyduck.pixelate4crafting.old.view.color;
 
 import java.util.List;
 
 import com.sleepyduck.pixelate4crafting.BetterLog;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.data.ColorPalettes.Palette;
+import com.sleepyduck.pixelate4crafting.old.ColorPalettes.Palette;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -1,9 +1,10 @@
-package com.sleepyduck.pixelate4crafting;
+package com.sleepyduck.pixelate4crafting.old;
 
-import com.sleepyduck.pixelate4crafting.data.ColorPalettes;
-import com.sleepyduck.pixelate4crafting.data.Patterns;
-import com.sleepyduck.pixelate4crafting.view.color.ColorPalettesActivity;
-import com.sleepyduck.pixelate4crafting.view.pattern.ListPatternActivity;
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.old.ColorPalettes;
+import com.sleepyduck.pixelate4crafting.old.Patterns;
+import com.sleepyduck.pixelate4crafting.old.view.color.ColorPalettesActivity;
+import com.sleepyduck.pixelate4crafting.old.view.pattern.ListPatternActivity;
 import android.view.View;
 import android.app.Activity;
 import android.content.Intent;

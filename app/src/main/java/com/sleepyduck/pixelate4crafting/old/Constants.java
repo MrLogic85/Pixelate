@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.data;
+package com.sleepyduck.pixelate4crafting.old;
 
 public class Constants {
 	public static final int NUM_PIXELS = 50;
