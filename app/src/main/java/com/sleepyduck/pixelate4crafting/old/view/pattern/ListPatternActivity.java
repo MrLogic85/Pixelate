@@ -1,16 +1,5 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.sleepyduck.pixelate4crafting.BetterLog;
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.Patterns;
-import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
-import com.sleepyduck.pixelate4crafting.old.view.LinearLayoutFling;
-import com.sleepyduck.pixelate4crafting.old.view.OnItemFlungListener;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +7,17 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.old.view.LinearLayoutFling;
+import com.sleepyduck.pixelate4crafting.old.view.OnItemFlungListener;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ListPatternActivity extends Activity implements OnClickListener, OnItemFlungListener {
 	private LinearLayoutFling mListPattern;

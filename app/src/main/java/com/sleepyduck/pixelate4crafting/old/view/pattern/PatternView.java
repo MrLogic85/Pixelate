@@ -1,13 +1,13 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
-import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
-
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
 
 public class PatternView extends ViewGroup {
 	private LayoutTransition mLayoutTransition;

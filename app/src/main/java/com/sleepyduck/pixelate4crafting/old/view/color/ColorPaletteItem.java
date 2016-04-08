@@ -1,16 +1,16 @@
 package com.sleepyduck.pixelate4crafting.old.view.color;
 
-import java.util.List;
-
-import com.sleepyduck.pixelate4crafting.BetterLog;
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.ColorPalettes.Palette;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.old.ColorPalettes.Palette;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
+
+import java.util.List;
 
 public class ColorPaletteItem extends LinearLayout {
 	TextView mTitle;

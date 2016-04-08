@@ -1,10 +1,5 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.old.ColorPalettes;
-import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -12,6 +7,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.old.ColorPalettes;
 
 public class ListPatternItemView extends RelativeLayout {
 	private Pattern mPattern;

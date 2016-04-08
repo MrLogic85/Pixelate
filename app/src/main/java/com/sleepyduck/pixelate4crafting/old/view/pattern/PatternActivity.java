@@ -1,14 +1,5 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.old.Constants;
-import com.sleepyduck.pixelate4crafting.old.Patterns;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
-import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
-import com.sleepyduck.pixelate4crafting.old.view.pattern.PatternCanvasView.ColorSelectionModel;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,10 +10,19 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.NumberPicker;
 import android.widget.ImageView.ScaleType;
+import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.ToggleButton;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.old.Constants;
+import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
+import com.sleepyduck.pixelate4crafting.old.view.pattern.PatternCanvasView.ColorSelectionModel;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class PatternActivity extends Activity {
 	private static final int REQUEST_IMAGE = 1;

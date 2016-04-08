@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.old.view;
+package com.sleepyduck.pixelate4crafting.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;

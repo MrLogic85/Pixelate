@@ -1,14 +1,14 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.Constants;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
-import com.sleepyduck.pixelate4crafting.old.Patterns.Pattern;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.LinearLayout;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.old.Constants;
+import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
 
 public class PatternMenuView extends LinearLayout {
 	private Constants.MENU_STATE mState = MENU_STATE.STATE_COLLAPSED;

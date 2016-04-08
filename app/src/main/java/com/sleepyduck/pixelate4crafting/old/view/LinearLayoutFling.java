@@ -1,7 +1,5 @@
 package com.sleepyduck.pixelate4crafting.old.view;
 
-import com.sleepyduck.pixelate4crafting.BetterLog;
-
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.graphics.Rect;
@@ -10,6 +8,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
+
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class LinearLayoutFling extends LinearLayout {
 	private LayoutTransition mLayoutTransition;

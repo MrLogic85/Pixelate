@@ -1,14 +1,14 @@
 package com.sleepyduck.pixelate4crafting.old;
 
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.old.ColorPalettes;
-import com.sleepyduck.pixelate4crafting.old.Patterns;
-import com.sleepyduck.pixelate4crafting.old.view.color.ColorPalettesActivity;
-import com.sleepyduck.pixelate4crafting.old.view.pattern.ListPatternActivity;
-import android.view.View;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+
+import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.old.view.color.ColorPalettesActivity;
+import com.sleepyduck.pixelate4crafting.old.view.pattern.ListPatternActivity;
 
 public class MenuActivity extends Activity {
 

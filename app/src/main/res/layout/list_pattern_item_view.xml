@@ -18,7 +18,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true" />
 
-    <com.sleepyduck.pixelate4crafting.old.view.RoundedImageView
+    <com.sleepyduck.pixelate4crafting.view.RoundedImageView
         android:id="@+id/imageView"
         android:layout_width="@dimen/small_picture_size"
         android:layout_height="@dimen/small_picture_size"

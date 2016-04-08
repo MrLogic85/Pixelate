@@ -1,15 +1,15 @@
 package com.sleepyduck.pixelate4crafting.old;
 
+import android.content.Context;
+import android.graphics.Color;
+
+import com.sleepyduck.pixelate4crafting.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import com.sleepyduck.pixelate4crafting.R;
-
-import android.content.Context;
-import android.graphics.Color;
 
 public class ColorPalettes {
 	private static Map<Integer, Palette> MAP = new HashMap<Integer, Palette>();

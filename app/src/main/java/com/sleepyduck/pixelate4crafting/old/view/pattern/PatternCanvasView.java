@@ -1,7 +1,5 @@
 package com.sleepyduck.pixelate4crafting.old.view.pattern;
 
-import com.sleepyduck.pixelate4crafting.old.Constants;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -12,6 +10,8 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+
+import com.sleepyduck.pixelate4crafting.old.Constants;
 
 public class PatternCanvasView extends ImageView {
 	public enum ColorSelectionModel {
