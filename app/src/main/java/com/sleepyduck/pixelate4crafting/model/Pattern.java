@@ -11,19 +11,34 @@ import com.sleepyduck.pixelate4crafting.util.BetterLog;
 public class Pattern implements Comparable<Pattern> {
     private static final String PREF_ID = "ID";
     private static final String PREF_TITLE = "TITLE";
-    private static final String PREF_PALETTE = "PALETTE";
+    private static final String PREF_STATE = "STATE";
     private static final String PREF_FILE = "FILE";
     private static final String PREF_FILE_THUMB = "FILE_THUMB";
     private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
     private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
+    private static final String PREF_WEIGHT = "WEIGHT";
 
     public final int Id;
     private String mTitle = "";
-    private int mPaletteId = -1;
+    private State mState = State.ACTIVE;
     private String mFileName = "";
     private String mFileNameThumb = "";
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
+    private int mWeight = 0;
+
+    public enum State{
+        LATEST,
+        ACTIVE,
+        COMPLETED;
+
+        public static State valueOf(int ordinal) {
+            if (ordinal >= 0 && ordinal < State.values().length) {
+                return State.values()[ordinal];
+            }
+            return State.ACTIVE;
+        }
+    }
 
     public Pattern(String title) {
         Id = (int) (Math.random() * Integer.MAX_VALUE);
@@ -33,34 +48,28 @@ public class Pattern implements Comparable<Pattern> {
     public Pattern(int prefCounter, SharedPreferences pref) {
         Id = pref.getInt("" + prefCounter + PREF_ID, -1);
         mTitle = pref.getString("" + prefCounter + PREF_TITLE, mTitle);
-        mPaletteId = pref.getInt("" + prefCounter + PREF_PALETTE, mPaletteId);
+        mState = State.valueOf(pref.getInt("" + prefCounter + PREF_STATE, State.ACTIVE.ordinal()));
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
+        mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, mWeight);
     }
 
     public void save(int prefCounter, SharedPreferences.Editor editor) {
         editor.putInt("" + prefCounter + PREF_ID, Id);
         editor.putString("" + prefCounter + PREF_TITLE, mTitle);
-        editor.putInt("" + prefCounter + PREF_PALETTE, mPaletteId);
+        editor.putInt("" + prefCounter + PREF_STATE, mState.ordinal());
         editor.putString("" + prefCounter + PREF_FILE, mFileName);
         editor.putString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
+        editor.putInt("" + prefCounter + PREF_WEIGHT, mWeight);
     }
 
     @Override
     public int compareTo(Pattern another) {
         return this.mTitle.compareTo(another.mTitle);
-    }
-
-    public void setPaletteId(int id) {
-        mPaletteId = id;
-    }
-
-    public int getPaletteId() {
-        return mPaletteId;
     }
 
     public void setFileName(String fileName) {
@@ -70,6 +79,14 @@ public class Pattern implements Comparable<Pattern> {
 
     public String getFileName() {
         return mFileName;
+    }
+
+    public void setState(State newState) {
+        mState = newState;
+    }
+
+    public State getState() {
+        return mState;
     }
 
     public void setFileNameThumbnail(String fileName) {
@@ -95,6 +112,14 @@ public class Pattern implements Comparable<Pattern> {
         tmp = tmp.replaceAll("_", " ");
         BetterLog.d(Pattern.class, tmp);
         return tmp;
+    }
+
+    public int getWeight() {
+        return mWeight;
+    }
+
+    public void setWeight(int weight) {
+        mWeight = weight;
     }
 
     public void setPixelWidth(int i) {

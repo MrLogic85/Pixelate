@@ -9,14 +9,21 @@ public class BetterLog {
 		if (!DEBUG)
 			return;
 
+        String simpleName = source.getSimpleName();
+        if (simpleName.length() == 0) {
+            simpleName = source.getName();
+        }
+
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		for (StackTraceElement element : stackTrace) {
 			if (element.getClassName().equals(source.getName())) {
-				Log.d(source.getSimpleName(), "" + element.getMethodName() + ":" + element.getLineNumber()
+				Log.d(simpleName, "" + element.getMethodName() + ":" + element.getLineNumber()
 						+ (text != null ? ", " + text : ""));
 				return;
 			}
 		}
+
+        Log.d(simpleName, text);
 	}
 
 	public static void d(Object source, String text) {

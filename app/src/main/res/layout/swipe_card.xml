@@ -4,66 +4,85 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
-    android:orientation="vertical"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="4dp">
+    android:layout_marginBottom="2dp">
 
-    <ImageButton
-        android:id="@+id/left_button"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:background="@color/accent_a200" />
-
-    <ImageButton
-        android:id="@+id/right_button"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentTop="true" />
+    <TextView
+        android:id="@+id/header"
+        style="@style/TextViewHeader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/padding_small"/>
 
     <RelativeLayout
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:background="@color/white_100"
-        android:padding="@dimen/padding_small">
+        android:id="@+id/card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
-        <com.sleepyduck.pixelate4crafting.view.RoundedImageView
-            android:id="@+id/icon"
+        <ImageButton
+            android:id="@+id/button1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_launcher" />
+            android:background="@android:color/holo_red_dark"
+            android:padding="@dimen/padding_small"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_action_delete" />
 
-        <TextView
-            android:id="@+id/title"
+        <ImageButton
+            android:id="@+id/button2"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_margin="@dimen/padding"
-            android:layout_toRightOf="@id/icon"
-            android:gravity="center_vertical"
-            android:lines="1"
-            tools:text="Title" />
+            android:background="@android:color/holo_green_dark"
+            android:padding="@dimen/padding_small"
+            android:src="@drawable/ic_action_done" />
+
+        <ImageButton
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignBottom="@+id/content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/holo_orange_dark"
+            android:padding="@dimen/padding_small"
+            android:src="@drawable/ic_redo" />
+
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@android:color/white"
+            android:orientation="horizontal"
+            android:padding="@dimen/padding_small">
+
+            <com.sleepyduck.pixelate4crafting.view.RoundedImageView
+                android:id="@+id/icon"
+                android:layout_width="@dimen/small_picture_size"
+                android:layout_height="@dimen/small_picture_size"
+                android:scaleType="centerInside"
+                android:src="@drawable/ic_launcher" />
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/padding"
+                android:gravity="center_vertical"
+                android:lines="1"
+                tools:text="Title" />
+        </LinearLayout>
     </RelativeLayout>
 </com.sleepyduck.pixelate4crafting.view.SwipeCard>

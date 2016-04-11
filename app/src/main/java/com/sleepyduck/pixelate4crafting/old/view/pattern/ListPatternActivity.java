@@ -8,18 +8,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 
+import com.sleepyduck.pixelate4crafting.PatternActivity;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.old.view.LinearLayoutFling;
-import com.sleepyduck.pixelate4crafting.old.view.OnItemFlungListener;
+import com.sleepyduck.pixelate4crafting.util.OnItemSwipeListener;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class ListPatternActivity extends Activity implements OnClickListener, OnItemFlungListener {
+public class ListPatternActivity extends Activity implements OnClickListener, OnItemSwipeListener {
 	private LinearLayoutFling mListPattern;
 
 	@Override
@@ -37,7 +39,13 @@ public class ListPatternActivity extends Activity implements OnClickListener, On
 		mListPattern.setOnItemFlungListener(this);
 		mListPattern.removeAllViews();
 
-		List<Pattern> patterns = new ArrayList<Pattern>(Patterns.GetPatterns());
+		final List<Pattern> patterns = new ArrayList<Pattern>();
+		Patterns.GetPatterns(new Callback<Pattern>() {
+			@Override
+			public void onCallback(Pattern obj) {
+				patterns.add(obj);
+			}
+		});
 		Collections.sort(patterns);
 		ListPatternItemView item;
 		for (Pattern pattern : patterns) {
@@ -70,7 +78,7 @@ public class ListPatternActivity extends Activity implements OnClickListener, On
 	}
 
 	@Override
-	public boolean onItemFlung(View view) {
+	public boolean onItemSwipe(View view) {
 		if (view instanceof ListPatternItemView) {
 			ListPatternItemView item = (ListPatternItemView) view;
 			Patterns.Remove(item.getPattern());
@@ -83,7 +91,6 @@ public class ListPatternActivity extends Activity implements OnClickListener, On
 
 	public void onNewClicked(View view) {
 		Pattern pattern = new Pattern("New Pattern");
-		pattern.setPaletteId(1);
 		Patterns.Add(pattern);
 		launch(pattern.Id);
 	}

@@ -10,4 +10,11 @@
     <string name="change_size">Change size</string>
     <string name="square_pixels">Square</string>
     <string name="new_pattern">Add new pattern</string>
+
+    <string name="latest">Latest</string>
+    <string name="active">Active</string>
+    <string name="completed">Completed</string>
+    <string name="title_activity_choose_image">ChooseImageActivity</string>
+    <string name="choose_image_description">Pick an image to create your pattern</string>
+    <string name="ok">OK</string>
 </resources>

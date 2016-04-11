@@ -10,13 +10,14 @@ import android.view.ViewConfiguration;
 import android.widget.LinearLayout;
 
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.OnItemSwipeListener;
 
 public class LinearLayoutFling extends LinearLayout {
 	private LayoutTransition mLayoutTransition;
 	private View mSelectedChild;
 	private float mStartDragPos;
 	private ViewConfiguration mViewConfig;
-	private OnItemFlungListener mOnItemFlungListener;
+	private OnItemSwipeListener mOnItemSwipeListener;
 
 	public LinearLayoutFling(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
@@ -41,8 +42,8 @@ public class LinearLayoutFling extends LinearLayout {
 		mViewConfig = ViewConfiguration.get(getContext());
 	}
 
-	public void setOnItemFlungListener(OnItemFlungListener listener) {
-		mOnItemFlungListener = listener;
+	public void setOnItemFlungListener(OnItemSwipeListener listener) {
+		mOnItemSwipeListener = listener;
 	}
 
 	@Override
@@ -89,9 +90,9 @@ public class LinearLayoutFling extends LinearLayout {
 				}
 				break;
 			case MotionEvent.ACTION_UP:
-				if (mOnItemFlungListener != null && Math.abs(distance) > 0.4f * (float) getWidth()) {
+				if (mOnItemSwipeListener != null && Math.abs(distance) > 0.4f * (float) getWidth()) {
 					BetterLog.d(this, "distance = " + distance);
-					boolean deleted = mOnItemFlungListener.onItemFlung(mSelectedChild);
+					boolean deleted = mOnItemSwipeListener.onItemSwipe(mSelectedChild);
 					if (deleted) {
 						BetterLog.d(this, "mSelectedChild.getParent() != this");
 						mSelectedChild = null;

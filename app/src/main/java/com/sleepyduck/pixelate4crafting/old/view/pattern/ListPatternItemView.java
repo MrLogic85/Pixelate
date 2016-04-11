@@ -11,7 +11,6 @@ import android.widget.TextView;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.old.ColorPalettes;
 
 public class ListPatternItemView extends RelativeLayout {
 	private Pattern mPattern;
@@ -45,13 +44,6 @@ public class ListPatternItemView extends RelativeLayout {
 		int colorSize = (int) getResources().getDimension(R.dimen.color_size);
 		LayoutParams lp = new LayoutParams(colorSize, colorSize);
 		View view;
-		if (mPattern.getPaletteId() > -1) {
-			for (int color : ColorPalettes.Get(mPattern.getPaletteId()).getColors()) {
-				view = new View(getContext());
-				view.setBackgroundColor(color);
-				mPaletteLayout.addView(view, lp);
-			}
-		}
 
 		if (mPattern.getFileNameThumbnail() != null && mPattern.getFileNameThumbnail().length() > 0) {
 			mPicture.setImageBitmap(BitmapHandler.getFromFileName(getContext(), mPattern.getFileNameThumbnail()));

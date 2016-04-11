@@ -22,7 +22,6 @@ import java.io.InputStream;
 public class BitmapHandler {
 
 	public static Bitmap getFromFileName(Context context, String fileName) {
-		BetterLog.d(BitmapHandler.class, fileName);
 		InputStream is;
 		try {
 			is = context.openFileInput(fileName);

@@ -2,13 +2,12 @@
     <dimen name="color_size">20dp</dimen>
     <dimen name="small_picture_size">60dp</dimen>
     <dimen name="picture_size">240dp</dimen>
-    
-    <dimen name="padding">20dp</dimen>
-    <dimen name="padding_small">5dp</dimen>
-    
-    <dimen name="divider">1px</dimen>
-    
-    <dimen name="pattern_menu_collapsed">20dp</dimen>
 
+    <dimen name="padding">20dp</dimen>
+    <dimen name="padding_small">8dp</dimen>
+
+    <dimen name="divider">1px</dimen>
+
+    <dimen name="pattern_menu_collapsed">20dp</dimen>
 </resources>
 
