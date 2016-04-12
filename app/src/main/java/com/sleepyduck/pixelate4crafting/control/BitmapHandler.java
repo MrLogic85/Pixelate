@@ -74,4 +74,11 @@ public class BitmapHandler {
 			e.printStackTrace();
 		}
 	}
+
+	public static void removeFileOfName(Context context, String fileName) {
+		File file = new File(context.getFilesDir(), fileName);
+		if (file != null) {
+			file.delete();
+		}
+	}
 }

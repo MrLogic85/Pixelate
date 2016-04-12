@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -8,20 +7,20 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Pair;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.GridLayout;
-import android.widget.GridView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.sleepyduck.pixelate4crafting.control.AnalyzeColorsTask;
+import com.sleepyduck.pixelate4crafting.control.CalculatePixelsTask;
+import com.sleepyduck.pixelate4crafting.control.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.vi.swipenumberpicker.OnValueChangeListener;
 import com.vi.swipenumberpicker.SwipeNumberPicker;
@@ -54,6 +53,9 @@ public class ConfigurationActivity extends Activity {
         if (destroyListener != null) {
             destroyListener.onDestroy();
         }
+        if (mPattern != null) {
+            mPattern.destroy(this);
+        }
     }
 
     public void onChooseImageClicked(View view) {
@@ -80,6 +82,7 @@ public class ConfigurationActivity extends Activity {
             }
             if ("content".equals(imageUri.getScheme())) {
                 String fileName = BitmapHandler.getFileName(this, imageUri);
+                //TODO Add unique string to file name
                 BitmapHandler.storeLocally(this, imageUri, fileName);
                 mPattern = new Pattern(Pattern.createTitleFromFileName(fileName));
                 mPattern.setFileName(fileName);
@@ -114,7 +117,7 @@ public class ConfigurationActivity extends Activity {
             findViewById(R.id.dialog_analyzing_image).setVisibility(VISIBLE);
             final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar_analyze);
 
-            final AnalyzeColorsTask task = new AnalyzeColorsTask() {
+            final FindBestColorsTask task = new FindBestColorsTask() {
                 @Override
                 protected void onProgressUpdate(Integer... values) {
                     progressBar.setProgress(values[0]);
@@ -136,40 +139,102 @@ public class ConfigurationActivity extends Activity {
                 }
             };
         }
-
-        /*Patterns.Add(mPattern);
-        Patterns.MakeLatest(mPattern);
-        Patterns.Save(this);
-        Intent intent = new Intent(this, PatternActivity.class);
-        intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-        startActivityForResult(intent, 0);*/
     }
 
     private void setupShowColors() {
         findViewById(R.id.dialog_colors_found).setVisibility(VISIBLE);
+
+        int countColors = mPattern.getColors().size();
+
+        TextView title = (TextView) findViewById(R.id.color_title);
+        title.setText(getString(R.string.colors_found, countColors));
+
         GridLayout grid = (GridLayout) findViewById(R.id.color_grid);
-        int countColors = mPattern.getColors().length;
         int rowCount = countColors / grid.getColumnCount()
                 + (countColors % grid.getColumnCount() > 0 ? 1 : 0);
         grid.setRowCount(rowCount);
+
         int x = 0, y = 0;
-        for (int color : mPattern.getColors()) {
+        for (int color : mPattern.getColors().keySet()) {
+            View view = new View(this);
+            view.setBackgroundColor(color);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = (int) getResources().getDimension(R.dimen.color_square_size);
+            params.height = (int) getResources().getDimension(R.dimen.color_square_size);
+            params.columnSpec = GridLayout.spec(x);
+            params.rowSpec = GridLayout.spec(y);
+            grid.addView(view, params);
+
             x++;
             if (x == grid.getColumnCount()) {
                 y++;
                 x = 0;
             }
-            View view = new View(this);
-            view.setBackgroundColor(color);
-            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-            params.columnSpec = GridLayout.spec(x);
-            params.rowSpec = GridLayout.spec(y);
-            grid.addView(view, params);
         }
     }
 
     public void onColorsDoneClicked(View view) {
+        findViewById(R.id.dialog_colors_found).setVisibility(GONE);
+        findViewById(R.id.dialog_analyzing_image).setVisibility(VISIBLE);
+        final ProgressBar bar = (ProgressBar) findViewById(R.id.progress_bar_analyze);
+        bar.setProgress(0);
+        bar.setMax(200);
+        TextView title = (TextView) findViewById(R.id.progress_title);
+        title.setText(R.string.prepare_pattern);
 
+        final CalculatePixelsTask task2 = new CalculatePixelsTask() {
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                destroyListener = null;
+                Patterns.Add(mPattern);
+                Patterns.MakeLatest(mPattern);
+                Patterns.Save(ConfigurationActivity.this);
+                Intent intent = new Intent(ConfigurationActivity.this, PatternActivity.class);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+                startActivityForResult(intent, 0);
+            }
+        };
+
+        final CountColorsTask task = new CountColorsTask() {
+            @Override
+            protected void onProgressUpdate(Integer... values) {
+                super.onProgressUpdate(values);
+                bar.setProgress(values[0]);
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                task2.execute(ConfigurationActivity.this, mPattern);
+                destroyListener = new OnDestroyListener() {
+                    @Override
+                    public void onDestroy() {
+                        task2.cancel(true);
+                    }
+                };
+            }
+        };
+        task.execute(this, mPattern);
+        destroyListener = new OnDestroyListener() {
+            @Override
+            public void onDestroy() {
+                task.cancel(true);
+            }
+        };
+    }
+
+    public void onColorsBackClicked(View view) {
+        findViewById(R.id.dialog_colors_found).setVisibility(GONE);
+        GridLayout grid = (GridLayout) findViewById(R.id.color_grid);
+        grid.removeAllViews();
+        findViewById(R.id.dialog_set_number).setVisibility(VISIBLE);
+        findViewById(R.id.dialog_set_number).setTag(NUMBER_PICKER_COLOR_COUNT);
     }
 
     private void setupSwipeNumberPicker() {

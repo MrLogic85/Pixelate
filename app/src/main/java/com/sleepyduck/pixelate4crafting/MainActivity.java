@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
                 Patterns.Remove(pattern);
+                pattern.destroy(MainActivity.this);
                 Patterns.Save(MainActivity.this);
                 mAdapter.notifyDataSetChanged();
             }
@@ -104,11 +105,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
     }
 
     public void onAddClicked(View view) {

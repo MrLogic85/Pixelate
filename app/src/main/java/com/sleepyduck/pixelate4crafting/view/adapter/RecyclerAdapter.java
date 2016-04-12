@@ -123,7 +123,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 if (pattern.getFileNameThumbnail() != null
                         && pattern.getFileNameThumbnail().length() > 0) {
                     Bitmap bitmapIcon = BitmapHandler.getFromFileName(mContext, pattern.getFileNameThumbnail());
-                    icon.setImageBitmap(bitmapIcon);
+                    if (bitmapIcon != null) {
+                        icon.setImageBitmap(bitmapIcon);
+                    } else {
+                        icon.setImageResource(R.drawable.ic_launcher);
+                    }
                 } else {
                     icon.setImageResource(R.drawable.ic_launcher);
                 }

@@ -1,9 +1,13 @@
 package com.sleepyduck.pixelate4crafting.model;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
+
+import java.util.Map;
 
 /**
  * Created by fredrik.metcalf on 2016-04-08.
@@ -26,15 +30,8 @@ public class Pattern implements Comparable<Pattern> {
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private int mWeight = 0;
-    private int[] mColors;
-
-    public void setColors(int[] colors) {
-        mColors = colors;
-    }
-
-    public int[] getColors() {
-        return mColors;
-    }
+    private Map<Integer, Integer> mColors;
+    private int[][] mColorMatrix;
 
     public enum State{
         LATEST,
@@ -52,6 +49,15 @@ public class Pattern implements Comparable<Pattern> {
     public Pattern(String title) {
         Id = (int) (Math.random() * Integer.MAX_VALUE);
         mTitle = title;
+    }
+
+    public void destroy(Context context) {
+        if (mFileName != null && mFileName.length() > 0) {
+            BitmapHandler.removeFileOfName(context, mFileName);
+        }
+        if (mFileNameThumb != null && mFileNameThumb.length() > 0) {
+            BitmapHandler.removeFileOfName(context, mFileNameThumb);
+        }
     }
 
     public Pattern(int prefCounter, SharedPreferences pref) {
@@ -145,5 +151,21 @@ public class Pattern implements Comparable<Pattern> {
 
     public int getPixelHeight() {
         return mPixelHeight;
+    }
+
+    public void setColors(Map<Integer, Integer> colors) {
+        mColors = colors;
+    }
+
+    public Map<Integer, Integer> getColors() {
+        return mColors;
+    }
+
+    public void setColorMatrix(int[][] colorMatrix) {
+        mColorMatrix = colorMatrix;
+    }
+
+    public int[][] getColorMatrix() {
+        return mColorMatrix;
     }
 }

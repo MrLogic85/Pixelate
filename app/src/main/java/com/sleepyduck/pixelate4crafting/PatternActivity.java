@@ -33,16 +33,15 @@ public class PatternActivity extends AppCompatActivity {
 		
 		mCanvas = (PatternCanvasView) findViewById(R.id.canvas);
 		mCanvas.setId(CANVAS_VIEW_ID);
-		mCanvas.setPixelWidth(mPattern.getPixelWidth());
-		mCanvas.setPixelHeight(mPattern.getPixelHeight());
+		mCanvas.setPattern(mPattern);
 
-		mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
+		/*mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
 			@Override
 			public void onGlobalLayout() {
 				mCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 				updateFile(mPattern.getFileName());
 			}
-		});
+		});*/
 	}
 
 	@Override
@@ -57,7 +56,7 @@ public class PatternActivity extends AppCompatActivity {
 			if (bitmap != null) {
 				mCanvas.setImageBitmap(bitmap);
 				int height = mPattern.getPixelWidth() * bitmap.getHeight() / bitmap.getWidth();
-				mCanvas.setPixelHeight(height);
+				//mCanvas.setPixelHeight(height);
 				mPattern.setPixelHeight(height);
 				Patterns.Save(this);
 			} else {
