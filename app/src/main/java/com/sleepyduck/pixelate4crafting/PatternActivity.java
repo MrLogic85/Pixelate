@@ -1,29 +1,16 @@
 package com.sleepyduck.pixelate4crafting;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
-import android.widget.ImageView.ScaleType;
-import android.widget.NumberPicker;
-import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.ToggleButton;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.sleepyduck.pixelate4crafting.old.Constants;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
-import com.sleepyduck.pixelate4crafting.old.view.pattern.PatternView;
 import com.sleepyduck.pixelate4crafting.view.PatternCanvasView;
-import com.sleepyduck.pixelate4crafting.view.PatternCanvasView.ColorSelectionModel;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class PatternActivity extends AppCompatActivity {

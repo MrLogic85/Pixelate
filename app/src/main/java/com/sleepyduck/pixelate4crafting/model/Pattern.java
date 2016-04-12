@@ -2,7 +2,7 @@ package com.sleepyduck.pixelate4crafting.model;
 
 import android.content.SharedPreferences;
 
-import com.sleepyduck.pixelate4crafting.old.Constants;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 /**
@@ -26,6 +26,15 @@ public class Pattern implements Comparable<Pattern> {
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private int mWeight = 0;
+    private int[] mColors;
+
+    public void setColors(int[] colors) {
+        mColors = colors;
+    }
+
+    public int[] getColors() {
+        return mColors;
+    }
 
     public enum State{
         LATEST,

@@ -11,7 +11,7 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.widget.ImageView;
 
-import com.sleepyduck.pixelate4crafting.old.Constants;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 
 public class PatternCanvasView extends ImageView {
 	public enum ColorSelectionModel {

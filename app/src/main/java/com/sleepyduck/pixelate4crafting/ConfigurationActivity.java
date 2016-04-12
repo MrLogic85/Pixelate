@@ -1,21 +1,27 @@
 package com.sleepyduck.pixelate4crafting;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Activity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.GridView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import com.sleepyduck.pixelate4crafting.control.AnalyzeColorsTask;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.sleepyduck.pixelate4crafting.old.Constants;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.vi.swipenumberpicker.OnValueChangeListener;
 import com.vi.swipenumberpicker.SwipeNumberPicker;
@@ -25,56 +31,29 @@ import static android.view.View.VISIBLE;
 
 public class ConfigurationActivity extends Activity {
     private static final int REQUEST_IMAGE = 1;
+    private static final Integer NUMBER_PICKER_WIDTH = 1;
+    private static final Integer NUMBER_PICKER_COLOR_COUNT = 2;
     private Pattern mPattern;
+    private OnDestroyListener destroyListener;
+
+    private interface OnDestroyListener {
+        void onDestroy();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configuration);
+        setFinishOnTouchOutside(false);
+        setupSwipeNumberPicker();
+    }
 
-        SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.width_number_picker);
-        picker.setOnValueChangeListener(new OnValueChangeListener() {
-            @Override
-            public boolean onValueChange(SwipeNumberPicker view, int oldValue, int newValue) {
-                return true;
-            }
-        });
-        picker.setShowNumberPickerDialog(false);
-        picker.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.width_number_picker);
-                picker.setVisibility(GONE);
-                final EditText edit = (EditText) findViewById(R.id.width_number_edit_text);
-                edit.setVisibility(VISIBLE);
-                edit.setText("" + picker.getValue());
-                edit.requestFocus();
-                InputMethodManager imm = (InputMethodManager)
-                        getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
-                edit.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-                        int value = Integer.parseInt(edit.getText().toString());
-                        if (value > Constants.MAX_PIXELS) {
-                            edit.setText("" + Constants.MAX_PIXELS);
-                        } else if (value < 1) {
-                            edit.setText("" + 1);
-                        }
-                    }
-                });
-            }
-        });
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (destroyListener != null) {
+            destroyListener.onDestroy();
+        }
     }
 
     public void onChooseImageClicked(View view) {
@@ -104,7 +83,8 @@ public class ConfigurationActivity extends Activity {
                 BitmapHandler.storeLocally(this, imageUri, fileName);
                 mPattern = new Pattern(Pattern.createTitleFromFileName(fileName));
                 mPattern.setFileName(fileName);
-                findViewById(R.id.dialog_set_width).setVisibility(VISIBLE);
+                findViewById(R.id.dialog_set_number).setTag(NUMBER_PICKER_WIDTH);
+                findViewById(R.id.dialog_set_number).setVisibility(VISIBLE);
                 return;
             }
         }
@@ -112,16 +92,132 @@ public class ConfigurationActivity extends Activity {
         finish();
     }
 
-    public void onChooseWidthClicked(View view) {
-        SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.width_number_picker);
-        int val = picker.getValue();
-        mPattern.setPixelWidth(val);
-        Patterns.Add(mPattern);
+    public void onChooseNumberClicked(View view) {
+        final View dialog = findViewById(R.id.dialog_set_number);
+        if (dialog.getTag() == NUMBER_PICKER_WIDTH) {
+            SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
+            int val = picker.getValue();
+            mPattern.setPixelWidth(val);
+
+            TextView description = (TextView) findViewById(R.id.number_text_view);
+            description.setText(R.string.change_color_count);
+            picker.setValue(Constants.DEFAULT_MAX_COLORS, false);
+            picker.setVisibility(VISIBLE);
+            final EditText edit = (EditText) findViewById(R.id.number_edit_text);
+            edit.setVisibility(GONE);
+            dialog.setTag(NUMBER_PICKER_COLOR_COUNT);
+        } else if (dialog.getTag() == NUMBER_PICKER_COLOR_COUNT) {
+            SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
+            int colorCount = picker.getValue();
+
+            findViewById(R.id.dialog_set_number).setVisibility(GONE);
+            findViewById(R.id.dialog_analyzing_image).setVisibility(VISIBLE);
+            final ProgressBar progressBar = (ProgressBar) findViewById(R.id.progress_bar_analyze);
+
+            final AnalyzeColorsTask task = new AnalyzeColorsTask() {
+                @Override
+                protected void onProgressUpdate(Integer... values) {
+                    progressBar.setProgress(values[0]);
+                }
+
+                @Override
+                protected void onPostExecute(Integer integer) {
+                    BetterLog.d(ConfigurationActivity.this, "Found " + integer + " colors in picture");
+                    destroyListener = null;
+                    findViewById(R.id.dialog_analyzing_image).setVisibility(GONE);
+                    setupShowColors();
+                }
+            };
+            task.execute(this, mPattern, colorCount);
+            destroyListener = new OnDestroyListener() {
+                @Override
+                public void onDestroy() {
+                    task.cancel(true);
+                }
+            };
+        }
+
+        /*Patterns.Add(mPattern);
         Patterns.MakeLatest(mPattern);
         Patterns.Save(this);
-
         Intent intent = new Intent(this, PatternActivity.class);
         intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-        startActivityForResult(intent, 0);
+        startActivityForResult(intent, 0);*/
+    }
+
+    private void setupShowColors() {
+        findViewById(R.id.dialog_colors_found).setVisibility(VISIBLE);
+        GridLayout grid = (GridLayout) findViewById(R.id.color_grid);
+        int countColors = mPattern.getColors().length;
+        int rowCount = countColors / grid.getColumnCount()
+                + (countColors % grid.getColumnCount() > 0 ? 1 : 0);
+        grid.setRowCount(rowCount);
+        int x = 0, y = 0;
+        for (int color : mPattern.getColors()) {
+            x++;
+            if (x == grid.getColumnCount()) {
+                y++;
+                x = 0;
+            }
+            View view = new View(this);
+            view.setBackgroundColor(color);
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.columnSpec = GridLayout.spec(x);
+            params.rowSpec = GridLayout.spec(y);
+            grid.addView(view, params);
+        }
+    }
+
+    public void onColorsDoneClicked(View view) {
+
+    }
+
+    private void setupSwipeNumberPicker() {
+        SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
+        picker.setOnValueChangeListener(new OnValueChangeListener() {
+            @Override
+            public boolean onValueChange(SwipeNumberPicker view, int oldValue, int newValue) {
+                return true;
+            }
+        });
+        picker.setShowNumberPickerDialog(false);
+        picker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
+                picker.setVisibility(GONE);
+                final EditText edit = (EditText) findViewById(R.id.number_edit_text);
+                edit.setVisibility(VISIBLE);
+                edit.setText("" + picker.getValue());
+                edit.requestFocus();
+                InputMethodManager imm = (InputMethodManager)
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(edit, InputMethodManager.SHOW_IMPLICIT);
+                edit.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        int value = Integer.parseInt(edit.getText().toString());
+                        if (value > Constants.MAX_PIXELS) {
+                            edit.setText("" + Constants.MAX_PIXELS);
+                            value = Constants.MAX_PIXELS;
+                        } else if (value < 1) {
+                            edit.setText("" + 1);
+                            value = 1;
+                        }
+                        picker.setValue(value, false);
+                    }
+                });
+            }
+        });
     }
 }

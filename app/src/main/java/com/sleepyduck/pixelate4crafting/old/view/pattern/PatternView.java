@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
+import com.sleepyduck.pixelate4crafting.control.Constants.MENU_STATE;
 import com.sleepyduck.pixelate4crafting.view.PatternCanvasView;
 
 public class PatternView extends ViewGroup {

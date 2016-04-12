@@ -11,6 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/primary_100"
+        android:visibility="visible"
         android:orientation="vertical">
 
         <TextView
@@ -27,7 +28,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/dialog_set_width"
+        android:id="@+id/dialog_set_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@color/primary_100"
@@ -35,13 +36,14 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/number_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:padding="@dimen/padding"
             android:text="@string/choose_width_description" />
 
         <com.vi.swipenumberpicker.SwipeNumberPicker
-            android:id="@+id/width_number_picker"
+            android:id="@+id/number_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -53,7 +55,7 @@
             app:snp_value="50" />
 
         <EditText
-            android:id="@+id/width_number_edit_text"
+            android:id="@+id/number_edit_text"
             android:inputType="number"
             android:visibility="gone"
             android:textColor="@color/black_87"
@@ -66,7 +68,61 @@
             android:layout_marginTop="@dimen/padding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="onChooseWidthClicked"
+            android:onClick="onChooseNumberClicked"
             android:text="@string/done" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_analyzing_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:background="@color/primary_100"
+        android:padding="@dimen/padding"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding"
+            android:text="@string/analyzing_image" />
+
+        <ProgressBar
+            android:id="@+id/progress_bar_analyze"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:max="100"
+            android:progress="25"
+            android:progressTint="@color/accent_a200"
+            android:progressBackgroundTint="@color/accent_a100"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_colors_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:background="@color/primary_100"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/padding"
+            android:padding="@dimen/padding"
+            android:text="@string/colors_found" />
+
+        <GridLayout
+            android:id="@+id/color_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="5"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onColorsDoneClicked"
+            android:text="@string/ok" />
     </LinearLayout>
 </FrameLayout>

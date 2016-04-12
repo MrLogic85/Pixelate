@@ -7,7 +7,7 @@ import android.widget.LinearLayout;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.old.Constants.MENU_STATE;
+import com.sleepyduck.pixelate4crafting.control.Constants.MENU_STATE;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class PatternMenuSizeView extends LinearLayout {

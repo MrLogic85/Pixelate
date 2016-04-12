@@ -19,4 +19,7 @@
     <string name="ok">OK</string>
     <string name="choose_width_description">How wide do you want the pattern?</string>
     <string name="done">DONE</string>
+    <string name="analyzing_image">Analyzing image, please stand by!</string>
+    <string name="change_color_count">Choose the ammount of colors you want to use</string>
+    <string name="colors_found">colors found</string>
 </resources>
