@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createPattern() {
-        Intent intent = new Intent(this, ChooseImageActivity.class);
+        Intent intent = new Intent(this, ConfigurationActivity.class);
         startActivity(intent);
     }
 }

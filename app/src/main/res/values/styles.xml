@@ -21,6 +21,7 @@
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Style500</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
         <item name="android:textViewStyle">@style/MyTextView</item>
+        <item name="android:editTextStyle">@style/MyTextView</item>
     </style>
 
     <style name="ActionBar.Solid.Style500" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">

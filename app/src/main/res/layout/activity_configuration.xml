@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:context=".ConfigurationActivity">
+
+    <LinearLayout
+        android:id="@+id/dialog_select_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_100"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@string/choose_image_description" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onChooseImageClicked"
+            android:text="@string/ok" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dialog_set_width"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/primary_100"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/padding"
+            android:text="@string/choose_width_description" />
+
+        <com.vi.swipenumberpicker.SwipeNumberPicker
+            android:id="@+id/width_number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:snp_arrowColor="@color/black_87"
+            app:snp_backgroundColor="@color/primary_100"
+            app:snp_max="500"
+            app:snp_min="1"
+            app:snp_numberColor="@color/black_87"
+            app:snp_value="50" />
+
+        <EditText
+            android:id="@+id/width_number_edit_text"
+            android:inputType="number"
+            android:visibility="gone"
+            android:textColor="@color/black_87"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="50"/>
+
+        <Button
+            android:layout_marginTop="@dimen/padding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="onChooseWidthClicked"
+            android:text="@string/done" />
+    </LinearLayout>
+</FrameLayout>
