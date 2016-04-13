@@ -141,10 +141,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                     int countColors = pattern.getColors().size();
                     int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.spacing);
                     int colorSize = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_size_small);
-                    float numColorsInARow = (float)(grid.getWidth()) / (colorSize + margin);
-                    int columnCount = (int) numColorsInARow;
+                    int columnCount = Math.max(grid.getWidth() / (colorSize + margin), 1);
                     grid.setColumnCount(columnCount);
-                    int rowCount = countColors / columnCount + (countColors % grid.getColumnCount() > 0 ? 1 : 0);
+                    int rowCount = countColors / columnCount + (countColors % columnCount > 0 ? 1 : 0);
                     grid.setRowCount(rowCount);
 
                     int x = 0, y = 0;

@@ -36,8 +36,6 @@ public class MainActivity extends AppCompatActivity {
             Object tag = v.getTag();
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
-                Patterns.MakeLatest(pattern);
-                Patterns.Save(MainActivity.this);
                 launch(pattern.Id);
             }
         }
@@ -133,6 +131,10 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_REDO_PIXELS);
         } else {
+            if (pattern.getState() == ACTIVE) {
+                Patterns.MakeLatest(pattern);
+                Patterns.Save(MainActivity.this);
+            }
             Intent intent = new Intent(this, PatternActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivity(intent);
