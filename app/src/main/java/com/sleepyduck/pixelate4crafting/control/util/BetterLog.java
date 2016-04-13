@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.util;
+package com.sleepyduck.pixelate4crafting.control.util;
 
 import android.util.Log;
 

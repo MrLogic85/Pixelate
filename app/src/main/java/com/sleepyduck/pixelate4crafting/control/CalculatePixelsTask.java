@@ -58,9 +58,17 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
 
         int minColorCount = Integer.MAX_VALUE;
         Map.Entry<Integer, Integer> bestColor = null;
+        boolean isTransparent = true;
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
+                if (isTransparent) {
+                    if (Color.alpha(pixel) < 0xff) {
+                        continue;
+                    } else {
+                        isTransparent = false;
+                    }
+                }
                 Map.Entry<Integer, Integer> color = getBestColorFor(pixel);
                 if (color.getValue() <= minColorCount) {
                     minColorCount = color.getValue();
@@ -68,7 +76,11 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
                 }
             }
         }
-        return bestColor.getKey();
+        if (isTransparent) {
+            return Color.TRANSPARENT;
+        } else {
+            return bestColor.getKey();
+        }
     }
 
     private Map.Entry<Integer, Integer> getBestColorFor(int pixel) {

@@ -1,17 +1,16 @@
-package com.sleepyduck.pixelate4crafting;
+package com.sleepyduck.pixelate4crafting.control;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 
-import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.PatternCanvasView;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
 public class PatternActivity extends AppCompatActivity {
 	private static final int CANVAS_VIEW_ID = 0x25746874;

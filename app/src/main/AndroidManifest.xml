@@ -10,13 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".old.MenuActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".old.view.pattern.ListPatternActivity"
-            android:label="@string/app_name" />
-        <activity
-            android:name=".MainActivity"
+            android:name=".control.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -29,17 +23,33 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ConfigurationActivity"
+            android:name=".control.PatternActivity"
+            android:label="@string/app_name"
+            android:parentActivityName=".control.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".control.MainActivity" />
+        </activity>
+        <activity
+            android:name=".control.configuration.ConfigurationActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog"/>
         <activity
-            android:name=".PatternActivity"
+            android:name=".control.configuration.ConfigurationImageActivity"
             android:label="@string/app_name"
-            android:parentActivityName=".MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".MainActivity" />
-        </activity>
+            android:theme="@style/MyAlertDialog"/>
+        <activity
+            android:name=".control.configuration.ConfigurationWidthActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MyAlertDialog"/>
+        <activity
+            android:name=".control.configuration.ConfigurationColorsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MyAlertDialog"/>
+        <activity
+            android:name=".control.configuration.ConfigurationPixelsActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MyAlertDialog"/>
     </application>
 
 </manifest>

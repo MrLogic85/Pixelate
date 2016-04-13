@@ -6,9 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
-import java.util.Arrays;
 import java.util.Map;
 
 /**

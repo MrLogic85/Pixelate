@@ -13,8 +13,7 @@ import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.util.Callback;
+import com.sleepyduck.pixelate4crafting.control.util.Callback;
 import com.sleepyduck.pixelate4crafting.view.SwipeCard;
 
 import static com.sleepyduck.pixelate4crafting.model.Pattern.State.ACTIVE;

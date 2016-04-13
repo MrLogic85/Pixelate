@@ -1,7 +1,6 @@
 package com.sleepyduck.pixelate4crafting.view;
 
 import android.content.Context;
-import android.graphics.Rect;
 import android.support.v7.widget.CardView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -10,8 +9,6 @@ import android.view.ViewConfiguration;
 import android.widget.ImageButton;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.util.OnItemSwipeListener;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 /**
  * Created by fredrik.metcalf on 2016-04-08.

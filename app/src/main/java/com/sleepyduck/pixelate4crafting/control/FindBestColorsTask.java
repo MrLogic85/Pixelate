@@ -1,22 +1,15 @@
 package com.sleepyduck.pixelate4crafting.control;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.util.Pair;
 
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

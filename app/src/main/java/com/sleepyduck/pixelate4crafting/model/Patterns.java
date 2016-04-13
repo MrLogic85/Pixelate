@@ -3,7 +3,7 @@ package com.sleepyduck.pixelate4crafting.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.sleepyduck.pixelate4crafting.util.Callback;
+import com.sleepyduck.pixelate4crafting.control.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Collections;
