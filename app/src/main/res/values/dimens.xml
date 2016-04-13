@@ -10,6 +10,8 @@
 
     <dimen name="pattern_menu_collapsed">20dp</dimen>
     <dimen name="color_square_size" type="id">50dp</dimen>
+    <dimen name="color_square_size_small" type="id">15dp</dimen>
     <dimen name="color_grid_size">250dp</dimen>
+    <dimen name="spacing">3dp</dimen>
 </resources>
 

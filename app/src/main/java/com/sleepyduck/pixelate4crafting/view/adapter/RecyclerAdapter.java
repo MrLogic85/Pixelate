@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -133,6 +134,38 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
                 TextView title = (TextView) mItemView.findViewById(R.id.title);
                 title.setText(pattern.getTitle());
+
+                if (pattern.getColors() != null) {
+                    GridLayout grid = (GridLayout) mItemView.findViewById(R.id.pattern_colors);
+                    grid.removeAllViews();
+                    int countColors = pattern.getColors().size();
+                    int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.spacing);
+                    int colorSize = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_size_small);
+                    float numColorsInARow = (float)(grid.getWidth()) / (colorSize + margin);
+                    int columnCount = (int) numColorsInARow;
+                    grid.setColumnCount(columnCount);
+                    int rowCount = countColors / columnCount + (countColors % grid.getColumnCount() > 0 ? 1 : 0);
+                    grid.setRowCount(rowCount);
+
+                    int x = 0, y = 0;
+                    for (int color : pattern.getColors().keySet()) {
+                        View view = new View(mItemView.getContext());
+                        view.setBackgroundColor(color);
+                        GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+                        params.width = colorSize;
+                        params.height = colorSize;
+                        params.columnSpec = GridLayout.spec(x);
+                        params.rowSpec = GridLayout.spec(y);
+                        params.setMargins(0, 0, margin, margin);
+                        grid.addView(view, params);
+
+                        x++;
+                        if (x == grid.getColumnCount()) {
+                            y++;
+                            x = 0;
+                        }
+                    }
+                }
 
                 mItemView.setTag(pattern);
                 mItemView.findViewById(R.id.header).setVisibility(View.GONE);

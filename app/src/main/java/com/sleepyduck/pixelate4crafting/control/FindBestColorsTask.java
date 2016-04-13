@@ -42,7 +42,9 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
             for (int color : colors) {
                 colorMap.put(color, 0);
             }
-            mPattern.setColors(colorMap);
+            if (!isCancelled()) {
+                mPattern.setColors(colorMap);
+            }
         }
         return colors.size();
     }

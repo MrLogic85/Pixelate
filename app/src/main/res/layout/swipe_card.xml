@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.sleepyduck.pixelate4crafting.view.SwipeCard xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="2dp">
+                                                 xmlns:tools="http://schemas.android.com/tools"
+                                                 android:layout_width="match_parent"
+                                                 android:layout_height="wrap_content"
+                                                 android:layout_marginBottom="2dp">
 
     <TextView
         android:id="@+id/header"
@@ -15,7 +14,7 @@
 
     <RelativeLayout
         android:id="@+id/card"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <ImageButton
@@ -29,7 +28,7 @@
             android:background="@android:color/holo_red_dark"
             android:padding="@dimen/padding_small"
             android:scaleType="centerInside"
-            android:src="@drawable/ic_action_delete" />
+            android:src="@drawable/ic_action_delete"/>
 
         <ImageButton
             android:id="@+id/button2"
@@ -41,7 +40,7 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/holo_green_dark"
             android:padding="@dimen/padding_small"
-            android:src="@drawable/ic_action_done" />
+            android:src="@drawable/ic_action_done"/>
 
         <ImageButton
             android:id="@+id/button3"
@@ -53,11 +52,11 @@
             android:layout_alignParentTop="true"
             android:background="@android:color/holo_orange_dark"
             android:padding="@dimen/padding_small"
-            android:src="@drawable/ic_redo" />
+            android:src="@drawable/ic_redo"/>
 
         <LinearLayout
             android:id="@+id/content"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentLeft="true"
@@ -72,17 +71,33 @@
                 android:id="@+id/icon"
                 android:layout_width="@dimen/small_picture_size"
                 android:layout_height="@dimen/small_picture_size"
+                android:layout_gravity="center_vertical"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_launcher" />
+                android:src="@drawable/ic_launcher"/>
 
-            <TextView
-                android:id="@+id/title"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="@dimen/padding"
-                android:gravity="center_vertical"
-                android:lines="1"
-                tools:text="Title" />
+                android:layout_marginLeft="@dimen/padding"
+                android:layout_margin="@dimen/padding_small"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/padding_small"
+                    android:gravity="center_vertical"
+                    android:lines="1"
+                    tools:text="Title"/>
+
+                <GridLayout
+                    android:id="@+id/pattern_colors"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:columnCount="20"
+                    android:alignmentMode="alignBounds"/>
+            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 </com.sleepyduck.pixelate4crafting.view.SwipeCard>
