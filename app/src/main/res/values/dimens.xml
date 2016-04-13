@@ -1,7 +1,7 @@
 <resources>
     <dimen name="color_size">20dp</dimen>
     <dimen name="small_picture_size">60dp</dimen>
-    <dimen name="picture_size">240dp</dimen>
+    <dimen name="picture_size">1920px</dimen>
 
     <dimen name="padding">20dp</dimen>
     <dimen name="padding_small">8dp</dimen>

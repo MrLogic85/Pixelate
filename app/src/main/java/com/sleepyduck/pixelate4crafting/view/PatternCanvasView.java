@@ -21,6 +21,8 @@ import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
+import java.util.Arrays;
+
 public class PatternCanvasView extends ImageView implements View.OnTouchListener {
     private float MAX_SCALE = 10.0f;
     private float MIN_SCALE = 0.1f;
@@ -181,12 +183,15 @@ public class PatternCanvasView extends ImageView implements View.OnTouchListener
     private void checkMatrixBounds() {
         float[] values = new float[9];
         mMatrix.getValues(values);
+        BetterLog.d(this, "Check Matrix, before " + Arrays.toString(values));
         double scale = Math.sqrt(values[0]*values[0] + values[1]*values[1]);
         if (scale > MAX_SCALE) {
             mMatrix.setScale(MAX_SCALE, MAX_SCALE, values[1], values[4]);
         } else if (scale < MIN_SCALE) {
             mMatrix.setScale(MIN_SCALE, MIN_SCALE, values[1], values[4]);
         }
+        mMatrix.getValues(values);
+        BetterLog.d(this, "Check Matrix, after " + Arrays.toString(values));
     }
 
     @Override

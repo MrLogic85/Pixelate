@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -47,24 +48,37 @@ public class BitmapHandler {
 
 	public static void storeLocally(Context context, Uri uri, String fileName) {
 		try {
-			InputStream is = context.getContentResolver().openInputStream(uri);
-			File file = new File(context.getFilesDir(), fileName);
-			FileOutputStream fos = new FileOutputStream(file);
-			byte[] buffer = new byte[256];
-			int read = 0;
-			do {
-				read = is.read(buffer);
-				fos.write(buffer, 0, read);
-			} while (read == buffer.length);
-			is.close();
-			fos.close();
+            //Store image
+            InputStream is = context.getContentResolver().openInputStream(uri);
+            int newWidth = (int) context.getResources().getDimension(R.dimen.picture_size);
+            int newHeight;
+            Bitmap orig = BitmapFactory.decodeStream(is);
+            if (newWidth >= orig.getWidth()) {
+                newWidth = orig.getWidth();
+                newHeight = orig.getHeight();
+                BetterLog.d(BitmapHandler.class, "Not scaling down from " + orig.getWidth());
+            } else {
+                BetterLog.d(BitmapHandler.class, "Scaling down from " + orig.getWidth() + " to " + newWidth);
+                newHeight = newWidth * orig.getHeight() / orig.getWidth();
+            }
+            Bitmap image = ThumbnailUtils.extractThumbnail(orig, newWidth, newHeight);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            image.compress(CompressFormat.JPEG, 0, bos);
+            byte[] bitmapdata = bos.toByteArray();
+            File file = new File(context.getFilesDir(), fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bitmapdata, 0, bitmapdata.length);
+            bos.close();
+            fos.close();
+            is.close();
 
 			// Store thumbnail
+            is = context.getContentResolver().openInputStream(uri);
 			int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
-			Bitmap thumb = ThumbnailUtils.extractThumbnail(getFromFileName(context, fileName), thumbSize, thumbSize);
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			thumb.compress(CompressFormat.PNG, 0 /* ignored for PNG */, bos);
-			byte[] bitmapdata = bos.toByteArray();
+			Bitmap thumb = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(is), thumbSize, thumbSize);
+			bos = new ByteArrayOutputStream();
+			thumb.compress(CompressFormat.PNG, 100, bos);
+			bitmapdata = bos.toByteArray();
 			file = new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL);
 			fos = new FileOutputStream(file);
 			fos.write(bitmapdata, 0, bitmapdata.length);

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
 
+import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
 import java.util.Map;
@@ -25,7 +26,7 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
             mPattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
 
-            countColors(mBitmap, mPattern.getColors());
+            //countColors(mBitmap, mPattern.getColors());
         }
         return null;
     }
@@ -33,12 +34,16 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
     private void countColors(Bitmap mBitmap, Map<Integer, Integer> colors) {
         int diff, bestDiff, bestColor = 0;
         for (int x = 0; x < mBitmap.getWidth(); ++x) {
+            if(isCancelled()) {
+                clearCount(colors);
+                return;
+            }
             publishProgress(x * 100 / mBitmap.getWidth());
             for (int y = 0; y < mBitmap.getHeight(); ++y) {
                 int pixel = mBitmap.getPixel(x, y);
                 bestDiff = Integer.MAX_VALUE;
                 for (int color : colors.keySet()) {
-                    diff = checkColorDiff(pixel, color);
+                    diff = ColorUtil.Diff(pixel, color);
                     if (diff < bestDiff) {
                         bestDiff = diff;
                         bestColor = color;
@@ -49,9 +54,9 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
         }
     }
 
-    private int checkColorDiff(int left, int right) {
-        return Math.abs(Color.red(left) - Color.red(right))
-                + Math.abs(Color.green(left) - Color.green(right))
-                + Math.abs(Color.blue(left) - Color.blue(right));
+    private void clearCount(Map<Integer, Integer> colors) {
+        for (Map.Entry<Integer, Integer> entry : colors.entrySet()) {
+            entry.setValue(0);
+        }
     }
 }

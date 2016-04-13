@@ -161,10 +161,12 @@ public class MainActivity extends AppCompatActivity {
                     intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
                     startActivity(intent);
                 }
+                break;
                 case REQUEST_REDO_COLORS:
                 case REQUEST_REDO_PIXELS: {
                     launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
                 }
+                break;
             }
         }
 

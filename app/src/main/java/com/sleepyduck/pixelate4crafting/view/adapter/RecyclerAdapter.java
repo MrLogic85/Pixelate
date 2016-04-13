@@ -136,9 +136,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 TextView title = (TextView) mItemView.findViewById(R.id.title);
                 title.setText(pattern.getTitle());
 
+                GridLayout grid = (GridLayout) mItemView.findViewById(R.id.pattern_colors);
+                grid.removeAllViews();
                 if (pattern.getColors() != null) {
-                    GridLayout grid = (GridLayout) mItemView.findViewById(R.id.pattern_colors);
-                    grid.removeAllViews();
                     int countColors = pattern.getColors().size();
                     int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.spacing);
                     int colorSize = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_size_small);
