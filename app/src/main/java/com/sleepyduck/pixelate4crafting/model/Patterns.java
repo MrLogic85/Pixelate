@@ -34,7 +34,7 @@ public class Patterns {
             SharedPreferences pref = context.getSharedPreferences(PREFERENCE_NAME, 0);
             int size = pref.getInt(PREF_COUNT, 0);
             for (int i = 0; i < size; ++i) {
-                Pattern pattern = new Pattern(i, pref);
+                Pattern pattern = new Pattern(context, i, pref);
                 Add(pattern);
             }
         }
@@ -46,7 +46,7 @@ public class Patterns {
         editor.putInt(PREF_COUNT, MAP.size());
         List<Pattern> patterns = new ArrayList<>(MAP.values());
         for (int i = 0; i < patterns.size(); ++i) {
-            patterns.get(i).save(i, editor);
+            patterns.get(i).save(context, i, editor);
         }
         editor.commit();
     }

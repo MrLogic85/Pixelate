@@ -31,38 +31,12 @@ public class PatternActivity extends AppCompatActivity {
 		mPattern = Patterns.GetPattern(id);
 		
 		mCanvas = (PatternCanvasView) findViewById(R.id.canvas);
-		mCanvas.setId(CANVAS_VIEW_ID);
 		mCanvas.setPattern(mPattern);
-
-		/*mCanvas.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
-			@Override
-			public void onGlobalLayout() {
-				mCanvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-				updateFile(mPattern.getFileName());
-			}
-		});*/
 	}
 
-	@Override
+	/*@Override
 	protected void onResume() {
 		mCanvas.executeRedraw();
 		super.onResume();
-	}
-
-	private void updateFile(String fileName) {
-		if (fileName != null) {
-			Bitmap bitmap = BitmapHandler.getFromFileName(this, fileName);
-			if (bitmap != null) {
-				mCanvas.setImageBitmap(bitmap);
-				int height = mPattern.getPixelWidth() * bitmap.getHeight() / bitmap.getWidth();
-				//mCanvas.setPixelHeight(height);
-				mPattern.setPixelHeight(height);
-				Patterns.Save(this);
-			} else {
-				BetterLog.d(this, "Found no bitmap");
-			}
-		} else {
-			BetterLog.d(this, "No file name");
-		}
-	}
+	}*/
 }

@@ -5,30 +5,104 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
-public class PatternCanvasView extends ImageView {
-	private Bitmap mImageBitmap;
+public class PatternCanvasView extends ImageView implements View.OnTouchListener {
+    private float MAX_SCALE = 10.0f;
+    private float MIN_SCALE = 0.1f;
+    private Bitmap mImageBitmap;
 	private BitmapAsyncTask mBitmapAsyncTask = new BitmapAsyncTask();
 	private Pattern mPattern;
+    private Matrix mMatrix;
 
-	public PatternCanvasView(Context context, AttributeSet attrs, int defStyle) {
+    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            return false;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            mMatrix.postTranslate(-distanceX, -distanceY);
+            setImageMatrix(mMatrix);
+            checkMatrixBounds();
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            return false;
+        }
+    });
+
+    private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            float scale = detector.getScaleFactor();
+            if (scale > 1) {
+                scale = 1.1f;
+            } else if (scale < 1) {
+                scale = 0.95f;
+            }
+            mMatrix.postScale(scale, scale, detector.getFocusX(), detector.getFocusY());
+            checkMatrixBounds();
+            setImageMatrix(mMatrix);
+            return false;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+
+        }
+    });
+
+    public PatternCanvasView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+        setOnTouchListener(this);
 	}
 
 	public PatternCanvasView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+        setOnTouchListener(this);
 	}
 
 	public PatternCanvasView(Context context) {
 		super(context);
+        setOnTouchListener(this);
 	}
 
 	@Override
@@ -43,6 +117,11 @@ public class PatternCanvasView extends ImageView {
 		Bundle bundle = new Bundle();
 		bundle.putParcelable("super", superState);
 		bundle.putParcelable("image_bitmap", mImageBitmap);
+        if (mMatrix != null) {
+            float[] values = new float[9];
+            mMatrix.getValues(values);
+            bundle.putFloatArray("image_matrix", values);
+        }
 		return bundle;
 	}
 
@@ -50,16 +129,15 @@ public class PatternCanvasView extends ImageView {
 	protected void onRestoreInstanceState(Parcelable state) {
 		if (state instanceof Bundle) {
 			Bundle bundle = (Bundle) state;
-			setImageBitmap((Bitmap) bundle.get("image_bitmap"));
+            mImageBitmap = bundle.getParcelable("image_bitmap");
+			setImageBitmap(mImageBitmap);
+            if (bundle.containsKey("image_matrix")) {
+                mMatrix = new Matrix();
+                mMatrix.setValues(bundle.getFloatArray("image_matrix"));
+                setImageMatrix(mMatrix);
+                BetterLog.d(this, "Found image matrix " + mMatrix);
+            }
 			super.onRestoreInstanceState(bundle.getParcelable("super"));
-		}
-	}
-
-	@Override
-	public void setImageBitmap(Bitmap bm) {
-		if (bm != null) {
-			mImageBitmap = bm;
-			executeRedraw();
 		}
 	}
 
@@ -76,9 +154,49 @@ public class PatternCanvasView extends ImageView {
 
 	public void setPattern(Pattern pattern) {
 		mPattern = pattern;
+        if (mImageBitmap == null) {
+            executeRedraw();
+        }
 	}
 
-	private final class BitmapAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
+    @Override
+    public void setImageBitmap(Bitmap bm) {
+        super.setImageBitmap(bm);
+        BetterLog.d(this, "Bitmap redrawn");
+
+        if (mMatrix == null) {
+            scaletoFit();
+        }
+    }
+
+    private void scaletoFit() {
+        mMatrix = getImageMatrix();
+        RectF drawableRect = new RectF(0, 0, mImageBitmap.getWidth(), mImageBitmap.getHeight());
+        RectF viewRect = new RectF(0, 0, getWidth(), getHeight());
+        mMatrix.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER);
+        setImageMatrix(mMatrix);
+        BetterLog.d(this, "Scaling pattern to fit screen with " + mMatrix);
+    }
+
+    private void checkMatrixBounds() {
+        float[] values = new float[9];
+        mMatrix.getValues(values);
+        double scale = Math.sqrt(values[0]*values[0] + values[1]*values[1]);
+        if (scale > MAX_SCALE) {
+            mMatrix.setScale(MAX_SCALE, MAX_SCALE, values[1], values[4]);
+        } else if (scale < MIN_SCALE) {
+            mMatrix.setScale(MIN_SCALE, MIN_SCALE, values[1], values[4]);
+        }
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        mScaleDetector.onTouchEvent(event);
+        mGestureDetector.onTouchEvent(event);
+        return true;
+    }
+
+    private final class BitmapAsyncTask extends AsyncTask<Bitmap, Bitmap, Bitmap> {
 		int pixelSize;
 		private int[][] pixels;
 		private Bitmap pixelBitmap;
@@ -90,34 +208,27 @@ public class PatternCanvasView extends ImageView {
 			pixelsHeight = mPattern.getPixelHeight();
 			pixels = mPattern.getColorMatrix();
 
-			boolean drawGrid = true;
-			pixelSize = 10;
-			if (drawGrid) {
-				pixelSize++;
-			}
-			int resultWidth = pixelsWidth * pixelSize;
-			int resultHeight = pixelsHeight * pixelSize;
-			if (drawGrid) {
-				resultWidth += pixelSize;
-				resultHeight += pixelSize;
-			}
+			pixelSize = 11; // 10 per pixel plus 1 for grid
+			int resultWidth = (pixelsWidth + 1) * pixelSize;
+			int resultHeight = (pixelsHeight + 1) * pixelSize;
+
 			pixelBitmap = Bitmap.createBitmap(resultWidth, resultHeight, Config.ARGB_8888);
+			// Draw colors
 			for (int y = 0; y < pixelsHeight; ++y) {
 				for (int x = 0; x < pixelsWidth; ++x) {
-					setColor(pixelBitmap, pixels[x][y], x, y, drawGrid);
+					setColor(pixelBitmap, pixels[x][y], x, y);
 				}
 				if (isCancelled()) {
 					return null;
 				}
 			}
-			if (drawGrid) {
-				for (int y = 0; y <= pixelsHeight; ++y) {
-					for (int x = 0; x <= pixelsWidth; ++x) {
-						drawGrid(pixelBitmap, x, y);
-					}
-					if (isCancelled()) {
-						return null;
-					}
+			// Draw grid
+			for (int y = 0; y <= pixelsHeight; ++y) {
+				for (int x = 0; x <= pixelsWidth; ++x) {
+					drawGrid(pixelBitmap, x, y);
+				}
+				if (isCancelled()) {
+					return null;
 				}
 			}
 
@@ -147,11 +258,10 @@ public class PatternCanvasView extends ImageView {
 			}
 		}
 
-		private void setColor(Bitmap bitmap, int color, int x, int y, boolean drawGrid) {
-			if (drawGrid) {
-				x++;
-				y++;
-			}
+		private void setColor(Bitmap bitmap, int color, int x, int y) {
+			// Add one to x and y due to extended grid
+			x++;
+			y++;
 			for (int Y = y * pixelSize; Y < (y + 1) * pixelSize; ++Y) {
 				for (int X = x * pixelSize; X < (x + 1) * pixelSize; ++X) {
 					bitmap.setPixel(X, Y, color);
@@ -162,26 +272,9 @@ public class PatternCanvasView extends ImageView {
 		@Override
 		protected void onPostExecute(Bitmap bitmap) {
 			if (bitmap != null) {
-				PatternCanvasView.super.setImageBitmap(bitmap);
+                mImageBitmap = bitmap;
+				setImageBitmap(bitmap);
 			}
 		}
-
 	}
-
-	public int getBitmapWidth() {
-		if (mImageBitmap != null) {
-			return mImageBitmap.getWidth();
-		} else {
-			return -1;
-		}
-	}
-
-	public int getBitmapHeight() {
-		if (mImageBitmap != null) {
-			return mImageBitmap.getHeight();
-		} else {
-			return -1;
-		}
-	}
-
 }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
 import java.util.Map;
@@ -58,9 +59,15 @@ public class Pattern implements Comparable<Pattern> {
         if (mFileNameThumb != null && mFileNameThumb.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileNameThumb);
         }
+        if (mColors != null) {
+            DataManager.DestroyColors(context, Id);
+        }
+        if (mColorMatrix != null) {
+            DataManager.DestroyPixels(context, Id);
+        }
     }
 
-    public Pattern(int prefCounter, SharedPreferences pref) {
+    public Pattern(Context context, int prefCounter, SharedPreferences pref) {
         Id = pref.getInt("" + prefCounter + PREF_ID, -1);
         mTitle = pref.getString("" + prefCounter + PREF_TITLE, mTitle);
         mState = State.valueOf(pref.getInt("" + prefCounter + PREF_STATE, State.ACTIVE.ordinal()));
@@ -69,9 +76,11 @@ public class Pattern implements Comparable<Pattern> {
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, mWeight);
+        mColors = DataManager.LoadColors(context, Id);
+        mColorMatrix = DataManager.LoadPixels(context, Id);
     }
 
-    public void save(int prefCounter, SharedPreferences.Editor editor) {
+    public void save(Context context, int prefCounter, SharedPreferences.Editor editor) {
         editor.putInt("" + prefCounter + PREF_ID, Id);
         editor.putString("" + prefCounter + PREF_TITLE, mTitle);
         editor.putInt("" + prefCounter + PREF_STATE, mState.ordinal());
@@ -80,6 +89,12 @@ public class Pattern implements Comparable<Pattern> {
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         editor.putInt("" + prefCounter + PREF_WEIGHT, mWeight);
+        if (mColors != null) {
+            DataManager.SavePixels(context, Id, mColors);
+        }
+        if (mColorMatrix != null) {
+            DataManager.SavePixels(context, Id, mColorMatrix);
+        }
     }
 
     @Override

@@ -57,7 +57,7 @@ public class ConfigurationImageActivity extends Activity {
             if ("content".equals(imageUri.getScheme())) {
                 String fileName = BitmapHandler.getFileName(this, imageUri);
                 Pattern pattern = new Pattern(Pattern.createTitleFromFileName(fileName));
-                fileName += String.format("%8d", pattern.Id);
+                fileName += String.format("%8x", pattern.Id);
                 BetterLog.d(this, "File name created: " + fileName);
                 BitmapHandler.storeLocally(this, imageUri, fileName);
                 pattern.setFileName(fileName);

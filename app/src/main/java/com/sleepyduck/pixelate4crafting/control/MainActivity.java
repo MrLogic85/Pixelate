@@ -156,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
                     int patternId = data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
                     Pattern pattern = Patterns.GetPattern(patternId);
                     Patterns.MakeLatest(pattern);
-                    Patterns.Save(this);
 
                     Intent intent = new Intent(this, PatternActivity.class);
                     intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
@@ -168,5 +167,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        // Save in case something changed
+        Patterns.Save(this);
     }
 }

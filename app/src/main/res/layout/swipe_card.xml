@@ -95,7 +95,7 @@
                     android:id="@+id/pattern_colors"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:columnCount="20"
+                    android:columnCount="10"
                     android:alignmentMode="alignBounds"/>
             </LinearLayout>
         </LinearLayout>
