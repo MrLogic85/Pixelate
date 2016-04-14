@@ -62,31 +62,33 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
 
+        Map.Entry<Integer, Integer> mostUncommonColor = null;
         int colorCount = 0;
-        long red = 0, green = 0, blue = 0;
+        long L = 0, a = 0, b = 0;
+        int[] Lab = new int[3];
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
                 if (Color.alpha(pixel) < 0xff) {
                     pixel = Color.WHITE;
                 }
-                red += Color.red(pixel);
-                green += Color.green(pixel);
-                blue += Color.blue(pixel);
+                ColorUtil.rgb2lab(Color.red(pixel), Color.green(pixel), Color.blue(pixel), Lab);
+                L += Lab[0];
+                a += Lab[1];
+                b += Lab[2];
                 colorCount++;
                 /*Map.Entry<Integer, Integer> color = getBestColorFor(pixel);
-                if (color.getValue() <= minColorCount) {
-                    minColorCount = color.getValue();
-                    bestColor = color;
+                if (mostUncommonColor == null || color.getValue() <= mostUncommonColor.getValue()) {
+                    mostUncommonColor = color;
                 }*/
             }
         }
-        red /= colorCount;
-        green /= colorCount;
-        blue /= colorCount;
-        int pixel = Color.rgb((int)red, (int)green, (int)blue);
+        L /= colorCount;
+        a /= colorCount;
+        b /= colorCount;
+        int pixel = Color.rgb((int)L, (int)a, (int)b);
         return getBestColorFor(pixel).getKey();
-        //return bestColor.getKey();
+        //return mostUncommonColor.getKey();
     }
 
     private Map.Entry<Integer, Integer> getBestColorFor(int pixel) {

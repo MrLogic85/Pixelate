@@ -55,42 +55,51 @@ public class BitmapHandler {
             InputStream is = context.getContentResolver().openInputStream(uri);
             Bitmap orig = BitmapFactory.decodeStream(is);
             is.close();
-            Bitmap image = Bitmap.createBitmap(orig);
+			is = context.getContentResolver().openInputStream(uri);
+			Bitmap jpegCopy = BitmapFactory.decodeStream(is);
+			is.close();
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            image.compress(CompressFormat.JPEG, 0, bos);
+            jpegCopy.compress(CompressFormat.JPEG, 0, bos);
             byte[] bitmapdata = bos.toByteArray();
-            image.recycle();
+            jpegCopy.recycle();
             bos.close();
+			jpegCopy = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
 
             // Save the compressed image
-            File file = new File(context.getFilesDir(), fileName);
+            /*File file = new File(context.getFilesDir(), fileName);
             FileOutputStream fos = new FileOutputStream(file);
             fos.write(bitmapdata, 0, bitmapdata.length);
             fos.close();
 
             // Read the image back up again
-            image = getFromFileName(context, fileName);
+            image = getFromFileName(context, fileName);*/
+			Bitmap mergedImage = Bitmap.createBitmap(orig.getWidth(), orig.getHeight(), orig.getConfig());
 
             // Copy transparent pixels to the jpeg
             for (int x = 0; x < orig.getWidth(); ++x) {
                 for (int y = 0; y < orig.getHeight(); ++y) {
-                    // TODO Recycled!
                     int pixel = orig.getPixel(x, y);
+					int jpeg = jpegCopy.getPixel(x, y);
                     if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
-                        image.setPixel(x, y, Color.TRANSPARENT);
-                    }
+						mergedImage.setPixel(x, y, Color.TRANSPARENT);
+                    } else {
+						mergedImage.setPixel(x, y, jpeg);
+					}
                 }
             }
             orig.recycle();
+			jpegCopy.recycle();
+
+			// Save merged image
             bos = new ByteArrayOutputStream();
-            image.compress(CompressFormat.PNG, 0, bos);
+			mergedImage.compress(CompressFormat.PNG, 0, bos);
             bitmapdata = bos.toByteArray();
-            image.recycle();
+			mergedImage.recycle();
             bos.close();
 
             // Save png with transparent pixels
-            file = new File(context.getFilesDir(), fileName);
-            fos = new FileOutputStream(file);
+            File file = new File(context.getFilesDir(), fileName);
+            FileOutputStream fos = new FileOutputStream(file);
             fos.write(bitmapdata, 0, bitmapdata.length);
             fos.close();
 

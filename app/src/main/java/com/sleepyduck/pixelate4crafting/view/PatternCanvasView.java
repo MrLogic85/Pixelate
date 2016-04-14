@@ -17,7 +17,6 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
@@ -30,6 +29,7 @@ public class PatternCanvasView extends ImageView implements View.OnTouchListener
 	private BitmapAsyncTask mBitmapAsyncTask = new BitmapAsyncTask();
 	private Pattern mPattern;
     private Matrix mMatrix;
+    float mScale, mX, mY;
 
     private GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
         @Override
@@ -49,9 +49,12 @@ public class PatternCanvasView extends ImageView implements View.OnTouchListener
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            mMatrix.postTranslate(-distanceX, -distanceY);
-            setImageMatrix(mMatrix);
-            checkMatrixBounds();
+            if (!mScaleDetector.isInProgress()) {
+                mMatrix.postTranslate(-distanceX, -distanceY);
+                setImageMatrix(mMatrix);
+                //checkMatrixBounds();
+                return true;
+            }
             return false;
         }
 
@@ -67,28 +70,31 @@ public class PatternCanvasView extends ImageView implements View.OnTouchListener
     });
 
     private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
+        float lastX, lastY;
+
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+            // Scale
             float scale = detector.getScaleFactor();
-            if (scale > 1) {
-                scale = 1.1f;
-            } else if (scale < 1) {
-                scale = 0.95f;
-            }
             mMatrix.postScale(scale, scale, detector.getFocusX(), detector.getFocusY());
-            checkMatrixBounds();
+
+            // Move
+            mMatrix.postTranslate(detector.getFocusX()- lastX, detector.getFocusY()- lastY);
+            lastX = detector.getFocusX();
+            lastY = detector.getFocusY();
             setImageMatrix(mMatrix);
-            return false;
+            return true;
         }
 
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
+            lastX = detector.getFocusX();
+            lastY = detector.getFocusY();
             return true;
         }
 
         @Override
         public void onScaleEnd(ScaleGestureDetector detector) {
-
         }
     });
 

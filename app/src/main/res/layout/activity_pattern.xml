@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 tools:context=".control.configuration.ConfigurationActivity">
 
     <android.support.v7.widget.Toolbar
@@ -18,8 +18,8 @@
     <com.sleepyduck.pixelate4crafting.view.PatternCanvasView
         android:id="@+id/canvas"
         android:layout_width="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:scaleType="matrix"
         android:layout_height="match_parent"
-        android:layout_margin="@dimen/padding"/>
+        android:layout_below="@+id/toolbar"
+        android:layout_margin="@dimen/padding"
+        android:scaleType="matrix"/>
 </RelativeLayout>
