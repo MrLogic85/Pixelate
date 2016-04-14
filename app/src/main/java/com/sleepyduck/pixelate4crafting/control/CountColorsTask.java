@@ -26,14 +26,19 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
             mPattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
 
-            //countColors(mBitmap, mPattern.getColors());
+            // Null count
+            for (Map.Entry<Integer, Float> color : mPattern.getColors().entrySet()) {
+                color.setValue(0f);
+            }
+            countColors(mBitmap, mPattern.getColors());
         }
         return null;
     }
 
-    private void countColors(Bitmap mBitmap, Map<Integer, Integer> colors) {
+    private void countColors(Bitmap mBitmap, Map<Integer, Float> colors) {
         double diff, bestDiff;
-        int bestColor = 0;
+        float resInv = 1f / (float) (mBitmap.getWidth() * mBitmap.getHeight());
+        Map.Entry<Integer, Float> bestColor = null;
         for (int x = 0; x < mBitmap.getWidth(); ++x) {
             if(isCancelled()) {
                 clearCount(colors);
@@ -43,21 +48,21 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
             for (int y = 0; y < mBitmap.getHeight(); ++y) {
                 int pixel = mBitmap.getPixel(x, y);
                 bestDiff = Integer.MAX_VALUE;
-                for (int color : colors.keySet()) {
-                    diff = ColorUtil.Diff(pixel, color);
+                for (Map.Entry<Integer, Float> color : colors.entrySet()) {
+                    diff = ColorUtil.Diff(pixel, color.getKey());
                     if (diff < bestDiff) {
                         bestDiff = diff;
                         bestColor = color;
                     }
                 }
-                colors.put(bestColor, colors.get(bestColor) + 1);
+                bestColor.setValue(bestColor.getValue() + resInv);
             }
         }
     }
 
-    private void clearCount(Map<Integer, Integer> colors) {
-        for (Map.Entry<Integer, Integer> entry : colors.entrySet()) {
-            entry.setValue(0);
+    private void clearCount(Map<Integer, Float> colors) {
+        for (Map.Entry<Integer, Float> entry : colors.entrySet()) {
+            entry.setValue(0f);
         }
     }
 }

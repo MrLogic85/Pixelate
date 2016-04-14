@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -56,51 +57,56 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         return colorMatrix;
     }
 
+    /**
+     * Find the dominant color in the pixel, comparing the color weight in the pixel compared to
+     * the entire image
+     * @param dx
+     * @param dy
+     * @param pixelSize
+     * @return
+     */
     private int checkColorsFor(float dx, float dy, float pixelSize) {
         int x = Math.round(dx);
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
 
-        Map.Entry<Integer, Integer> mostUncommonColor = null;
-        int colorCount = 0;
-        long L = 0, a = 0, b = 0;
-        double[] Lab = new double[3];
-        double[] XYZ = new double[3];
-        double[] LabAvg = new double[3];
+        Map<Integer, Float> countPixelColors = new HashMap<>();
+        float resInv = 1f / (float)(width*height);
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
                 if (Color.alpha(pixel) < 0xff) {
                     pixel = Color.WHITE;
                 }
-                ColorUtil.RGBToXYZ(Color.red(pixel), Color.green(pixel), Color.blue(pixel), XYZ);
-                ColorUtil.XYZToLab(XYZ, Lab);
-                LabAvg[0] += Lab[0];
-                LabAvg[1] += Lab[1];
-                LabAvg[2] += Lab[2];
-                colorCount++;
-                /*Map.Entry<Integer, Integer> color = getBestColorFor(pixel);
-                if (mostUncommonColor == null || color.getValue() <= mostUncommonColor.getValue()) {
-                    mostUncommonColor = color;
-                }*/
+                Integer color = getBestColorFor(pixel).getKey();
+                if (countPixelColors.containsKey(color)) {
+                    countPixelColors.put(color, (countPixelColors.get(color) + resInv));
+                } else {
+                    countPixelColors.put(color, resInv);
+                }
             }
         }
-        LabAvg[0] /= (double)colorCount;
-        LabAvg[1] /= (double)colorCount;
-        LabAvg[2] /= (double)colorCount;
-        ColorUtil.LabToXYZ(LabAvg, XYZ);
-        int[] rgb = new int[3];
-        ColorUtil.XYZToRGB(XYZ, rgb);
-        int pixel = Color.rgb(rgb[0],rgb[1], rgb[2]);
-        return getBestColorFor(pixel).getKey();
-        //return mostUncommonColor.getKey();
+        Map<Integer, Float> colors = mPattern.getColors();
+        if (countPixelColors.size() > 0) {
+            int bestColor = Color.TRANSPARENT;
+            float bestWeight = Float.MIN_VALUE, weight;
+            for (Map.Entry<Integer, Float> entry : countPixelColors.entrySet()) {
+                weight = entry.getValue() / colors.get(entry.getKey());
+                if (weight > bestWeight) {
+                    bestWeight = weight;
+                    bestColor = entry.getKey();
+                }
+            }
+            return bestColor;
+        }
+        return Color.TRANSPARENT;
     }
 
-    private Map.Entry<Integer, Integer> getBestColorFor(int pixel) {
+    private Map.Entry<Integer, Float> getBestColorFor(int pixel) {
         double diff, minDiff = Integer.MAX_VALUE;
-        Map.Entry<Integer, Integer> bestColor = null;
-        for (Map.Entry<Integer, Integer> color : mPattern.getColors().entrySet()) {
+        Map.Entry<Integer, Float> bestColor = null;
+        for (Map.Entry<Integer, Float> color : mPattern.getColors().entrySet()) {
             diff = ColorUtil.Diff(color.getKey(), pixel);
             if (diff < minDiff) {
                 minDiff = diff;

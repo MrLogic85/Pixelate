@@ -64,17 +64,8 @@ public class BitmapHandler {
             bos.close();
 			jpegCopy = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
 
-            // Save the compressed image
-            /*File file = new File(context.getFilesDir(), fileName);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bitmapdata, 0, bitmapdata.length);
-            fos.close();
-
-            // Read the image back up again
-            image = getFromFileName(context, fileName);*/
-			Bitmap mergedImage = Bitmap.createBitmap(orig.getWidth(), orig.getHeight(), orig.getConfig());
-
             // Copy transparent pixels to the jpeg
+			Bitmap mergedImage = Bitmap.createBitmap(orig.getWidth(), orig.getHeight(), orig.getConfig());
             for (int x = 0; x < orig.getWidth(); ++x) {
                 for (int y = 0; y < orig.getHeight(); ++y) {
                     int pixel = orig.getPixel(x, y);

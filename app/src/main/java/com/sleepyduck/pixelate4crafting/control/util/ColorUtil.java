@@ -1,6 +1,8 @@
 package com.sleepyduck.pixelate4crafting.control.util;
 
 import android.graphics.Color;
+import android.net.LinkAddress;
+import android.support.v4.graphics.ColorUtils;
 
 /**
  * Created by fredrikmetcalf on 13/04/16.
@@ -21,6 +23,12 @@ public class ColorUtil {
     private static double[] LabRight = new double[3];
 
     public static double Diff(int left, int right) {
+        ColorUtils.colorToLAB(left, LabLeft);
+        ColorUtils.colorToLAB(right, LabRight);
+        return ColorUtils.distanceEuclidean(LabLeft, LabRight);
+    }
+
+   /* public static double Diff(int left, int right) {
         RGBToXYZ(Color.red(left), Color.green(left), Color.blue(left), XYZLeft);
         XYZToLab(XYZLeft, LabLeft);
         RGBToXYZ(Color.red(right), Color.green(right), Color.blue(right), XYZRight);
@@ -59,7 +67,7 @@ public class ColorUtil {
                     + Math.abs(rgbLeft[2] - rgbRight[2]);
         }
         return 768;*/
-    }
+    //}
 
     /*private static float[] rgbToXYZ(int color) {
         return mul(M, new float[]{Color.red(color) / 255f,
@@ -164,7 +172,7 @@ public class ColorUtil {
 
     // === Algorithm 2 from http://www.easyrgb.com/index.php?X=MATH ===
 
-    public static void RGBToXYZ(int R, int G, int B, double[] XYZ) {
+    /*public static void RGBToXYZ(int R, int G, int B, double[] XYZ) {
         double var_R = (R / 255.);        //R from 0 to 255
         double var_G = (G / 255.);        //G from 0 to 255
         double var_B = (B / 255.);        //B from 0 to 255
@@ -243,5 +251,5 @@ public class ColorUtil {
         RGB[0] = (int) (var_R * 255.);
         RGB[1] = (int) (var_G * 255.);
         RGB[2] = (int) (var_B * 255.);
-    }
+    }*/
 }

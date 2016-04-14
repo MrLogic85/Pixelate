@@ -20,7 +20,7 @@ public class DataManager {
     private static final String COLOR_FILE = "COLORS";
     private static final String PIXEL_FILE = "PIXELS";
 
-    public static void SavePixels(Context context, int patternId, Map<Integer, Integer> colors) {
+    public static void SavePixels(Context context, int patternId, Map<Integer, Float> colors) {
         SaveData(context, patternId, COLOR_FILE, colors);
     }
 
@@ -28,9 +28,9 @@ public class DataManager {
         SaveData(context, patternId, PIXEL_FILE, pixels);
     }
 
-    public static Map<Integer, Integer> LoadColors(Context context, int patternId) {
+    public static Map<Integer, Float> LoadColors(Context context, int patternId) {
         try {
-            return (Map<Integer, Integer>) LoadData(context, patternId, COLOR_FILE);
+            return (Map<Integer, Float>) LoadData(context, patternId, COLOR_FILE);
         } catch (ClassCastException e) {
             e.printStackTrace();
             return null;

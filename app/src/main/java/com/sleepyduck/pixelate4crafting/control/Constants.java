@@ -6,6 +6,6 @@ public class Constants {
 	public static final String FILE_THUMBNAIL = "_thumb";
 	public static final String FILE_ORIG = "_orig";
 	public static final int DEFAULT_MAX_COLORS = 20;
-	public static final int COLOR_SELECT_THRESHOLD = 2;
+	public static final double COLOR_SELECT_THRESHOLD = 3.;
 	public static int DEFAULT_PIXELS = 50;
 }

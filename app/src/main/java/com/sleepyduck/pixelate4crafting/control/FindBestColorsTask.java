@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.support.v4.graphics.ColorUtils;
 
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -25,7 +26,7 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
     private int mNumColors;
     private Bitmap mBitmap;
 
-    Map<Integer, Integer> colorsCounted = new HashMap<>();
+    Map<Integer, Float> colorsCounted = new HashMap<>();
 
     @Override
     protected Integer doInBackground(Object... params) {
@@ -58,27 +59,27 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
                     pixel = Color.WHITE;
                 }
                 if (colorsCounted.containsKey(pixel)) {
-                    colorsCounted.put(pixel, colorsCounted.get(pixel) + 1);
+                    colorsCounted.put(pixel, colorsCounted.get(pixel) + 1f);
                 } else {
-                    colorsCounted.put(pixel, 1);
+                    colorsCounted.put(pixel, 1f);
                 }
             }
         }
     }
 
     private void selectColors() {
-        List<Map.Entry<Integer, Integer>> sortedColors = new ArrayList<>(colorsCounted.entrySet());
-        Collections.sort(sortedColors, new Comparator<Map.Entry<Integer, Integer>>() {
+        ArrayList<Map.Entry<Integer, Float>> sortedColors = new ArrayList<>(colorsCounted.entrySet());
+        Collections.sort(sortedColors, new Comparator<Map.Entry<Integer, Float>>() {
             @Override
-            public int compare(Map.Entry<Integer, Integer> lhs, Map.Entry<Integer, Integer> rhs) {
-                return rhs.getValue() - lhs.getValue();
+            public int compare(Map.Entry<Integer, Float> lhs, Map.Entry<Integer, Float> rhs) {
+                return (int) (rhs.getValue() - lhs.getValue());
             }
         });
         BetterLog.d(FindBestColorsTask.this, "Filtered out colors size " + sortedColors.size());
 
         // If too many colors, rerun with higher threshold
-        int step = 256*3;//*3*4;
-        int currentThresh = Constants.COLOR_SELECT_THRESHOLD;
+        double step = 256*3;//*3*4;
+        double currentThresh = Constants.COLOR_SELECT_THRESHOLD;
         while (colorsCounted.size() != mNumColors && !isCancelled()) {
             publishProgress(50 + mNumColors * 50 / (Math.abs(colorsCounted.size() - mNumColors) + 1)); // 0%-50%
             step /= 2;
@@ -89,23 +90,23 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
             }
 
             colorsCounted.clear();
-            for (Map.Entry<Integer, Integer> color : sortedColors) {
+            for (Map.Entry<Integer, Float> color : sortedColors) {
                 checkColor(color, currentThresh);
             }
             BetterLog.d(FindBestColorsTask.this, "currentThresh = " + currentThresh + ", colorCount = " + colorsCounted.size());
-            if (step <= 1 || colorsCounted.size() == mNumColors) {
+            if (step <= 0.1 || colorsCounted.size() == mNumColors) {
                 break;
             }
         }
         BetterLog.d(this, "Colors " + colorsCounted);
     }
 
-    private void checkColor(Map.Entry<Integer, Integer> color, int threshold) {
+    private void checkColor(Map.Entry<Integer, Float> color, double threshold) {
         if (colorsCounted.containsKey(color.getKey())) {
             return;
         }
-        for (int existingColor : colorsCounted.values()) {
-            if (ColorUtil.Diff(color.getValue(), existingColor) < threshold) {
+        for (int existingColor : colorsCounted.keySet()) {
+            if (ColorUtil.Diff(color.getKey(), existingColor) < threshold) {
                 return;
             }
         }

@@ -31,7 +31,7 @@ public class Pattern implements Comparable<Pattern> {
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private int mWeight = 0;
-    private Map<Integer, Integer> mColors;
+    private Map<Integer, Float> mColors;
     private int[][] mColorMatrix;
 
     public enum State{
@@ -168,11 +168,11 @@ public class Pattern implements Comparable<Pattern> {
         return mPixelHeight;
     }
 
-    public void setColors(Map<Integer, Integer> colors) {
+    public void setColors(Map<Integer, Float> colors) {
         mColors = colors;
     }
 
-    public Map<Integer, Integer> getColors() {
+    public Map<Integer, Float> getColors() {
         return mColors;
     }
 
