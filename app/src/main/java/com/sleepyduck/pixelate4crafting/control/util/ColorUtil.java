@@ -9,6 +9,8 @@ import android.renderscript.Matrix3f;
  * Created by fredrikmetcalf on 13/04/16.
  */
 public class ColorUtil {
+    public static final int ALPHA_CHANNEL = 0xff000000;
+
     private static float[] M = {
             0.5767309f, 0.1855540f, 0.1881852f,
             0.2973769f, 0.6273491f, 0.0752741f,

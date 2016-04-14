@@ -67,6 +67,9 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
+                if (Color.alpha(pixel) < 0xff) {
+                    pixel = Color.WHITE;
+                }
                 red += Color.red(pixel);
                 green += Color.green(pixel);
                 blue += Color.blue(pixel);

@@ -22,7 +22,6 @@ import java.util.Set;
  * Created by fredrik.metcalf on 2016-04-12.
  */
 public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
-    private static final int ALPHA_CHANNEL = 0xff000000;
     private Pattern mPattern;
     private Context mContext;
     private int mNumColors;
@@ -57,6 +56,9 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
             publishProgress(x * 50 / mBitmap.getWidth()); // 0%-50%
             for (int y = 0; y < mBitmap.getHeight(); ++y) {
                 int pixel = mBitmap.getPixel(x, y);
+                if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                    pixel = Color.WHITE;
+                }
                 if (colorsCounted.containsKey(pixel)) {
                     colorsCounted.put(pixel, colorsCounted.get(pixel) + 1);
                 } else {
