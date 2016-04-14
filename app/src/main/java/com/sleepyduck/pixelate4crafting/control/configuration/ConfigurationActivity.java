@@ -3,24 +3,8 @@ package com.sleepyduck.pixelate4crafting.control.configuration;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.GridLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
-import com.sleepyduck.pixelate4crafting.control.PatternActivity;
-import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.CalculatePixelsTask;
-import com.sleepyduck.pixelate4crafting.control.FindBestColorsTask;
-import com.sleepyduck.pixelate4crafting.control.CountColorsTask;
-import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
-import com.vi.swipenumberpicker.SwipeNumberPicker;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 public class ConfigurationActivity extends Activity {
     private static final Integer NUMBER_PICKER_WIDTH = 1;

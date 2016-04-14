@@ -65,17 +65,20 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         Map.Entry<Integer, Integer> mostUncommonColor = null;
         int colorCount = 0;
         long L = 0, a = 0, b = 0;
-        int[] Lab = new int[3];
+        double[] Lab = new double[3];
+        double[] XYZ = new double[3];
+        double[] LabAvg = new double[3];
         for (int i = 0; i < width; ++i) {
             for (int j = 0; j < height; ++j) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
                 if (Color.alpha(pixel) < 0xff) {
                     pixel = Color.WHITE;
                 }
-                ColorUtil.rgb2lab(Color.red(pixel), Color.green(pixel), Color.blue(pixel), Lab);
-                L += Lab[0];
-                a += Lab[1];
-                b += Lab[2];
+                ColorUtil.RGBToXYZ(Color.red(pixel), Color.green(pixel), Color.blue(pixel), XYZ);
+                ColorUtil.XYZToLab(XYZ, Lab);
+                LabAvg[0] += Lab[0];
+                LabAvg[1] += Lab[1];
+                LabAvg[2] += Lab[2];
                 colorCount++;
                 /*Map.Entry<Integer, Integer> color = getBestColorFor(pixel);
                 if (mostUncommonColor == null || color.getValue() <= mostUncommonColor.getValue()) {
@@ -83,16 +86,19 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
                 }*/
             }
         }
-        L /= colorCount;
-        a /= colorCount;
-        b /= colorCount;
-        int pixel = Color.rgb((int)L, (int)a, (int)b);
+        LabAvg[0] /= (double)colorCount;
+        LabAvg[1] /= (double)colorCount;
+        LabAvg[2] /= (double)colorCount;
+        ColorUtil.LabToXYZ(LabAvg, XYZ);
+        int[] rgb = new int[3];
+        ColorUtil.XYZToRGB(XYZ, rgb);
+        int pixel = Color.rgb(rgb[0],rgb[1], rgb[2]);
         return getBestColorFor(pixel).getKey();
         //return mostUncommonColor.getKey();
     }
 
     private Map.Entry<Integer, Integer> getBestColorFor(int pixel) {
-        int diff, minDiff = Integer.MAX_VALUE;
+        double diff, minDiff = Integer.MAX_VALUE;
         Map.Entry<Integer, Integer> bestColor = null;
         for (Map.Entry<Integer, Integer> color : mPattern.getColors().entrySet()) {
             diff = ColorUtil.Diff(color.getKey(), pixel);

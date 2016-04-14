@@ -13,10 +13,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by fredrik.metcalf on 2016-04-12.
@@ -76,6 +74,7 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
                 return rhs.getValue() - lhs.getValue();
             }
         });
+        BetterLog.d(FindBestColorsTask.this, "Filtered out colors size " + sortedColors.size());
 
         // If too many colors, rerun with higher threshold
         int step = 256*3;//*3*4;

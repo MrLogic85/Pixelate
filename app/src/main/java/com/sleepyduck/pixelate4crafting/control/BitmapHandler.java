@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 
 import java.io.ByteArrayOutputStream;

@@ -14,11 +14,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.CalculatePixelsTask;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.control.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.control.FindBestColorsTask;
-import com.sleepyduck.pixelate4crafting.control.PatternActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;

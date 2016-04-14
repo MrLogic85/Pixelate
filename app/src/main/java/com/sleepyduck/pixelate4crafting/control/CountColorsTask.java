@@ -32,7 +32,8 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
     }
 
     private void countColors(Bitmap mBitmap, Map<Integer, Integer> colors) {
-        int diff, bestDiff, bestColor = 0;
+        double diff, bestDiff;
+        int bestColor = 0;
         for (int x = 0; x < mBitmap.getWidth(); ++x) {
             if(isCancelled()) {
                 clearCount(colors);
