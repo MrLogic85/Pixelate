@@ -3,6 +3,7 @@ package com.sleepyduck.pixelate4crafting.control.configuration;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
@@ -41,6 +43,12 @@ public class ConfigurationWidthActivity extends Activity {
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
         int val = picker.getValue();
         mPattern.setPixelWidth(val);
+
+        Bitmap bitmap = BitmapHandler.getFromFileName(this, mPattern.getFileName());
+        float pixelSize = (float) bitmap.getWidth() / (float) mPattern.getPixelWidth();
+        int height = (int) (bitmap.getHeight() / pixelSize);
+        mPattern.setPixelHeight(height);
+
         Patterns.Save(this);
         Intent result = new Intent();
         result.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);

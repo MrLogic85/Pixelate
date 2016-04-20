@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbar"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextViewHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/pick_color_from_here"
+            android:padding="@dimen/padding_small"/>
+
+        <com.sleepyduck.pixelate4crafting.view.InteractiveImageView
+            android:id="@+id/image_original"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_launcher"
+            android:scaleType="matrix"/>
+
+        <TextView
+            style="@style/TextViewHeader"
+            android:padding="@dimen/padding_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/approximated_pattern" />
+
+        <com.sleepyduck.pixelate4crafting.view.PatternImageView
+            android:scaleType="matrix"
+            android:id="@+id/image_approximated"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:src="@drawable/ic_launcher" />
+
+        <TextView
+            style="@style/TextViewHeader"
+            android:padding="@dimen/padding_small"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/palette" />
+
+        <GridView
+            android:id="@+id/palette_grid"
+            android:padding="@dimen/padding_small"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/palette_2x"
+            android:columnWidth="@dimen/color_square_size_small"
+            android:gravity="start"
+            android:horizontalSpacing="@dimen/color_square_spacing"
+            android:numColumns="auto_fit"
+            android:scrollbars="horizontal"
+            android:stretchMode="none"
+            android:verticalSpacing="@dimen/color_square_spacing" />
+    </LinearLayout>
+</RelativeLayout>

@@ -3,6 +3,8 @@ package com.sleepyduck.pixelate4crafting.control.configuration;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,8 +16,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.control.FindBestColorsTask;
+import com.sleepyduck.pixelate4crafting.control.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
@@ -97,9 +100,14 @@ public class ConfigurationColorsActivity extends Activity {
 
         TextView text = (TextView) findViewById(R.id.color_title);
         text.setText(getString(R.string.colors_found, countColors));
-
+        Drawable drawable = BitmapHandler.getDrawableFromFileName(this, mPattern.getFileName());
+        int thumbSize = (int) getResources().getDimension(R.dimen.small_picture_size);
+        drawable.setBounds(0, 0, thumbSize, thumbSize * drawable.getIntrinsicHeight() / drawable.getIntrinsicWidth());
+        text.setCompoundDrawables(
+                drawable, null, null, null);
 
         GridLayout grid = (GridLayout) findViewById(R.id.color_grid);
+        grid.removeAllViews();
         int rowCount = countColors / grid.getColumnCount()
                 + (countColors % grid.getColumnCount() > 0 ? 1 : 0);
         grid.setRowCount(rowCount);
@@ -108,6 +116,7 @@ public class ConfigurationColorsActivity extends Activity {
         for (int color : mPattern.getColors().keySet()) {
             View view = new View(this);
             view.setBackgroundColor(color);
+            view.setOnClickListener(mColorClickListener);
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = (int) getResources().getDimension(R.dimen.color_square_size);
             params.height = (int) getResources().getDimension(R.dimen.color_square_size);
@@ -122,6 +131,15 @@ public class ConfigurationColorsActivity extends Activity {
             }
         }
     }
+
+    private View.OnClickListener mColorClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (v.getBackground() instanceof ColorDrawable)
+            mPattern.getColors().remove(((ColorDrawable)v.getBackground()).getColor());
+            setupShowColors();
+        }
+    };
 
     /**
      * Step three, we now have the colors we want. Prepare pattern.

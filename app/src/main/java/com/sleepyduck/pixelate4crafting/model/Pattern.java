@@ -7,6 +7,7 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
 
 import java.util.Map;
 
@@ -33,6 +34,7 @@ public class Pattern implements Comparable<Pattern> {
     private int mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mColorMatrix;
+    private MMCQ.CMap mCMap;
 
     public enum State{
         LATEST,
@@ -182,5 +184,13 @@ public class Pattern implements Comparable<Pattern> {
 
     public int[][] getColorMatrix() {
         return mColorMatrix;
+    }
+
+    public void setCMap(MMCQ.CMap cMap) {
+        mCMap = cMap;
+    }
+
+    public MMCQ.CMap getCMap() {
+        return mCMap;
     }
 }

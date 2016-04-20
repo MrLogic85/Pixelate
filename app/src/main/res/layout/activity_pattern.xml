@@ -15,7 +15,7 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"/>
 
-    <com.sleepyduck.pixelate4crafting.view.PatternCanvasView
+    <com.sleepyduck.pixelate4crafting.view.PatternImageView
         android:id="@+id/canvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

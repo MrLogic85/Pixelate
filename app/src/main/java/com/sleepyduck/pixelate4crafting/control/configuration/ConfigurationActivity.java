@@ -4,21 +4,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 
+import com.sleepyduck.pixelate4crafting.control.ChangeParametersActivity;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 public class ConfigurationActivity extends Activity {
-    private static final Integer NUMBER_PICKER_WIDTH = 1;
-    private static final Integer NUMBER_PICKER_COLOR_COUNT = 2;
     public static final int REQUEST_CONFIGURE_IMAGE = 1;
     public static final int REQUEST_CONFIGURE_WIDTH = 2;
     public static final int REQUEST_CONFIGURE_COLORS = 3;
     public static final int REQUEST_CONFIGURE_PIXELS= 4;
+    private static final int REQUEST_CHANGE_PARAMETERS = 5;
     private int mPatternId = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_configuration);
         setFinishOnTouchOutside(false);
         startActivityForResult(getIntent(REQUEST_CONFIGURE_IMAGE), REQUEST_CONFIGURE_IMAGE);
     }
@@ -43,6 +42,11 @@ public class ConfigurationActivity extends Activity {
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
                 return intent;
             }
+            case REQUEST_CHANGE_PARAMETERS: {
+                Intent intent = new Intent(this, ChangeParametersActivity.class);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
+                return intent;
+            }
         }
         return null;
     }
@@ -61,7 +65,8 @@ public class ConfigurationActivity extends Activity {
                 return;
             }
             case REQUEST_CONFIGURE_WIDTH: {
-                startActivityForResult(getIntent(REQUEST_CONFIGURE_COLORS), REQUEST_CONFIGURE_COLORS);
+                //startActivityForResult(getIntent(REQUEST_CONFIGURE_COLORS), REQUEST_CONFIGURE_COLORS);
+                startActivityForResult(getIntent(REQUEST_CHANGE_PARAMETERS), REQUEST_CHANGE_PARAMETERS);
                 return;
             }
             case REQUEST_CONFIGURE_COLORS: {

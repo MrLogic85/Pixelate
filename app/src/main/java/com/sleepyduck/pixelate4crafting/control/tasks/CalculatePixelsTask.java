@@ -1,10 +1,11 @@
-package com.sleepyduck.pixelate4crafting.control;
+package com.sleepyduck.pixelate4crafting.control.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
 
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
@@ -38,8 +39,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
     private int[][] calculatePixels() {
         float pixelSize = (float) mBitmap.getWidth() / (float) mPattern.getPixelWidth();
         int width = mPattern.getPixelWidth();
-        int height = (int) (mBitmap.getHeight() / pixelSize);
-        mPattern.setPixelHeight(height);
+        int height = mPattern.getPixelHeight();
 
         int[][] colorMatrix = new int[width][height];
         float dx, dy;
@@ -70,16 +70,27 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
+        int stepX = 1;
+        int stepY = 1;
+
+        int checkXPixels = 4;
+        if (width > checkXPixels) {
+            //BetterLog.d(this, "Width > 6, " + width);
+            stepX = width / checkXPixels;
+        }
+        if (height > checkXPixels) {
+            stepY = height / checkXPixels;
+        }
 
         Map<Integer, Float> countPixelColors = new HashMap<>();
         float resInv = 1f / (float)(width*height);
-        for (int i = 0; i < width; ++i) {
-            for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; i += stepX) {
+            for (int j = 0; j < height; j += stepY) {
                 int pixel = mBitmap.getPixel(i+x, j+y);
-                if (Color.alpha(pixel) < 0xff) {
-                    pixel = Color.WHITE;
+                if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                    continue;
                 }
-                Integer color = getBestColorFor(pixel).getKey();
+                Integer color = ColorUtil.getBestColorFor(pixel, mPattern.getColors()).getKey();
                 if (countPixelColors.containsKey(color)) {
                     countPixelColors.put(color, (countPixelColors.get(color) + resInv));
                 } else {
@@ -101,18 +112,5 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
             return bestColor;
         }
         return Color.TRANSPARENT;
-    }
-
-    private Map.Entry<Integer, Float> getBestColorFor(int pixel) {
-        double diff, minDiff = Integer.MAX_VALUE;
-        Map.Entry<Integer, Float> bestColor = null;
-        for (Map.Entry<Integer, Float> color : mPattern.getColors().entrySet()) {
-            diff = ColorUtil.Diff(color.getKey(), pixel);
-            if (diff < minDiff) {
-                minDiff = diff;
-                bestColor = color;
-            }
-        }
-        return bestColor;
     }
 }

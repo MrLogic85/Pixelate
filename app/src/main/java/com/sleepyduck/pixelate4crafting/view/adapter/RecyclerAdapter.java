@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting.view.adapter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
@@ -140,7 +139,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 grid.removeAllViews();
                 if (pattern.getColors() != null) {
                     int countColors = pattern.getColors().size();
-                    int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.spacing);
+                    int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_spacing);
                     int colorSize = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_size_small);
                     int columnCount = grid.getColumnCount();
                     int rowCount = countColors / columnCount + (countColors % columnCount > 0 ? 1 : 0);

@@ -82,6 +82,7 @@
         android:visibility="gone">
 
         <TextView
+            android:drawableLeft="@drawable/ic_launcher"
             android:id="@+id/color_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -89,17 +90,21 @@
             android:paddingBottom="@dimen/padding"
             android:text="@string/colors_found"/>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
         <GridLayout
             android:id="@+id/color_grid"
             android:layout_width="@dimen/color_grid_size"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
+            android:layout_gravity="center"
             android:layout_marginBottom="@dimen/padding"
             android:layout_marginEnd="@dimen/padding"
             android:layout_marginLeft="@dimen/padding"
             android:layout_marginRight="@dimen/padding"
             android:layout_marginStart="@dimen/padding"
             android:columnCount="5"/>
+        </ScrollView>
 
         <LinearLayout
             android:layout_width="match_parent"

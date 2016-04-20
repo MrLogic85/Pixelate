@@ -3,7 +3,6 @@ package com.sleepyduck.pixelate4crafting.control.configuration;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 
@@ -40,37 +39,26 @@ public class ConfigurationImageActivity extends Activity {
         if (resultCode == RESULT_OK && requestCode == REQUEST_IMAGE) {
             final Uri imageUri = data.getData();
             try {
-                final int takeFlags = data.getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
+                getContentResolver().takePersistableUriPermission(imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             } catch (Exception e) {
             }
             if ("content".equals(imageUri.getScheme())) {
-                new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... params) {
-                        String fileName = BitmapHandler.getFileName(ConfigurationImageActivity.this, imageUri);
-                        Pattern pattern = new Pattern(Pattern.createTitleFromFileName(fileName));
-                        fileName += String.format("%8x", pattern.Id);
-                        BetterLog.d(this, "File name created: " + fileName);
-                        BitmapHandler.storeLocally(ConfigurationImageActivity.this, imageUri, fileName);
-                        pattern.setFileName(fileName);
-                        Patterns.Add(pattern);
-                        Patterns.Save(ConfigurationImageActivity.this);
+                String fileName = BitmapHandler.getFileName(ConfigurationImageActivity.this, imageUri);
+                Pattern pattern = new Pattern(Pattern.createTitleFromFileName(fileName));
+                fileName += String.format("%8x", pattern.Id);
+                BetterLog.d(this, "File name created: " + fileName);
+                BitmapHandler.storeLocally(ConfigurationImageActivity.this, imageUri, fileName);
+                pattern.setFileName(fileName);
+                Patterns.Add(pattern);
+                Patterns.Save(ConfigurationImageActivity.this);
 
-                        Intent result = new Intent();
-                        result.putExtra(Patterns.INTENT_EXTRA_ID, pattern.Id);
-                        setResult(RESULT_OK, result);
-                        finish();
-                        return null;
-                    }
-                }.execute();
-            } else {
-                setResult(RESULT_CANCELED);
+                Intent result = new Intent();
+                result.putExtra(Patterns.INTENT_EXTRA_ID, pattern.Id);
+                setResult(RESULT_OK, result);
                 finish();
             }
-        } else {
-            setResult(RESULT_CANCELED);
-            finish();
         }
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

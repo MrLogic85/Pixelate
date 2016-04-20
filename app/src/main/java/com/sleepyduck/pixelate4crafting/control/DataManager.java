@@ -6,7 +6,6 @@ import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -56,7 +55,6 @@ public class DataManager {
 
     private static void SaveData(Context context, int patternId, String prefix, Object data) {
         File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
-        BetterLog.d(DataManager.class, "Saving data to " + prefix + String.format("%8x", patternId));
         ObjectOutputStream oos = null;
         try {
             oos = new ObjectOutputStream(new FileOutputStream(file));
@@ -76,7 +74,6 @@ public class DataManager {
 
     private static Object LoadData(Context context, int patternId, String prefix) {
         File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
-        BetterLog.d(DataManager.class, "Loading data from " + prefix + String.format("%8x", patternId));
         ObjectInputStream ois = null;
         Object result = null;
         try {

@@ -1,20 +1,22 @@
-package com.sleepyduck.pixelate4crafting.control;
+package com.sleepyduck.pixelate4crafting.control.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.support.v4.graphics.ColorUtils;
 
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,13 +38,33 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
             mNumColors = (int) params[2];
             mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
 
+            // MMCQ2
+            /*int[][] colors = ColorThief.getPalette(mBitmap, mNumColors);
+            for (int i = 0; i < colors.length; ++i) {
+                colorsCounted.put(Color.rgb(colors[i][0], colors[i][1], colors[i][2]), 1f);
+            }
+            mPattern.setColors(colorsCounted);*/
+
+            // MMCQ
+            try {
+                MMCQ.CMap colors = MMCQ.computeMap(mBitmap, mNumColors);
+                mPattern.setCMap(colors);
+                for (int[] color : colors.palette()) {
+                    colorsCounted.put(Color.rgb(color[0], color[1], color[2]), 0f);
+                }
+                colorsCounted.put(Color.WHITE, 0f);
+                mPattern.setColors(colorsCounted);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            /*
             countColors();
             if (colorsCounted.size() > mNumColors) {
                 selectColors();
             }
             if (!isCancelled()) {
                 mPattern.setColors(colorsCounted);
-            }
+            }*/
         }
         return colorsCounted.size();
     }

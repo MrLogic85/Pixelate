@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.widget.ProgressBar;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.CalculatePixelsTask;
-import com.sleepyduck.pixelate4crafting.control.CountColorsTask;
+import com.sleepyduck.pixelate4crafting.control.tasks.CalculatePixelsTask;
+import com.sleepyduck.pixelate4crafting.control.tasks.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 
