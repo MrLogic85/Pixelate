@@ -21,4 +21,5 @@
     <string name="palette_with_text">Palette (Click on a color to remove it)</string>
     <string name="change_parameters">Edit palette and size</string>
     <string name="change_width">Change width</string>
+    <string name="change_name">Change name</string>
 </resources>

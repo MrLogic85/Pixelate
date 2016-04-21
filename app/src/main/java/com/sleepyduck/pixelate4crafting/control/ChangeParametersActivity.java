@@ -135,7 +135,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     }
 
     @Override
-     public boolean onOptionsItemSelected(MenuItem menuItem) {
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
         BetterLog.d(this, "On option clicked");
         if (menuItem.getItemId() == android.R.id.home) {
             Intent intent = new Intent();

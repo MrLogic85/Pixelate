@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationNameActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
@@ -17,6 +18,7 @@ import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 public class PatternActivity extends AppCompatActivity {
     private static final int REQUEST_CHANGE_PARAMETERS = 1;
     private static final int REQUEST_NEW_PIXELS = 2;
+    private static final int REQUEST_CHANGE_NAME = 3;
     private Pattern mPattern;
 	private PatternImageView mCanvas;
 
@@ -32,6 +34,8 @@ public class PatternActivity extends AppCompatActivity {
 
 		int id = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, -1);
 		mPattern = Patterns.GetPattern(id);
+
+        ab.setTitle(mPattern.getTitle());
 		
 		mCanvas = (PatternImageView) findViewById(R.id.canvas);
 		mCanvas.setPattern(mPattern);
@@ -49,6 +53,11 @@ public class PatternActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
             startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
+            return true;
+        } else if (item.getItemId() == R.id.menu_item_change_name) {
+            Intent intent = new Intent(this, ConfigurationNameActivity.class);
+            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+            startActivityForResult(intent, REQUEST_CHANGE_NAME);
             return true;
         }
 		return super.onOptionsItemSelected(item);
@@ -68,6 +77,8 @@ public class PatternActivity extends AppCompatActivity {
             } else {
                 mCanvas.setPattern(mPattern);
             }
+        } else if (requestCode == REQUEST_CHANGE_NAME) {
+            getSupportActionBar().setTitle(mPattern.getTitle());
         }
 
         Patterns.Save(this);

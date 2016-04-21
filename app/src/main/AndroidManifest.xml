@@ -49,6 +49,10 @@
             android:name=".control.configuration.ConfigurationPixelsActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
+        <activity
+            android:name=".control.configuration.ConfigurationNameActivity"
+            android:label="@string/app_name"
+            android:theme="@style/MyAlertDialog" />
     </application>
 
 </manifest>

@@ -15,8 +15,8 @@ android {
         applicationId "com.sleepyduck.pixelate4crafting"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 6
-        versionName "0.16.04.11.1"
+        versionCode 8
+        versionName "0.5.1"
     }
     buildTypes {
         release {

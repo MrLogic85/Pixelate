@@ -210,6 +210,7 @@ public class Pattern implements Comparable<Pattern> {
             mColors = new HashMap<>();
         }
         mColors.put(pixel, 0f);
+        setNeedsRecalculation(true);
     }
 
     public void setPixels(int[][] pixels) {

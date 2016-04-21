@@ -4,4 +4,7 @@
     <item
         android:id="@+id/menu_item_change_parameters"
         android:title="@string/change_parameters" />
+    <item
+        android:id="@+id/menu_item_change_name"
+        android:title="@string/change_name"/>
 </menu>
