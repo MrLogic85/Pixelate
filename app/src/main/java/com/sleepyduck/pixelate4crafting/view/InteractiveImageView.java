@@ -45,12 +45,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
                 mMatrix.invert(inv);
                 float[] point = {ev.getX(), ev.getY()};
                 inv.mapPoints(point);
-                try {
-                    int pixel = mImageBitmap.getPixel((int) point[0], (int) point[1]);
-                    mImageListener.onImageClicked(pixel);
-                } catch (IllegalArgumentException e) {
-                    e.printStackTrace();
-                }
+                mImageListener.onImageClicked(mImageBitmap, (int) point[0], (int) point[1]);
             }
             return false;
         }
@@ -137,8 +132,6 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
             float[] square = {x, y, size, size};
             inv.mapPoints(square);
             bundle.putFloatArray("square", square);
-            BetterLog.d(InteractiveImageView.class, "Visible rect (%.0f, %.0f) -> (%.0f, %.0f)",
-                    square[0], square[1], square[2], square[3]);
         }
         return bundle;
     }
@@ -214,6 +207,6 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
     }
 
     public interface OnImageClickListener {
-        void onImageClicked(int pixel);
+        void onImageClicked(Bitmap bitmap, int x, int y);
     }
 }

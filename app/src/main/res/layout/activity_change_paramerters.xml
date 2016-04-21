@@ -4,62 +4,63 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <include layout="@layout/toolbar"/>
+    <include layout="@layout/toolbar" />
+
     <LinearLayout
         android:id="@+id/view_group"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:orientation="vertical"
-        android:animateLayoutChanges="true">
+        android:animateLayoutChanges="true"
+        android:orientation="vertical">
 
         <TextView
             style="@style/TextViewHeader"
-            android:lines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pick_color_from_here"
-            android:padding="@dimen/padding_small"/>
+            android:lines="1"
+            android:padding="@dimen/padding_small"
+            android:text="@string/pick_color_from_here" />
 
         <com.sleepyduck.pixelate4crafting.view.InteractiveImageView
             android:id="@+id/image_original"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:scaleType="matrix"/>
+            android:scaleType="matrix" />
 
         <TextView
             style="@style/TextViewHeader"
-            android:padding="@dimen/padding_small"
             android:layout_width="match_parent"
-            android:lines="1"
             android:layout_height="wrap_content"
+            android:lines="1"
+            android:padding="@dimen/padding_small"
             android:text="@string/approximated_pattern" />
 
         <com.sleepyduck.pixelate4crafting.view.PatternImageView
-            android:scaleType="matrix"
             android:id="@+id/image_approximated"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:scaleType="matrix" />
 
         <TextView
             style="@style/TextViewHeader"
-            android:padding="@dimen/padding_small"
-            android:lines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/palette_with_text"
-            android:onClick="onPaletteTextClicked"/>
+            android:lines="1"
+            android:onClick="onPaletteTextClicked"
+            android:padding="@dimen/padding_small"
+            android:text="@string/palette_with_text" />
 
         <GridView
             android:id="@+id/palette_grid"
-            android:padding="@dimen/padding_small"
             android:layout_width="match_parent"
             android:layout_height="@dimen/palette_2x_size_small"
             android:columnWidth="@dimen/color_square_size_small"
             android:gravity="center"
             android:numColumns="auto_fit"
-            android:stretchMode="none"/>
+            android:padding="@dimen/padding_small"
+            android:stretchMode="none" />
     </LinearLayout>
 </RelativeLayout>

@@ -70,7 +70,9 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
                             bestColor = color;
                         }
                     }
-                    bestColor.setValue(bestColor.getValue() + resInv);
+                    if (bestColor != null) {
+                        bestColor.setValue(bestColor.getValue() + resInv);
+                    }
                 }
             }
         }

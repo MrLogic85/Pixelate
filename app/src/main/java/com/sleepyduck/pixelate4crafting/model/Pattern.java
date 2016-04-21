@@ -2,6 +2,7 @@ package com.sleepyduck.pixelate4crafting.model;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
@@ -38,6 +39,8 @@ public class Pattern implements Comparable<Pattern> {
     private int mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
+    private boolean mColorsIsDirty = false;
+    private boolean mPixelsIsDirty = false;
 
     public enum State{
         LATEST,
@@ -101,11 +104,13 @@ public class Pattern implements Comparable<Pattern> {
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         editor.putInt("" + prefCounter + PREF_WEIGHT, mWeight);
-        if (mColors != null) {
+        if (mColors != null && mColorsIsDirty) {
             DataManager.SaveColors(context, Id, mColors);
+            mColorsIsDirty = false;
         }
-        if (mPixels != null) {
+        if (mPixels != null && mPixelsIsDirty) {
             DataManager.SavePixels(context, Id, mPixels);
+            mPixelsIsDirty = false;
         }
     }
 
@@ -164,11 +169,17 @@ public class Pattern implements Comparable<Pattern> {
         mWeight = weight;
     }
 
-    public void setPixelWidth(int i) {
+    public void setPixelWidth(Context context, int i) {
         if (mPixelWidth != i) {
             setNeedsRecalculation(true);
         }
         mPixelWidth = i;
+
+        Bitmap bitmap = BitmapHandler.getFromFileName(context, getFileName());
+        float pixelSize = (float) bitmap.getWidth() / (float) getPixelWidth();
+        int height = (int) (bitmap.getHeight() / pixelSize);
+        setPixelHeight(height);
+        bitmap.recycle();
     }
 
     public void setPixelHeight(int i) {
@@ -202,6 +213,7 @@ public class Pattern implements Comparable<Pattern> {
     public void removeColor(int color) {
         if (mColors.remove(color) != null) {
             setNeedsRecalculation(true);
+            mColorsIsDirty = true;
         }
     }
 
@@ -211,11 +223,13 @@ public class Pattern implements Comparable<Pattern> {
         }
         mColors.put(pixel, 0f);
         setNeedsRecalculation(true);
+        mColorsIsDirty = true;
     }
 
     public void setPixels(int[][] pixels) {
         setNeedsRecalculation(pixels == null);
         mPixels = pixels;
+        mPixelsIsDirty = true;
     }
 
     public int[][] getPixels() {

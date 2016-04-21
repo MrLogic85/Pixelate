@@ -73,7 +73,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
         int stepX = 1;
         int stepY = 1;
 
-        int checkXPixels = 4;
+        int checkXPixels = 99;
         if (width > checkXPixels) {
             //BetterLog.d(this, "Width > 6, " + width);
             stepX = width / checkXPixels;

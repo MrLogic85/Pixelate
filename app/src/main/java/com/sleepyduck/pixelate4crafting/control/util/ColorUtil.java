@@ -1,5 +1,6 @@
 package com.sleepyduck.pixelate4crafting.control.util;
 
+import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 
 import java.util.Map;
@@ -30,5 +31,9 @@ public class ColorUtil {
             }
         }
         return bestColor;
+    }
+
+    public static int[] splitColor(int pixel) {
+        return new int[] {Color.red(pixel), Color.green(pixel), Color.blue(pixel)};
     }
 }

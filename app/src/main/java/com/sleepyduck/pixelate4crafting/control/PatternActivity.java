@@ -66,7 +66,9 @@ public class PatternActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_CHANGE_PARAMETERS) {
-            if (mPattern.needsRecalculation()) {
+            if (!mPattern.hasColors()) {
+                finish();
+            } else if (mPattern.needsRecalculation()) {
                 Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
                 startActivityForResult(intent, REQUEST_NEW_PIXELS);

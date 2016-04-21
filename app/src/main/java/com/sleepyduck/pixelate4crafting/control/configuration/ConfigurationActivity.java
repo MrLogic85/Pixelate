@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.app.Activity;
 
 import com.sleepyduck.pixelate4crafting.control.ChangeParametersActivity;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 public class ConfigurationActivity extends Activity {
@@ -59,6 +60,10 @@ public class ConfigurationActivity extends Activity {
                 return;
             }
             case REQUEST_CONFIGURE_WIDTH: {
+                Patterns.GetPattern(mPatternId)
+                        .setPixelWidth(this
+                                , data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
+                                , Constants.DEFAULT_PIXELS));
                 startActivityForResult(getIntent(REQUEST_CHANGE_PARAMETERS), REQUEST_CHANGE_PARAMETERS);
                 return;
             }

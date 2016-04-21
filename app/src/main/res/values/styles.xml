@@ -28,6 +28,10 @@
         <item name="android:textViewStyle">@style/MyTextView</item>
     </style>
 
+    <style name="MyAlertDialog.NoDim" parent="MyAlertDialog">
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
     <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button">
         <item name="android:background">@drawable/button</item>
         <item name="android:textColor">@color/white_100</item>

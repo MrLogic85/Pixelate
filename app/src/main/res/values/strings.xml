@@ -14,7 +14,6 @@
     <string name="choose_width_description">How wide do you want the pattern?</string>
     <string name="analyzing_image">Analyzing colors!</string>
     <string name="choose_color_count">About how many colors would you like to use?</string>
-    <string name="colors_found">%d colors found. Tap on the colors you don\'t want to use, or press back to change the amount of colors you want to find.</string>
     <string name="prepare_pattern">Preparing pattern</string>
     <string name="pick_color_from_here">Pick pattern colors from image</string>
     <string name="approximated_pattern">Pattern approximation</string>
@@ -22,4 +21,6 @@
     <string name="change_parameters">Edit palette and size</string>
     <string name="change_width">Change width</string>
     <string name="change_name">Change name</string>
+    <string name="undo">Undo</string>
+    <string name="redo">Redo</string>
 </resources>

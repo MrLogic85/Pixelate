@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         Pattern pattern = Patterns.GetPattern(patternId);
         if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
             Toast.makeText(this, "Image not found! I am truly sorry, this pattern is broken :(", Toast.LENGTH_LONG).show();
-        } else if (pattern.getColors() == null) {
+        } else if (!pattern.hasColors()) {
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
@@ -156,6 +156,9 @@ public class MainActivity extends AppCompatActivity {
                     launch(patternId);
                     break;
                 case REQUEST_CHANGE_PARAMETERS:
+                    if (!Patterns.GetPattern(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0)).hasColors()) {
+                        break;
+                    } // Else do the launch as with redo pixels
                 case REQUEST_REDO_PIXELS:
                     launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
                     break;

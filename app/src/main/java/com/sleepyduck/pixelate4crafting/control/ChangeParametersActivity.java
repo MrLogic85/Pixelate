@@ -3,6 +3,7 @@ package com.sleepyduck.pixelate4crafting.control;
 import android.animation.LayoutTransition;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -18,17 +19,28 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
+import com.sleepyduck.pixelate4crafting.control.util.history.AddColor;
+import com.sleepyduck.pixelate4crafting.control.util.history.ChangeWidth;
+import com.sleepyduck.pixelate4crafting.control.util.history.History;
+import com.sleepyduck.pixelate4crafting.control.util.history.OnHistoryDo;
+import com.sleepyduck.pixelate4crafting.control.util.history.RemoveColor;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
@@ -37,12 +49,16 @@ import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simpl
  * Created by fredrikmetcalf on 20/04/16.
  */
 public class ChangeParametersActivity extends AppCompatActivity {
-    private static final int DEFAULT_INITIAL_COLORS = 5;
+    private static final int DEFAULT_INITIAL_COLORS = 4;
+    private static final int CHECK_SQUARE_SIZE = 5;
+    private static final int CHECK_SQUARE_RADIUS = (CHECK_SQUARE_SIZE - 1) / 2;
+    private static final int CHECK_SQUARE_COLORS = 9;
 
     private static final int STATE_FOCUSED_OFF = 0;
     private static final int STATE_FOCUSED_PALETTE = 1;
 
     private static final int REQUEST_CHANGE_WIDTH = 1;
+    private static final int REQUEST_CHOOSE_COLOR = 2;
 
     private Pattern mPattern;
     private InteractiveImageView mOriginalImage;
@@ -51,6 +67,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private GridView mPaletteGrid;
     private GridAdapter mGridAdapter;
     private int mState = STATE_FOCUSED_OFF;
+    private Stack<History> mHistory = new Stack<>();
+    private Stack<History> mUndoneHistory = new Stack<>();
+    private Menu mOptionMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,17 +92,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         mOriginalImage.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getFileName()));
         mPatternApproxImage.setPattern(mPattern, Simple);
 
-        mOriginalImage.setOnImageClickListener(new InteractiveImageView.OnImageClickListener() {
-            @Override
-            public void onImageClicked(int pixel) {
-                BetterLog.d(this, "On image clicked %08x", pixel);
-                mPattern.addColor(pixel);
-                Patterns.Save(ChangeParametersActivity.this);
-                mPatternApproxImage.setPattern(mPattern, Simple);
-                mGridAdapter.updateColors(mPattern);
-                mGridAdapter.notifyDataSetChanged();
-            }
-        });
+        mOriginalImage.setOnImageClickListener(mOnImageClickListener);
 
         mPaletteGrid = (GridView) findViewById(R.id.palette_grid);
         mGridAdapter = new GridAdapter(mPattern);
@@ -95,23 +104,40 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        mOptionMenu = menu;
         getMenuInflater().inflate(R.menu.configure_menu, menu);
+        menu.findItem(R.id.menu_item_redo).setVisible(false);
+        menu.findItem(R.id.menu_item_undo).setVisible(false);
         return true;
     }
 
-    private void checkForZeroColors() {
-        if (mPattern.getColors() == null) {
-            mFindBestColorsTask = new FindBestColorsTask() {
-                @Override
-                protected void onPostExecute(Integer integer) {
-                    Patterns.Save(ChangeParametersActivity.this);
-                    mPatternApproxImage.setPattern(mPattern, Simple);
-                    mGridAdapter.updateColors(mPattern);
-                    mGridAdapter.notifyDataSetChanged();
-                }
-            };
-            mFindBestColorsTask.execute(this, mPattern, DEFAULT_INITIAL_COLORS);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menuItem) {
+        BetterLog.d(this, "On option clicked");
+        switch (menuItem.getItemId()) {
+            case android.R.id.home: {
+                Intent intent = new Intent();
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+            }
+            case R.id.menu_item_change_width: {
+                Intent intent = new Intent(this, ConfigurationWidthActivity.class);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+                startActivityForResult(intent, REQUEST_CHANGE_WIDTH);
+                return super.onOptionsItemSelected(menuItem);
+            }
+            case R.id.menu_item_undo: {
+                undoHistory();
+                return true;
+            }
+            case R.id.menu_item_redo: {
+                redoHistory();
+                return true;
+            }
         }
+        return false;
     }
 
     @Override
@@ -134,22 +160,87 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem menuItem) {
-        BetterLog.d(this, "On option clicked");
-        if (menuItem.getItemId() == android.R.id.home) {
-            Intent intent = new Intent();
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-            setResult(RESULT_OK, intent);
-            finish();
-            return true;
-        } else if (menuItem.getItemId() == R.id.menu_item_change_width) {
-            Intent intent = new Intent(this, ConfigurationWidthActivity.class);
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-            startActivityForResult(intent, REQUEST_CHANGE_WIDTH);
+    private void addHistory(History hist) {
+        mHistory.add(hist);
+        if (mHistory.size() == 1) {
+            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(true);
         }
-        return super.onOptionsItemSelected(menuItem);
+        if (mUndoneHistory.size() > 0) {
+            mUndoneHistory.clear();
+            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(false);
+        }
     }
+
+    private void undoHistory() {
+        if (mHistory.size() > 0) {
+            History hist = mHistory.pop();
+            mUndoneHistory.add(hist);
+            hist.undo(mDoHistory);
+        }
+        if (mHistory.size() == 0) {
+            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(false);
+        }
+        if (mUndoneHistory.size() == 1) {
+            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(true);
+        }
+    }
+
+    private void redoHistory() {
+        if (mUndoneHistory.size() > 0) {
+            History hist = mUndoneHistory.pop();
+            mHistory.add(hist);
+            hist.redo(mDoHistory);
+        }
+        if (mHistory.size() == 1) {
+            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(true);
+        }
+        if (mUndoneHistory.size() == 0) {
+            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(false);
+        }
+    }
+
+    private void checkForZeroColors() {
+        if (mPattern.getColors() == null) {
+            mFindBestColorsTask = new FindBestColorsTask() {
+                @Override
+                protected void onPostExecute(Integer integer) {
+                    Patterns.Save(ChangeParametersActivity.this);
+                    mPatternApproxImage.setPattern(mPattern, Simple);
+                    mGridAdapter.updateColors(mPattern);
+                    mGridAdapter.notifyDataSetChanged();
+                }
+            };
+            mFindBestColorsTask.execute(this, mPattern, DEFAULT_INITIAL_COLORS);
+        }
+    }
+
+    private OnHistoryDo mDoHistory = new OnHistoryDo() {
+        @Override
+        public void removeColor(int color) {
+            mPattern.removeColor(color);
+            Patterns.Save(ChangeParametersActivity.this);
+            mGridAdapter.updateColors(mPattern);
+            mGridAdapter.notifyDataSetChanged();
+            mPatternApproxImage.executeRedraw(Simple);
+        }
+
+        @Override
+        public void addColor(int color) {
+            mPattern.addColor(color);
+            Patterns.Save(ChangeParametersActivity.this);
+            mGridAdapter.updateColors(mPattern);
+            mGridAdapter.notifyDataSetChanged();
+            mPatternApproxImage.executeRedraw(Simple);
+        }
+
+        @Override
+        public void setWidth(int width) {
+            mPattern.setPixelWidth(ChangeParametersActivity.this, width);
+            Patterns.Save(ChangeParametersActivity.this);
+            mPatternApproxImage.setPattern(mPattern, Simple);
+            mPatternApproxImage.scaleToFit();
+        }
+    };
 
     private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
@@ -162,9 +253,49 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     };
 
+    private InteractiveImageView.OnImageClickListener mOnImageClickListener = new InteractiveImageView.OnImageClickListener() {
+        @Override
+        public void onImageClicked(Bitmap bitmap, int x, int y) {
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            List<int[]> colorsFound = new ArrayList<int[]>();
+            for (int ix = 0; ix < CHECK_SQUARE_SIZE; ++ix) {
+                for (int iy = 0; iy < CHECK_SQUARE_SIZE; ++iy) {
+                    int tx = x - CHECK_SQUARE_RADIUS + ix;
+                    int ty = y - CHECK_SQUARE_RADIUS + iy;
+                    if (tx >= 0 && ty >= 0 && tx < width && ty < height) {
+                        int pixel = bitmap.getPixel(tx, ty);
+                        if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                            continue;
+                        }
+                        colorsFound.add(ColorUtil.splitColor(pixel));
+                    }
+                }
+            }
+            colorsFound = MMCQ.compute(colorsFound, CHECK_SQUARE_COLORS);
+            BetterLog.d(this, "Found colors " + colorsFound.size());
+
+            if (colorsFound.size() > 0) {
+                int[] pixels = new int[colorsFound.size()];
+                int i = 0;
+                for (int[] color : colorsFound) {
+                    pixels[i++] = Color.rgb(color[0], color[1], color[2]);
+                }
+                Intent intent = new Intent(ChangeParametersActivity.this, ChooseColorDialog.class);
+                intent.putExtra("pixels", pixels);
+                startActivityForResult(intent, REQUEST_CHOOSE_COLOR);
+            } else {
+                Toast.makeText(ChangeParametersActivity.this
+                        , "No colors, or only transparent colors, found"
+                        , Toast.LENGTH_LONG).show();
+            }
+        }
+    };
+
     private void removeColor(int color) {
         mPattern.removeColor(color);
         Patterns.Save(this);
+        addHistory(new RemoveColor(color));
         mGridAdapter.updateColors(mPattern);
         mGridAdapter.notifyDataSetChanged();
         mPatternApproxImage.executeRedraw(Simple);
@@ -213,9 +344,21 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CHANGE_WIDTH) {
+                int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
+                        , Constants.DEFAULT_PIXELS);
+                addHistory(new ChangeWidth(mPattern.getPixelWidth(), newWidth));
+                mPattern.setPixelWidth(this, newWidth);
+                Patterns.Save(this);
                 mPatternApproxImage.setPattern(mPattern, Simple);
                 mPatternApproxImage.scaleToFit();
+            } else if (requestCode == REQUEST_CHOOSE_COLOR) {
+                int pixel = data.getIntExtra("pixel", 0);
+                mPattern.addColor(pixel);
                 Patterns.Save(this);
+                addHistory(new AddColor(pixel));
+                mPatternApproxImage.setPattern(mPattern, Simple);
+                mGridAdapter.updateColors(mPattern);
+                mGridAdapter.notifyDataSetChanged();
             }
         }
     }

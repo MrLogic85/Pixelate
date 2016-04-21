@@ -26,15 +26,15 @@ import static android.view.View.VISIBLE;
  * Created by fredrik.metcalf on 2016-04-13.
  */
 public class ConfigurationWidthActivity extends Activity {
-
-    private Pattern mPattern;
+    public static final String EXTRA_WIDTH = "width";
+    //private Pattern mPattern;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_width);
 
-        mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+        //mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
 
         setFinishOnTouchOutside(false);
         setupSwipeNumberPicker();
@@ -43,24 +43,20 @@ public class ConfigurationWidthActivity extends Activity {
     public void onChooseNumberClicked(View view) {
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
         int val = picker.getValue();
-        mPattern.setPixelWidth(val);
 
-        Bitmap bitmap = BitmapHandler.getFromFileName(this, mPattern.getFileName());
-        float pixelSize = (float) bitmap.getWidth() / (float) mPattern.getPixelWidth();
-        int height = (int) (bitmap.getHeight() / pixelSize);
-        mPattern.setPixelHeight(height);
-        bitmap.recycle();
-
+        int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
         Patterns.Save(this);
         Intent result = new Intent();
-        result.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+        result.putExtra(EXTRA_WIDTH, val);
+        result.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
         setResult(RESULT_OK, result);
         finish();
     }
 
     private void setupSwipeNumberPicker() {
+        int width = getIntent().getIntExtra(EXTRA_WIDTH, Constants.DEFAULT_PIXELS);
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
-        picker.setValue(mPattern.getPixelWidth(), false);
+        picker.setValue(width, false);
         picker.setOnValueChangeListener(new OnValueChangeListener() {
             @Override
             public boolean onValueChange(SwipeNumberPicker view, int oldValue, int newValue) {

@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-<item
-    android:id="@+id/menu_item_change_width"
-    android:title="@string/change_width"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_item_change_width"
+        android:title="@string/change_width" />
+    <item
+        android:id="@+id/menu_item_undo"
+        android:icon="@drawable/ic_content_undo"
+        android:title="@string/undo"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/menu_item_redo"
+        android:icon="@drawable/ic_content_redo"
+        android:title="@string/redo"
+        app:showAsAction="ifRoom" />
 </menu>
