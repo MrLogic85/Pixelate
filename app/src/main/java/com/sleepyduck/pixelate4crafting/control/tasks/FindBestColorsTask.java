@@ -48,7 +48,6 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
             // MMCQ
             try {
                 MMCQ.CMap colors = MMCQ.computeMap(mBitmap, mNumColors);
-                mPattern.setCMap(colors);
                 for (int[] color : colors.palette()) {
                     colorsCounted.put(Color.rgb(color[0], color[1], color[2]), 0f);
                 }

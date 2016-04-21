@@ -3,11 +3,8 @@ package com.sleepyduck.pixelate4crafting.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
@@ -85,6 +82,8 @@ public class PatternImageView extends InteractiveImageView {
     }
 
     private final class BitmapAsyncTaskSimple extends AsyncTask<Object, Object, Bitmap> {
+        private static final int PIXEL_SIZE_MAX = 3;
+
         private Bitmap pixelBitmap;
         int pixelsWidth, pixelsHeight;
         private Map<Integer, Float> mColors;
@@ -93,21 +92,26 @@ public class PatternImageView extends InteractiveImageView {
         protected Bitmap doInBackground(Object... params) {
             pixelsWidth = mPattern.getPixelWidth();
             pixelsHeight = mPattern.getPixelHeight();
-            if (mPattern.getColors() != null) {
+            if (mPattern.hasColors()) {
                 mColors = new HashMap<>(mPattern.getColors());
             } else {
                 mColors = new HashMap<>();
                 mColors.put(Color.WHITE, 0f);
                 mColors.put(Color.BLACK, 0f);
             }
-            float pixelSize = (float)mOrigBitmap.getWidth() / (float) pixelsWidth;
+            float dRes = (float)mOrigBitmap.getWidth() / (float) pixelsWidth;
+            int pixelSize = Math.max(1, Math.min(PIXEL_SIZE_MAX, 300/pixelsWidth));
 
-            pixelBitmap = Bitmap.createBitmap(pixelsWidth, pixelsHeight, Config.ARGB_8888);
+            pixelBitmap = Bitmap.createBitmap(pixelsWidth*pixelSize, pixelsHeight*pixelSize, Config.ARGB_8888);
             // Draw colors
+            for (int x = 0; x < pixelsWidth; ++x) {
             for (int y = 0; y < pixelsHeight; ++y) {
-                for (int x = 0; x < pixelsWidth; ++x) {
-                    int pixel = mOrigBitmap.getPixel((int) (pixelSize*(x+.5f)), (int) (pixelSize*(y+.5f)));
-                    pixelBitmap.setPixel(x, y, ColorUtil.getBestColorFor(pixel, mColors).getKey());
+                    int pixel = mOrigBitmap.getPixel((int) (dRes*(x+.5f)), (int) (dRes*(y+.5f)));
+                    for (int ix = x*pixelSize; ix < (x+1)*pixelSize; ++ix) {
+                        for (int iy = y*pixelSize; iy < (y+1)*pixelSize; ++iy) {
+                            pixelBitmap.setPixel(ix, iy, ColorUtil.getBestColorFor(pixel, mColors).getKey());
+                        }
+                    }
                 }
                 if (isCancelled()) {
                     return null;
@@ -139,7 +143,7 @@ public class PatternImageView extends InteractiveImageView {
 		protected Bitmap doInBackground(Object... params) {
 			pixelsWidth = mPattern.getPixelWidth();
 			pixelsHeight = mPattern.getPixelHeight();
-			pixels = mPattern.getColorMatrix();
+			pixels = mPattern.getPixels();
 
 			pixelSize = 11; // 10 per pixel plus 1 for grid
 			int resultWidth = (pixelsWidth + 1) * pixelSize;

@@ -6,14 +6,7 @@
                 android:layout_height="match_parent"
                 tools:context=".control.configuration.ConfigurationActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"/>
+    <include layout="@layout/toolbar"/>
 
     <com.sleepyduck.pixelate4crafting.view.PatternImageView
         android:id="@+id/canvas"

@@ -18,5 +18,7 @@
     <string name="prepare_pattern">Preparing pattern</string>
     <string name="pick_color_from_here">Pick pattern colors from image</string>
     <string name="approximated_pattern">Pattern approximation</string>
-    <string name="palette">Palette</string>
+    <string name="palette_with_text">Palette (Click on a color to remove it)</string>
+    <string name="change_parameters">Edit palette and size</string>
+    <string name="change_width">Change width</string>
 </resources>

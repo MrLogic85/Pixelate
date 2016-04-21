@@ -23,18 +23,25 @@ public class Pattern implements Comparable<Pattern> {
     private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
     private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
     private static final String PREF_WEIGHT = "WEIGHT";
+    private static final String PREF_NEEDS_CALCULATION = "RECALC";
 
     public final int Id;
     private String mTitle = "";
     private State mState = State.ACTIVE;
     private String mFileName = "";
     private String mFileNameThumb = "";
+    private boolean mNeedsRecalculation = true;
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private int mWeight = 0;
     private Map<Integer, Float> mColors;
-    private int[][] mColorMatrix;
-    private MMCQ.CMap mCMap;
+    private int[][] mPixels;
+
+    public void removeColor(int color) {
+        if (mColors.remove(color) != null) {
+            mNeedsRecalculation = true;
+        }
+    }
 
     public enum State{
         LATEST,
@@ -64,7 +71,7 @@ public class Pattern implements Comparable<Pattern> {
         if (mColors != null) {
             DataManager.DestroyColors(context, Id);
         }
-        if (mColorMatrix != null) {
+        if (mPixels != null) {
             DataManager.DestroyPixels(context, Id);
         }
     }
@@ -75,11 +82,12 @@ public class Pattern implements Comparable<Pattern> {
         mState = State.valueOf(pref.getInt("" + prefCounter + PREF_STATE, State.ACTIVE.ordinal()));
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
+        mNeedsRecalculation = pref.getBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, true);
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, mWeight);
         mColors = DataManager.LoadColors(context, Id);
-        mColorMatrix = DataManager.LoadPixels(context, Id);
+        mPixels = DataManager.LoadPixels(context, Id);
     }
 
     public void save(Context context, int prefCounter, SharedPreferences.Editor editor) {
@@ -88,14 +96,15 @@ public class Pattern implements Comparable<Pattern> {
         editor.putInt("" + prefCounter + PREF_STATE, mState.ordinal());
         editor.putString("" + prefCounter + PREF_FILE, mFileName);
         editor.putString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
+        editor.putBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, mNeedsRecalculation);
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         editor.putInt("" + prefCounter + PREF_WEIGHT, mWeight);
         if (mColors != null) {
-            DataManager.SavePixels(context, Id, mColors);
+            DataManager.SaveColors(context, Id, mColors);
         }
-        if (mColorMatrix != null) {
-            DataManager.SavePixels(context, Id, mColorMatrix);
+        if (mPixels != null) {
+            DataManager.SavePixels(context, Id, mPixels);
         }
     }
 
@@ -156,6 +165,7 @@ public class Pattern implements Comparable<Pattern> {
 
     public void setPixelWidth(int i) {
         mPixelWidth = i;
+        mNeedsRecalculation = true;
     }
 
     public void setPixelHeight(int i) {
@@ -172,25 +182,27 @@ public class Pattern implements Comparable<Pattern> {
 
     public void setColors(Map<Integer, Float> colors) {
         mColors = colors;
+        mNeedsRecalculation = true;
     }
 
     public Map<Integer, Float> getColors() {
         return mColors;
     }
 
-    public void setColorMatrix(int[][] colorMatrix) {
-        mColorMatrix = colorMatrix;
+    public boolean hasColors() {
+        return getColors() != null && getColors().size() > 0;
     }
 
-    public int[][] getColorMatrix() {
-        return mColorMatrix;
+    public void setPixels(int[][] pixels) {
+        mNeedsRecalculation = pixels == null;
+        mPixels = pixels;
     }
 
-    public void setCMap(MMCQ.CMap cMap) {
-        mCMap = cMap;
+    public int[][] getPixels() {
+        return mPixels;
     }
 
-    public MMCQ.CMap getCMap() {
-        return mCMap;
+    public boolean needsRecalculation() {
+        return mNeedsRecalculation;
     }
 }

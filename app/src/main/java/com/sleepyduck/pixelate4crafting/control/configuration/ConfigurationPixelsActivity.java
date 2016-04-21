@@ -26,6 +26,7 @@ public class ConfigurationPixelsActivity extends Activity {
         setFinishOnTouchOutside(false);
 
         mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+        mPattern.setPixels(null);
         preparePixels();
     }
 

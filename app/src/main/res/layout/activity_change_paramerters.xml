@@ -4,23 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
-
+    <include layout="@layout/toolbar"/>
     <LinearLayout
+        android:id="@+id/view_group"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
 
         <TextView
             style="@style/TextViewHeader"
+            android:lines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/pick_color_from_here"
@@ -31,13 +26,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:src="@drawable/ic_launcher"
             android:scaleType="matrix"/>
 
         <TextView
             style="@style/TextViewHeader"
             android:padding="@dimen/padding_small"
             android:layout_width="match_parent"
+            android:lines="1"
             android:layout_height="wrap_content"
             android:text="@string/approximated_pattern" />
 
@@ -46,27 +41,25 @@
             android:id="@+id/image_approximated"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:src="@drawable/ic_launcher" />
+            android:layout_weight="1"/>
 
         <TextView
             style="@style/TextViewHeader"
             android:padding="@dimen/padding_small"
+            android:lines="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/palette" />
+            android:text="@string/palette_with_text"
+            android:onClick="onPaletteTextClicked"/>
 
         <GridView
             android:id="@+id/palette_grid"
             android:padding="@dimen/padding_small"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/palette_2x"
+            android:layout_height="@dimen/palette_2x_size_small"
             android:columnWidth="@dimen/color_square_size_small"
-            android:gravity="start"
-            android:horizontalSpacing="@dimen/color_square_spacing"
+            android:gravity="center"
             android:numColumns="auto_fit"
-            android:scrollbars="horizontal"
-            android:stretchMode="none"
-            android:verticalSpacing="@dimen/color_square_spacing" />
+            android:stretchMode="none"/>
     </LinearLayout>
 </RelativeLayout>

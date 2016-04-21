@@ -43,7 +43,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (!mScaleDetector.isInProgress()) {
+            if (!mScaleDetector.isInProgress() && mMatrix != null) {
                 mMatrix.postTranslate(-distanceX, -distanceY);
                 setImageMatrix(mMatrix);
                 return true;
@@ -67,15 +67,17 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            // Scale
-            float scale = detector.getScaleFactor();
-            mMatrix.postScale(scale, scale, detector.getFocusX(), detector.getFocusY());
+            if (mMatrix != null) {
+                // Scale
+                float scale = detector.getScaleFactor();
+                mMatrix.postScale(scale, scale, detector.getFocusX(), detector.getFocusY());
 
-            // Move
-            mMatrix.postTranslate(detector.getFocusX()- lastX, detector.getFocusY()- lastY);
-            lastX = detector.getFocusX();
-            lastY = detector.getFocusY();
-            setImageMatrix(mMatrix);
+                // Move
+                mMatrix.postTranslate(detector.getFocusX() - lastX, detector.getFocusY() - lastY);
+                lastX = detector.getFocusX();
+                lastY = detector.getFocusY();
+                setImageMatrix(mMatrix);
+            }
             return true;
         }
 

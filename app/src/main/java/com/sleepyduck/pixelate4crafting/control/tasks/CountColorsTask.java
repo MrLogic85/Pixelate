@@ -28,11 +28,8 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
             mPattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
 
-            // Check if colors have been counted already
             for (Map.Entry<Integer, Float> color : mPattern.getColors().entrySet()) {
-                if (color.getValue() > 0) {
-                    return null;
-                }
+                color.setValue(0f);
             }
             countColors(mBitmap, mPattern.getColors());
         }

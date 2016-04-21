@@ -19,7 +19,7 @@ public class DataManager {
     private static final String COLOR_FILE = "COLORS";
     private static final String PIXEL_FILE = "PIXELS";
 
-    public static void SavePixels(Context context, int patternId, Map<Integer, Float> colors) {
+    public static void SaveColors(Context context, int patternId, Map<Integer, Float> colors) {
         SaveData(context, patternId, COLOR_FILE, colors);
     }
 

@@ -33,10 +33,11 @@ public class ConfigurationWidthActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_width);
-        setFinishOnTouchOutside(false);
-        setupSwipeNumberPicker();
 
         mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+
+        setFinishOnTouchOutside(false);
+        setupSwipeNumberPicker();
     }
 
     public void onChooseNumberClicked(View view) {
@@ -58,6 +59,7 @@ public class ConfigurationWidthActivity extends Activity {
 
     private void setupSwipeNumberPicker() {
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
+        picker.setValue(mPattern.getPixelWidth(), false);
         picker.setOnValueChangeListener(new OnValueChangeListener() {
             @Override
             public boolean onValueChange(SwipeNumberPicker view, int oldValue, int newValue) {
@@ -90,15 +92,19 @@ public class ConfigurationWidthActivity extends Activity {
 
                     @Override
                     public void afterTextChanged(Editable s) {
-                        int value = Integer.parseInt(edit.getText().toString());
-                        if (value > Constants.MAX_PIXELS) {
-                            edit.setText("" + Constants.MAX_PIXELS);
-                            value = Constants.MAX_PIXELS;
-                        } else if (value < 1) {
-                            edit.setText("" + 1);
-                            value = 1;
+                        if (edit.getText().length() > 0) {
+                            int value = Integer.parseInt(edit.getText().toString());
+                            if (value > Constants.MAX_PIXELS) {
+                                edit.setText("" + Constants.MAX_PIXELS);
+                                value = Constants.MAX_PIXELS;
+                            } else if (value < 1) {
+                                edit.setText("" + 1);
+                                value = 1;
+                            }
+                            picker.setValue(value, false);
+                        } else {
+                            picker.setValue(0, false);
                         }
-                        picker.setValue(value, false);
                     }
                 });
             }

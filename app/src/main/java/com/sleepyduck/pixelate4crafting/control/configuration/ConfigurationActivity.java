@@ -10,7 +10,6 @@ import com.sleepyduck.pixelate4crafting.model.Patterns;
 public class ConfigurationActivity extends Activity {
     public static final int REQUEST_CONFIGURE_IMAGE = 1;
     public static final int REQUEST_CONFIGURE_WIDTH = 2;
-    public static final int REQUEST_CONFIGURE_COLORS = 3;
     public static final int REQUEST_CONFIGURE_PIXELS= 4;
     private static final int REQUEST_CHANGE_PARAMETERS = 5;
     private int mPatternId = 0;
@@ -29,11 +28,6 @@ public class ConfigurationActivity extends Activity {
             }
             case REQUEST_CONFIGURE_WIDTH: {
                 Intent intent = new Intent(this, ConfigurationWidthActivity.class);
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
-                return intent;
-            }
-            case REQUEST_CONFIGURE_COLORS: {
-                Intent intent = new Intent(this, ConfigurationColorsActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
                 return intent;
             }
@@ -65,11 +59,10 @@ public class ConfigurationActivity extends Activity {
                 return;
             }
             case REQUEST_CONFIGURE_WIDTH: {
-                //startActivityForResult(getIntent(REQUEST_CONFIGURE_COLORS), REQUEST_CONFIGURE_COLORS);
                 startActivityForResult(getIntent(REQUEST_CHANGE_PARAMETERS), REQUEST_CHANGE_PARAMETERS);
                 return;
             }
-            case REQUEST_CONFIGURE_COLORS: {
+            case REQUEST_CHANGE_PARAMETERS: {
                 startActivityForResult(getIntent(REQUEST_CONFIGURE_PIXELS), REQUEST_CONFIGURE_PIXELS);
                 return;
             }

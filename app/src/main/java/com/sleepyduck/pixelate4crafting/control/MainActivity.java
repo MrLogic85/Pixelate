@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationColorsActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.adapter.RecyclerAdapter;
@@ -25,8 +26,8 @@ import static com.sleepyduck.pixelate4crafting.model.Pattern.State.COMPLETED;
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
-    private static final int REQUEST_REDO_COLORS = 2;
-    private static final int REQUEST_REDO_PIXELS = 3;
+    private static final int REQUEST_REDO_PIXELS = 2;
+    private static final int REQUEST_CHANGE_PARAMETERS = 4;
     private RecyclerAdapter mAdapter;
     private RecyclerView mRecyclerView;
 
@@ -121,12 +122,10 @@ public class MainActivity extends AppCompatActivity {
         if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
             Toast.makeText(this, "Image not found! I am truly sorry, this pattern is broken :(", Toast.LENGTH_LONG).show();
         } else if (pattern.getColors() == null) {
-            Toast.makeText(this, "No color scheme in pattern, please redo the color choosing process", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(this, ConfigurationColorsActivity.class);
+            Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-            startActivityForResult(intent, REQUEST_REDO_COLORS);
-        } else if (pattern.getColorMatrix() == null) {
-            Toast.makeText(this, "Pixels haven't been created yet, ", Toast.LENGTH_LONG).show();
+            startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
+        } else if (pattern.needsRecalculation()) {
             Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_REDO_PIXELS);
@@ -149,24 +148,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        BetterLog.d(this, "onActivityResult(%d, %d, data)", requestCode, resultCode);
 
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case REQUEST_NEW_PATTERN: {
+                case REQUEST_NEW_PATTERN:
                     int patternId = data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
-                    Pattern pattern = Patterns.GetPattern(patternId);
-                    Patterns.MakeLatest(pattern);
-
-                    Intent intent = new Intent(this, PatternActivity.class);
-                    intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-                    startActivity(intent);
-                }
-                break;
-                case REQUEST_REDO_COLORS:
-                case REQUEST_REDO_PIXELS: {
+                    launch(patternId);
+                    break;
+                case REQUEST_CHANGE_PARAMETERS:
+                case REQUEST_REDO_PIXELS:
                     launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
-                }
-                break;
+                    break;
             }
         }
 

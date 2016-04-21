@@ -2,6 +2,7 @@ package com.sleepyduck.pixelate4crafting.view.adapter;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -147,14 +148,14 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
                     int x = 0, y = 0;
                     for (int color : pattern.getColors().keySet()) {
-                        View view = new View(mItemView.getContext());
+                        View view = new CardView(mItemView.getContext());
                         view.setBackgroundColor(color);
                         GridLayout.LayoutParams params = new GridLayout.LayoutParams();
                         params.width = colorSize;
                         params.height = colorSize;
                         params.columnSpec = GridLayout.spec(x);
                         params.rowSpec = GridLayout.spec(y);
-                        params.setMargins(0, 0, margin, margin);
+                        params.setMargins(margin, margin, margin, margin);
                         grid.addView(view, params);
 
                         x++;

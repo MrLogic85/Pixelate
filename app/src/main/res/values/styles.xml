@@ -16,16 +16,10 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="android:windowBackground">@color/white_100</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Solid.Style500</item>
-        <item name="android:buttonStyle">@style/ButtonStyle</item>
-        <item name="android:textViewStyle">@style/MyTextView</item>
-        <item name="android:editTextStyle">@style/MyTextView</item>
     </style>
 
-    <style name="ActionBar.Solid.Style500" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/primary_500</item>
+    <style name="PopupStyle" parent="ThemeOverlay.AppCompat.Light">
+        <item name="android:colorBackground">@color/primary_100</item>
     </style>
 
     <style name="MyAlertDialog" parent="@style/Theme.AppCompat.Dialog">
