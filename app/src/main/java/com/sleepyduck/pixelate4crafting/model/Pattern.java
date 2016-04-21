@@ -7,8 +7,8 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -20,6 +20,7 @@ public class Pattern implements Comparable<Pattern> {
     private static final String PREF_STATE = "STATE";
     private static final String PREF_FILE = "FILE";
     private static final String PREF_FILE_THUMB = "FILE_THUMB";
+    private static final String PREF_FILE_PATTERN = "FILE_PATTERN";
     private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
     private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
     private static final String PREF_WEIGHT = "WEIGHT";
@@ -30,18 +31,13 @@ public class Pattern implements Comparable<Pattern> {
     private State mState = State.ACTIVE;
     private String mFileName = "";
     private String mFileNameThumb = "";
+    private String mFileNamePattern = "";
     private boolean mNeedsRecalculation = true;
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private int mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
-
-    public void removeColor(int color) {
-        if (mColors.remove(color) != null) {
-            mNeedsRecalculation = true;
-        }
-    }
 
     public enum State{
         LATEST,
@@ -68,6 +64,9 @@ public class Pattern implements Comparable<Pattern> {
         if (mFileNameThumb != null && mFileNameThumb.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileNameThumb);
         }
+        if (mFileNamePattern != null && mFileNameThumb.length() > 0) {
+            BitmapHandler.removeFileOfName(context, mFileNameThumb);
+        }
         if (mColors != null) {
             DataManager.DestroyColors(context, Id);
         }
@@ -82,6 +81,7 @@ public class Pattern implements Comparable<Pattern> {
         mState = State.valueOf(pref.getInt("" + prefCounter + PREF_STATE, State.ACTIVE.ordinal()));
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
+        mFileNamePattern = pref.getString("" + prefCounter + PREF_FILE_PATTERN, mFileNameThumb);
         mNeedsRecalculation = pref.getBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, true);
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
@@ -96,6 +96,7 @@ public class Pattern implements Comparable<Pattern> {
         editor.putInt("" + prefCounter + PREF_STATE, mState.ordinal());
         editor.putString("" + prefCounter + PREF_FILE, mFileName);
         editor.putString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
+        editor.putString("" + prefCounter + PREF_FILE_PATTERN, mFileNamePattern);
         editor.putBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, mNeedsRecalculation);
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
@@ -164,11 +165,16 @@ public class Pattern implements Comparable<Pattern> {
     }
 
     public void setPixelWidth(int i) {
+        if (mPixelWidth != i) {
+            setNeedsRecalculation(true);
+        }
         mPixelWidth = i;
-        mNeedsRecalculation = true;
     }
 
     public void setPixelHeight(int i) {
+        if (mPixelHeight != i) {
+            setNeedsRecalculation(true);
+        }
         mPixelHeight = i;
     }
 
@@ -182,7 +188,7 @@ public class Pattern implements Comparable<Pattern> {
 
     public void setColors(Map<Integer, Float> colors) {
         mColors = colors;
-        mNeedsRecalculation = true;
+        setNeedsRecalculation(true);
     }
 
     public Map<Integer, Float> getColors() {
@@ -193,8 +199,21 @@ public class Pattern implements Comparable<Pattern> {
         return getColors() != null && getColors().size() > 0;
     }
 
+    public void removeColor(int color) {
+        if (mColors.remove(color) != null) {
+            setNeedsRecalculation(true);
+        }
+    }
+
+    public void addColor(int pixel) {
+        if (mColors == null) {
+            mColors = new HashMap<>();
+        }
+        mColors.put(pixel, 0f);
+    }
+
     public void setPixels(int[][] pixels) {
-        mNeedsRecalculation = pixels == null;
+        setNeedsRecalculation(pixels == null);
         mPixels = pixels;
     }
 
@@ -202,7 +221,22 @@ public class Pattern implements Comparable<Pattern> {
         return mPixels;
     }
 
+    public void setNeedsRecalculation(boolean recalc) {
+        mNeedsRecalculation = recalc;
+        if (recalc) {
+            setPatternFileName("");
+        }
+    }
+
     public boolean needsRecalculation() {
         return mNeedsRecalculation;
+    }
+
+    public void setPatternFileName(String patternFileName) {
+        mFileNamePattern = patternFileName;
+    }
+
+    public String getPatternFileName() {
+        return mFileNamePattern;
     }
 }

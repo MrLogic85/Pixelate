@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationColorsActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;

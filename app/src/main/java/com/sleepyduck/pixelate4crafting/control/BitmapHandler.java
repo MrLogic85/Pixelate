@@ -58,6 +58,25 @@ public class BitmapHandler {
 		return null;
 	}
 
+	public static String storePattern(Context context, Bitmap pattern, String fileName) {
+		try {
+			//--- Store image ---
+			ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			pattern.compress(CompressFormat.PNG, 0, bos);
+			byte[] bitmapdata = bos.toByteArray();
+			bos.close();
+			File file = new File(context.getFilesDir(), fileName + Constants.FILE_PATTERN);
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.write(bitmapdata, 0, bitmapdata.length);
+			fos.close();
+
+			return fileName + Constants.FILE_PATTERN;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public static void storeLocally(Context context, Uri uri, String fileName) {
 		try {
             //--- Store image ---

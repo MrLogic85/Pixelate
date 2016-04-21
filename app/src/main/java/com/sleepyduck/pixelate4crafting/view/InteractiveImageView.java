@@ -26,6 +26,7 @@ import java.util.Arrays;
 public class InteractiveImageView extends ImageView implements View.OnTouchListener {
     private Matrix mMatrix;
     private Bitmap mImageBitmap;
+    private OnImageClickListener mImageListener;
 
     private GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
         @Override
@@ -34,10 +35,23 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
         }
 
         @Override
-        public void onShowPress(MotionEvent e) {}
+        public void onShowPress(MotionEvent e) {
+        }
 
         @Override
-        public boolean onSingleTapUp(MotionEvent e) {
+        public boolean onSingleTapUp(MotionEvent ev) {
+            if (mImageListener != null) {
+                Matrix inv = new Matrix();
+                mMatrix.invert(inv);
+                float[] point = {ev.getX(), ev.getY()};
+                inv.mapPoints(point);
+                try {
+                    int pixel = mImageBitmap.getPixel((int) point[0], (int) point[1]);
+                    mImageListener.onImageClicked(pixel);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
+            }
             return false;
         }
 
@@ -94,49 +108,71 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
     });
 
     public InteractiveImageView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
+        super(context, attrs, defStyle);
         setOnTouchListener(this);
-	}
+    }
 
-	public InteractiveImageView(Context context, AttributeSet attrs) {
-		super(context, attrs);
+    public InteractiveImageView(Context context, AttributeSet attrs) {
+        super(context, attrs);
         setOnTouchListener(this);
-	}
+    }
 
-	public InteractiveImageView(Context context) {
-		super(context);
+    public InteractiveImageView(Context context) {
+        super(context);
         setOnTouchListener(this);
-	}
+    }
 
-	@Override
-	protected Parcelable onSaveInstanceState() {
-		Parcelable superState = super.onSaveInstanceState();
-		Bundle bundle = new Bundle();
-		bundle.putParcelable("super", superState);
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        BetterLog.d(this, "onSaveInstanceState");
+        Parcelable superState = super.onSaveInstanceState();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("super", superState);
         if (mMatrix != null) {
-            float[] values = new float[9];
-            mMatrix.getValues(values);
-            bundle.putFloatArray("image_matrix", values);
+            Matrix inv = new Matrix();
+            mMatrix.invert(inv);
+            float x = getWidth() > getHeight() ? (getWidth()-getHeight())/2 : 0;
+            float y = getWidth() < getHeight() ? (getHeight()-getWidth())/2 : 0;
+            float size = getWidth() > getHeight() ? getHeight() : getWidth();
+            float[] square = {x, y, size, size};
+            inv.mapPoints(square);
+            bundle.putFloatArray("square", square);
+            BetterLog.d(InteractiveImageView.class, "Visible rect (%.0f, %.0f) -> (%.0f, %.0f)",
+                    square[0], square[1], square[2], square[3]);
         }
-		return bundle;
-	}
+        return bundle;
+    }
 
-	@Override
-	protected void onRestoreInstanceState(Parcelable state) {
-		if (state instanceof Bundle) {
-			Bundle bundle = (Bundle) state;
-            if (bundle.containsKey("image_matrix")) {
-                mMatrix = new Matrix();
-                mMatrix.setValues(bundle.getFloatArray("image_matrix"));
-                setImageMatrix(mMatrix);
-                BetterLog.d(this, "Found image matrix " + mMatrix);
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        BetterLog.d(InteractiveImageView.class, "onRestoreInstanceState");
+        if (state instanceof Bundle) {
+            Bundle bundle = (Bundle) state;
+            if (bundle.containsKey("square")) {
+                final float[] square = bundle.getFloatArray("square");
+                getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                mMatrix = new Matrix(getImageMatrix());
+                                RectF from = new RectF(square[0], square[1], square[2], square[3]);
+                                float x = getWidth() > getHeight() ? (getWidth()-getHeight())/2 : 0;
+                                float y = getWidth() < getHeight() ? (getHeight()-getWidth())/2 : 0;
+                                float size = getWidth() > getHeight() ? getHeight() : getWidth();
+                                RectF to = new RectF(x, y, size+x, size+y);
+                                mMatrix.setRectToRect(from, to, Matrix.ScaleToFit.START);
+                                setImageMatrix(mMatrix);
+                                BetterLog.d(this, "Found image matrix " + mMatrix);
+                            }
+                        });
             }
-			super.onRestoreInstanceState(bundle.getParcelable("super"));
-		}
-	}
+            super.onRestoreInstanceState(bundle.getParcelable("super"));
+        }
+    }
 
-	@Override
-	public void setImageBitmap(Bitmap bm) {
+    @Override
+    public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
         mImageBitmap = bm;
 
@@ -145,17 +181,19 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
                 @Override
                 public void onGlobalLayout() {
                     getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    scaleToFit();
+                    if (mMatrix == null) {
+                        scaleToFit();
+                    }
                 }
             });
         }
-	}
+    }
 
-    private void scaleToFit() {
+    public void scaleToFit() {
         if (mImageBitmap != null
                 && getWidth() > 0
                 && getHeight() > 0) {
-            mMatrix = getImageMatrix();
+            mMatrix = new Matrix(getImageMatrix());
             RectF drawableRect = new RectF(0, 0, mImageBitmap.getWidth(), mImageBitmap.getHeight());
             RectF viewRect = new RectF(0, 0, getWidth(), getHeight());
             mMatrix.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER);
@@ -169,5 +207,13 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
         mScaleDetector.onTouchEvent(event);
         mGestureDetector.onTouchEvent(event);
         return true;
+    }
+
+    public void setOnImageClickListener(OnImageClickListener listener) {
+        mImageListener = listener;
+    }
+
+    public interface OnImageClickListener {
+        void onImageClicked(int pixel);
     }
 }

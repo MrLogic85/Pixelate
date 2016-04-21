@@ -15,6 +15,10 @@ public class BetterLog {
             simpleName = source.getName();
         }
 
+        if (text == null) {
+            text = simpleName;
+        }
+
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : stackTrace) {
             if (element.getClassName().equals(source.getName())) {

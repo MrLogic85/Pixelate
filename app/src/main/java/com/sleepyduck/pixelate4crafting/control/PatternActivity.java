@@ -65,7 +65,11 @@ public class PatternActivity extends AppCompatActivity {
         } else if (requestCode == REQUEST_NEW_PIXELS) {
             if (mPattern.needsRecalculation()) {
                 finish();
+            } else {
+                mCanvas.setPattern(mPattern);
             }
         }
+
+        Patterns.Save(this);
     }
 }

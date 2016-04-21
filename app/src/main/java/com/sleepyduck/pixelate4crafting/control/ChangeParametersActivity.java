@@ -3,6 +3,7 @@ package com.sleepyduck.pixelate4crafting.control;
 import android.animation.LayoutTransition;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -71,6 +72,18 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         mOriginalImage.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getFileName()));
         mPatternApproxImage.setPattern(mPattern, Simple);
+
+        mOriginalImage.setOnImageClickListener(new InteractiveImageView.OnImageClickListener() {
+            @Override
+            public void onImageClicked(int pixel) {
+                BetterLog.d(this, "On image clicked %08x", pixel);
+                mPattern.addColor(pixel);
+                Patterns.Save(ChangeParametersActivity.this);
+                mPatternApproxImage.setPattern(mPattern, Simple);
+                mGridAdapter.updateColors(mPattern);
+                mGridAdapter.notifyDataSetChanged();
+            }
+        });
 
         mPaletteGrid = (GridView) findViewById(R.id.palette_grid);
         mGridAdapter = new GridAdapter(mPattern);
@@ -201,6 +214,8 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CHANGE_WIDTH) {
                 mPatternApproxImage.setPattern(mPattern, Simple);
+                mPatternApproxImage.scaleToFit();
+                Patterns.Save(this);
             }
         }
     }

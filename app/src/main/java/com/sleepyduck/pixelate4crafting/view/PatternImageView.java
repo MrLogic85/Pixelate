@@ -11,6 +11,7 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -22,6 +23,7 @@ public class PatternImageView extends InteractiveImageView {
     private AsyncTask mBitmapAsyncTask;
 	private Pattern mPattern;
     private Bitmap mOrigBitmap;
+    private Style mStyle;
 
     public enum Style {
         Simple,
@@ -42,14 +44,32 @@ public class PatternImageView extends InteractiveImageView {
 
 	@Override
 	protected void onDetachedFromWindow() {
-		mBitmapAsyncTask.cancel(true);
+        if (mBitmapAsyncTask != null) {
+            mBitmapAsyncTask.cancel(true);
+        }
         if (mOrigBitmap != null) {
             mOrigBitmap.recycle();
+        }
+        if (mImageBitmap != null) {
+            mImageBitmap.recycle();
         }
 		super.onDetachedFromWindow();
 	}
 
 	public void executeRedraw(Style style) {
+        mStyle = style;
+
+        if (style == Full
+                && mPattern.getPatternFileName() != null
+                && mPattern.getPatternFileName().length() > 0) {
+            if (mImageBitmap != null) {
+                mImageBitmap.recycle();
+            }
+            Bitmap bitmap =  BitmapHandler.getFromFileName(getContext(), mPattern.getPatternFileName());
+            setImageBitmap(bitmap);
+            return;
+        }
+
         if (mBitmapAsyncTask != null) {
             mBitmapAsyncTask.cancel(true);
             mBitmapAsyncTask = null;
@@ -63,6 +83,7 @@ public class PatternImageView extends InteractiveImageView {
                 break;
         }
         mBitmapAsyncTask.execute();
+        setImageAlpha(0xff / 2);
 	}
 
 	public void setPattern(Pattern pattern) {
@@ -78,6 +99,7 @@ public class PatternImageView extends InteractiveImageView {
     @Override
     public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
+        setImageAlpha(0xff);
         BetterLog.d(this, "Bitmap redrawn");
     }
 
@@ -213,7 +235,13 @@ public class PatternImageView extends InteractiveImageView {
                     mImageBitmap.recycle();
                 }
                 mImageBitmap = bitmap;
+                if (mStyle == Full) {
+                    String patternName = BitmapHandler.storePattern(getContext(), mImageBitmap, mPattern.getFileName());
+                    mPattern.setPatternFileName(patternName);
+                    Patterns.Save(getContext());
+                }
 				setImageBitmap(bitmap);
+                scaleToFit();
 			}
 		}
 	}

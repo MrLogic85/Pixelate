@@ -49,6 +49,7 @@ public class ConfigurationWidthActivity extends Activity {
         float pixelSize = (float) bitmap.getWidth() / (float) mPattern.getPixelWidth();
         int height = (int) (bitmap.getHeight() / pixelSize);
         mPattern.setPixelHeight(height);
+        bitmap.recycle();
 
         Patterns.Save(this);
         Intent result = new Intent();
