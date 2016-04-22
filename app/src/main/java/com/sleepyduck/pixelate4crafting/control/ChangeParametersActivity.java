@@ -106,14 +106,13 @@ public class ChangeParametersActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         mOptionMenu = menu;
         getMenuInflater().inflate(R.menu.configure_menu, menu);
-        menu.findItem(R.id.menu_item_redo).setVisible(false);
-        menu.findItem(R.id.menu_item_undo).setVisible(false);
+        menu.findItem(R.id.menu_item_redo).setEnabled(false);
+        menu.findItem(R.id.menu_item_undo).setEnabled(false);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem menuItem) {
-        BetterLog.d(this, "On option clicked");
         switch (menuItem.getItemId()) {
             case android.R.id.home: {
                 Intent intent = new Intent();
@@ -163,11 +162,11 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private void addHistory(History hist) {
         mHistory.add(hist);
         if (mHistory.size() == 1) {
-            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(true);
+            mOptionMenu.findItem(R.id.menu_item_undo).setEnabled(true);
         }
         if (mUndoneHistory.size() > 0) {
             mUndoneHistory.clear();
-            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(false);
+            mOptionMenu.findItem(R.id.menu_item_redo).setEnabled(false);
         }
     }
 
@@ -178,10 +177,10 @@ public class ChangeParametersActivity extends AppCompatActivity {
             hist.undo(mDoHistory);
         }
         if (mHistory.size() == 0) {
-            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(false);
+            mOptionMenu.findItem(R.id.menu_item_undo).setEnabled(false);
         }
         if (mUndoneHistory.size() == 1) {
-            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(true);
+            mOptionMenu.findItem(R.id.menu_item_redo).setEnabled(true);
         }
     }
 
@@ -192,10 +191,10 @@ public class ChangeParametersActivity extends AppCompatActivity {
             hist.redo(mDoHistory);
         }
         if (mHistory.size() == 1) {
-            mOptionMenu.findItem(R.id.menu_item_undo).setVisible(true);
+            mOptionMenu.findItem(R.id.menu_item_undo).setEnabled(true);
         }
         if (mUndoneHistory.size() == 0) {
-            mOptionMenu.findItem(R.id.menu_item_redo).setVisible(false);
+            mOptionMenu.findItem(R.id.menu_item_redo).setEnabled(false);
         }
     }
 
@@ -272,10 +271,10 @@ public class ChangeParametersActivity extends AppCompatActivity {
                     }
                 }
             }
-            colorsFound = MMCQ.compute(colorsFound, CHECK_SQUARE_COLORS);
-            BetterLog.d(this, "Found colors " + colorsFound.size());
 
             if (colorsFound.size() > 0) {
+                colorsFound = MMCQ.compute(colorsFound, CHECK_SQUARE_COLORS);
+                BetterLog.d(this, "Found colors " + colorsFound.size());
                 int[] pixels = new int[colorsFound.size()];
                 int i = 0;
                 for (int[] color : colorsFound) {
@@ -285,9 +284,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 intent.putExtra("pixels", pixels);
                 startActivityForResult(intent, REQUEST_CHOOSE_COLOR);
             } else {
-                Toast.makeText(ChangeParametersActivity.this
-                        , "No colors, or only transparent colors, found"
-                        , Toast.LENGTH_LONG).show();
+                BetterLog.d(this, "No colors, or only transparent colors, found");
             }
         }
     };

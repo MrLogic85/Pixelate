@@ -3,8 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/menu_item_change_parameters"
-        android:title="@string/change_parameters" />
+        android:icon="@drawable/ic_editor_mode_edit"
+        android:title="@string/change_parameters"
+        app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/menu_item_change_name"
-        android:title="@string/change_name" />
+        android:icon="@drawable/ic_title"
+        android:title="@string/change_name"/>
 </menu>

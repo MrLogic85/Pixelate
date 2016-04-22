@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/primary_100"
-    android:orientation="vertical">
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@color/primary_100"
+              android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="@dimen/padding"
-        android:text="@string/change_name" />
+        android:text="@string/change_name"/>
 
     <EditText
         android:id="@+id/edit_text"
@@ -17,12 +17,12 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:inputType="text"
-        android:textColor="@color/black_87" />
+        android:textColor="@color/black_87"/>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/padding"
         android:onClick="onDoneClicked"
-        android:text="@string/done" />
+        android:text="@string/done"/>
 </LinearLayout>

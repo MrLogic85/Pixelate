@@ -24,6 +24,7 @@ public class PatternImageView extends InteractiveImageView {
 	private Pattern mPattern;
     private Bitmap mOrigBitmap;
     private Style mStyle;
+    private boolean mScaleToFitNewImage = false;
 
     public enum Style {
         Simple,
@@ -100,7 +101,20 @@ public class PatternImageView extends InteractiveImageView {
     public void setImageBitmap(Bitmap bm) {
         super.setImageBitmap(bm);
         setImageAlpha(0xff);
-        BetterLog.d(this, "Bitmap redrawn");
+        mBitmapAsyncTask = null;
+        if (mScaleToFitNewImage) {
+            scaleToFit();
+            mScaleToFitNewImage = false;
+        }
+    }
+
+    @Override
+    public void scaleToFit() {
+        if (mBitmapAsyncTask != null && !mBitmapAsyncTask.isCancelled()) {
+            mScaleToFitNewImage = true;
+        } else {
+            super.scaleToFit();
+        }
     }
 
     private final class BitmapAsyncTaskSimple extends AsyncTask<Object, Object, Bitmap> {
@@ -244,8 +258,8 @@ public class PatternImageView extends InteractiveImageView {
                     mPattern.setPatternFileName(patternName);
                     Patterns.Save(getContext());
                 }
+                mScaleToFitNewImage = true;
 				setImageBitmap(bitmap);
-                scaleToFit();
             }
 		}
 	}

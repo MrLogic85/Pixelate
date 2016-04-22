@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:background="@color/primary_100"
-    android:orientation="vertical"
-    android:padding="@dimen/padding">
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:background="@color/primary_100"
+              android:orientation="vertical"
+              android:padding="@dimen/padding">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/padding"
-        android:text="@string/prepare_pattern" />
+        android:text="@string/prepare_pattern"/>
 
     <ProgressBar
         android:id="@+id/progress_bar_preparing_pattern"
@@ -20,5 +20,5 @@
         android:max="200"
         android:progress="0"
         android:progressBackgroundTint="@color/accent_a100"
-        android:progressTint="@color/accent_a200" />
+        android:progressTint="@color/accent_a200"/>
 </LinearLayout>

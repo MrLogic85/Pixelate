@@ -119,7 +119,6 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
 
     @Override
     protected Parcelable onSaveInstanceState() {
-        BetterLog.d(this, "onSaveInstanceState");
         Parcelable superState = super.onSaveInstanceState();
         Bundle bundle = new Bundle();
         bundle.putParcelable("super", superState);
@@ -138,7 +137,6 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
 
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
-        BetterLog.d(InteractiveImageView.class, "onRestoreInstanceState");
         if (state instanceof Bundle) {
             Bundle bundle = (Bundle) state;
             if (bundle.containsKey("square")) {
