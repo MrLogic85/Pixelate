@@ -156,9 +156,10 @@ public class MainActivity extends AppCompatActivity {
                     launch(patternId);
                     break;
                 case REQUEST_CHANGE_PARAMETERS:
-                    if (!Patterns.GetPattern(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0)).hasColors()) {
-                        break;
-                    } // Else do the launch as with redo pixels
+                    if (Patterns.GetPattern(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0)).hasColors()) {
+                        launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+                    }
+                    break;
                 case REQUEST_REDO_PIXELS:
                     launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
                     break;
