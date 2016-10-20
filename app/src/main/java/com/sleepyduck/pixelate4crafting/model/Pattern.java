@@ -55,8 +55,16 @@ public class Pattern implements Comparable<Pattern> {
         }
     }
 
+    public Pattern(int id) {
+        this(id, "");
+    }
+
     public Pattern(String title) {
-        Id = (int) (Math.random() * Integer.MAX_VALUE);
+        this((int) (Math.random() * Integer.MAX_VALUE), title);
+    }
+
+    public Pattern(int id, String title) {
+        Id = id;
         mTitle = title;
     }
 
@@ -253,5 +261,11 @@ public class Pattern implements Comparable<Pattern> {
 
     public String getPatternFileName() {
         return mFileNamePattern;
+    }
+
+    public static class Empty extends Pattern {
+        public Empty(int id) {
+            super(id);
+        }
     }
 }
