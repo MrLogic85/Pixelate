@@ -21,11 +21,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 PatternColumns._ID + " INTEGER PRIMARY KEY," +
                 PatternColumns.TITLE + " TEXT," +
                 PatternColumns.STATE + " INTEGER, " +
-                PatternColumns.FILE + " TEXT," +
-                PatternColumns.FILE_THUMB + " TEXT" +
-                PatternColumns.FILE_PATTERN + " TEXT" +
-                PatternColumns.PIXEL_HEIGHT + " INTEGER" +
-                PatternColumns.PIXEL_WIDTH + " INTEGER" +
+                PatternColumns.FILE + " TEXT, " +
+                PatternColumns.FILE_THUMB + " TEXT, " +
+                PatternColumns.FILE_PATTERN + " TEXT, " +
+                PatternColumns.PIXEL_HEIGHT + " INTEGER, " +
+                PatternColumns.PIXEL_WIDTH + " INTEGER, " +
+                PatternColumns.PIXELS + " BLOB, " +
+                PatternColumns.COLORS + " BLOB, " +
                 PatternColumns.TIME + " BIGINT)");
     }
 

@@ -1,16 +1,21 @@
 package com.sleepyduck.pixelate4crafting.model;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by fredrik.metcalf on 2016-04-08.
@@ -36,7 +41,7 @@ public class Pattern implements Comparable<Pattern> {
     private boolean mNeedsRecalculation = true;
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
-    private int mWeight = 0;
+    private long mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
     private boolean mColorsIsDirty = false;
@@ -53,6 +58,18 @@ public class Pattern implements Comparable<Pattern> {
             }
             return State.ACTIVE;
         }
+    }
+
+    public Pattern(Cursor cursor) {
+        Id = cursor.getInt(cursor.getColumnIndex(PatternColumns._ID));
+        mTitle = cursor.getString(cursor.getColumnIndex(PatternColumns.TITLE));
+        mState = State.valueOf(cursor.getInt(cursor.getColumnIndex(PatternColumns.STATE)));
+        mFileName = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE));
+        mFileNameThumb = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE_THUMB));
+        mFileNamePattern = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE_PATTERN));
+        mPixelWidth = cursor.getInt(cursor.getColumnIndex(PatternColumns.PIXEL_WIDTH));
+        mPixelHeight = cursor.getInt(cursor.getColumnIndex(PatternColumns.PIXEL_HEIGHT));
+        mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
     }
 
     public Pattern(int id) {
@@ -75,8 +92,8 @@ public class Pattern implements Comparable<Pattern> {
         if (mFileNameThumb != null && mFileNameThumb.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileNameThumb);
         }
-        if (mFileNamePattern != null && mFileNameThumb.length() > 0) {
-            BitmapHandler.removeFileOfName(context, mFileNameThumb);
+        if (mFileNamePattern != null && mFileNamePattern.length() > 0) {
+            BitmapHandler.removeFileOfName(context, mFileNamePattern);
         }
         if (mColors != null) {
             DataManager.DestroyColors(context, Id);
@@ -96,7 +113,7 @@ public class Pattern implements Comparable<Pattern> {
         mNeedsRecalculation = pref.getBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, true);
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
-        mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, mWeight);
+        mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
         mColors = DataManager.LoadColors(context, Id);
         mPixels = DataManager.LoadPixels(context, Id);
     }
@@ -111,7 +128,7 @@ public class Pattern implements Comparable<Pattern> {
         editor.putBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, mNeedsRecalculation);
         editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
-        editor.putInt("" + prefCounter + PREF_WEIGHT, mWeight);
+        editor.putInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
         if (mColors != null && mColorsIsDirty) {
             DataManager.SaveColors(context, Id, mColors);
             mColorsIsDirty = false;
@@ -169,7 +186,7 @@ public class Pattern implements Comparable<Pattern> {
         return tmp;
     }
 
-    public int getWeight() {
+    public long getWeight() {
         return mWeight;
     }
 
@@ -263,9 +280,167 @@ public class Pattern implements Comparable<Pattern> {
         return mFileNamePattern;
     }
 
+    public Edit edit(ContentResolver resolver) {
+        return new Edit(this);
+    }
+
     public static class Empty extends Pattern {
         public Empty(int id) {
             super(id);
+        }
+
+        @Override
+        public Edit edit(ContentResolver resolver) {
+            return new EmptyEdit(this);
+        }
+    }
+
+    public static class Edit {
+        private final Map<String, Object> changes = new HashMap<>();
+        private final Pattern pattern;
+
+        public Edit(Pattern pattern) {
+            this.pattern = pattern;
+        }
+
+        public Edit set(Pattern copyOf) {
+            setTitle(copyOf.mTitle);
+            setState(copyOf.mState.ordinal());
+            setFile(copyOf.mFileName);
+            setFileThumb(copyOf.mFileNameThumb);
+            setFilePattern(copyOf.mFileNamePattern);
+            setPixelWidth(copyOf.mPixelWidth);
+            setPixelHeight(copyOf.mPixelHeight);
+            setTime(copyOf.mWeight);
+            return this;
+        }
+
+        public Set<String> getChangeKeys() {
+            return changes.keySet();
+        }
+
+        private <T> void set(String key, T value, Comparable<T> originalValue) {
+            if (originalValue.compareTo(value) == 0) {
+                changes.remove(key);
+            } else {
+                changes.put(key, value);
+            }
+        }
+
+        public Edit setTitle(String title) {
+            set(PatternColumns.TITLE, title, pattern.mTitle);
+            return this;
+        }
+
+        public Edit setState(int state) {
+            set(PatternColumns.STATE, state, pattern.mState.ordinal());
+            return this;
+        }
+
+        public Edit setFile(String file) {
+            set(PatternColumns.FILE, file, pattern.mFileName);
+            return this;
+        }
+
+        public Edit setFileThumb(String file) {
+            set(PatternColumns.FILE_THUMB, file, pattern.mFileNameThumb);
+            return this;
+        }
+
+        public Edit setFilePattern(String file) {
+            set(PatternColumns.FILE_PATTERN, file, pattern.mFileNamePattern);
+            return this;
+        }
+
+        public Edit setPixelWidth(int width) {
+            set(PatternColumns.PIXEL_WIDTH, width, pattern.mPixelWidth);
+            return this;
+        }
+
+        public Edit setPixelHeight(int height) {
+            set(PatternColumns.PIXEL_HEIGHT, height, pattern.mPixelHeight);
+            return this;
+        }
+
+        public Edit setTime(long time) {
+            set(PatternColumns.TIME, time, (long) pattern.mWeight);
+            return this;
+        }
+
+        public String getString(String key) {
+            if (changes.containsKey(key)) {
+                return (String) changes.get(key);
+            } else {
+                switch (key) {
+                    case PatternColumns.TITLE:
+                        return pattern.mTitle;
+                    case PatternColumns.FILE:
+                        return pattern.mFileName;
+                    case PatternColumns.FILE_THUMB:
+                        return pattern.mFileNameThumb;
+                    case PatternColumns.FILE_PATTERN:
+                        return pattern.mFileNamePattern;
+                }
+            }
+            return null;
+        }
+
+        public long getLong(String key) {
+            if (changes.containsKey(key)) {
+                return (long) changes.get(key);
+            } else {
+                switch (key) {
+                    case PatternColumns.TIME:
+                        return pattern.mWeight;
+                }
+            }
+            return 0;
+        }
+
+        public int getInt(String key) {
+            if (changes.containsKey(key)) {
+                return (int) changes.get(key);
+            } else {
+                switch (key) {
+                    case PatternColumns._ID:
+                        return pattern.Id;
+                    case PatternColumns.PIXEL_WIDTH:
+                        return pattern.mPixelWidth;
+                    case PatternColumns.PIXEL_HEIGHT:
+                        return pattern.mPixelHeight;
+                }
+            }
+            return 0;
+        }
+
+        public Object getBlob(String key) {
+            if (changes.containsKey(key)) {
+                return (int) changes.get(key);
+            } else {
+                switch (key) {
+                    case PatternColumns.COLORS:
+                        return pattern.mColors;
+                    case PatternColumns.PIXELS:
+                        return pattern.mPixels;
+                }
+            }
+            return null;
+        }
+
+        public void apply(ContentResolver resolver) {
+            DatabaseManager.update(resolver, this);
+        }
+    }
+
+    public static class EmptyEdit extends Edit {
+
+        public EmptyEdit(Pattern pattern) {
+            super(pattern);
+        }
+
+        @Override
+        public void apply(ContentResolver resolver) {
+            DatabaseManager.create(resolver, this);
         }
     }
 }

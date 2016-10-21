@@ -1,5 +1,7 @@
 package com.sleepyduck.pixelate4crafting.model;
 
+import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -21,6 +23,7 @@ import static com.sleepyduck.pixelate4crafting.model.Pattern.State.LATEST;
 public class Patterns {
     public static final String PREFERENCE_NAME = "PATTERNS";
     private static final String PREF_COUNT = "COUNT";
+    private static final String PREF_USING_DATABASE = "DATABSE";
 
     public static final String INTENT_EXTRA_ID = "EXTRA_ID";
 
@@ -32,11 +35,20 @@ public class Patterns {
     public static synchronized void Load(Context context) {
         if (LIST.size() == 0) {
             SharedPreferences pref = context.getSharedPreferences(PREFERENCE_NAME, 0);
+            if (pref.getBoolean(PREF_USING_DATABASE, false)) {
+                return;
+            }
             int size = pref.getInt(PREF_COUNT, 0);
             for (int i = 0; i < size; ++i) {
                 Pattern pattern = new Pattern(context, i, pref);
-                Add(pattern);
+
+                ContentResolver resolver = context.getContentResolver();
+                Pattern p = DatabaseManager.getPattern(resolver, pattern.Id);
+                p.edit(resolver)
+                        .set(pattern)
+                        .apply(resolver);
             }
+            pref.edit().putBoolean(PREF_USING_DATABASE, true).commit();
         }
     }
 

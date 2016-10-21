@@ -19,6 +19,7 @@ public final class DatabaseContract {
         public static final String TITLE = "title";
 
         public static final String STATE = "state";
+        public static final int STATE_LATEST = 0;
         public static final int STATE_ACTIVE = 1;
         public static final int STATE_COMPLETED = 2;
 
@@ -31,6 +32,10 @@ public final class DatabaseContract {
         public static final String PIXEL_WIDTH = "pixel_width";
 
         public static final String PIXEL_HEIGHT = "pixel_height";
+
+        public static final String COLORS = "colors";
+
+        public static final String PIXELS = "pixels";
 
         /**
          * Last time the pattern was accessed, used for sorting
