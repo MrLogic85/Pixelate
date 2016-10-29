@@ -30,7 +30,9 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
 
             int[][] colorMatrix = calculatePixels();
             if (colorMatrix != null) {
-                mPattern.setPixels(colorMatrix);
+                mPattern.edit()
+                        .setPixels(colorMatrix)
+                        .apply();
             }
         }
         return null;

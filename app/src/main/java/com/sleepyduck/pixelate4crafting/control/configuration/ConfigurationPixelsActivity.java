@@ -8,6 +8,7 @@ import android.widget.ProgressBar;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.tasks.CalculatePixelsTask;
 import com.sleepyduck.pixelate4crafting.control.tasks.CountColorsTask;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 
@@ -25,8 +26,11 @@ public class ConfigurationPixelsActivity extends Activity {
         setContentView(R.layout.activity_configure_pixels);
         setFinishOnTouchOutside(false);
 
-        mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
-        mPattern.setPixels(null);
+        mPattern = DatabaseManager.getPattern(this,
+                getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+        mPattern.edit()
+                .setPixels(null)
+                .apply();
         preparePixels();
     }
 
@@ -53,10 +57,6 @@ public class ConfigurationPixelsActivity extends Activity {
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
                 mDestroyListener = null;
-                Patterns.Save(ConfigurationPixelsActivity.this);
-                Intent result = new Intent();
-                result.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-                setResult(RESULT_OK, result);
                 finish();
             }
         };

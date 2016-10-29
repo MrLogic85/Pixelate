@@ -12,13 +12,13 @@ import android.widget.Toast;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.sleepyduck.pixelate4crafting.view.adapter.RecyclerAdapter;
+import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
+import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationActivity;
-
-import static com.sleepyduck.pixelate4crafting.model.Pattern.State.ACTIVE;
-import static com.sleepyduck.pixelate4crafting.model.Pattern.State.COMPLETED;
 
 /**
  * Created by fredrik.metcalf on 2016-04-08.
@@ -48,15 +48,18 @@ public class MainActivity extends AppCompatActivity {
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
                 switch (pattern.getState()) {
-                    case LATEST:
-                    case ACTIVE:
-                        pattern.setState(COMPLETED);
+                    case DatabaseContract.PatternColumns.STATE_LATEST:
+                    case DatabaseContract.PatternColumns.STATE_ACTIVE:
+                        pattern.edit()
+                                .setState(DatabaseContract.PatternColumns.STATE_COMPLETED)
+                                .apply();
                         break;
-                    case COMPLETED:
-                        pattern.setState(ACTIVE);
+                    case DatabaseContract.PatternColumns.STATE_COMPLETED:
+                        pattern.edit()
+                                .setState(DatabaseContract.PatternColumns.STATE_ACTIVE)
+                                .apply();
                         break;
                 }
-                Patterns.Save(MainActivity.this);
                 mAdapter.notifyDataSetChanged();
             }
         }
@@ -68,10 +71,7 @@ public class MainActivity extends AppCompatActivity {
             Object tag = v.getTag();
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
-                Patterns.Remove(pattern);
-                pattern.destroy(MainActivity.this);
-                Patterns.Save(MainActivity.this);
-                mAdapter.notifyDataSetChanged();
+                pattern.delete(MainActivity.this);
             }
         }
     };
@@ -98,6 +98,7 @@ public class MainActivity extends AppCompatActivity {
             mAdapter.setOnRightButtonClickListener(mOnRightButtonClickListener);
             mAdapter.setOnLeftButtonClickListener(mOnLeftButtonClickListener);
             mRecyclerView.setAdapter(mAdapter);
+            new PatternLoader(this, mAdapter);
         }
     }
 
@@ -117,9 +118,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void launch(int patternId) {
-        Pattern pattern = Patterns.GetPattern(patternId);
+        Pattern pattern = DatabaseManager.getPattern(this, patternId);
         if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
-            Toast.makeText(this, "Image not found! I am truly sorry, this pattern is broken :(", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Image not found! I am truly sorry, this mPattern is broken :(", Toast.LENGTH_LONG).show();
         } else if (!pattern.hasColors()) {
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
@@ -129,9 +130,11 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_REDO_PIXELS);
         } else {
-            if (pattern.getState() == ACTIVE) {
-                Patterns.MakeLatest(pattern);
-                Patterns.Save(MainActivity.this);
+            if (pattern.getState() == DatabaseContract.PatternColumns.STATE_ACTIVE) {
+                pattern.edit()
+                        .setState(DatabaseContract.PatternColumns.STATE_LATEST)
+                        .setTime(System.currentTimeMillis())
+                        .apply();
             }
             Intent intent = new Intent(this, PatternActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
@@ -156,7 +159,9 @@ public class MainActivity extends AppCompatActivity {
                     launch(patternId);
                     break;
                 case REQUEST_CHANGE_PARAMETERS:
-                    if (Patterns.GetPattern(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0)).hasColors()) {
+                    if (DatabaseManager.getPattern(this,
+                            data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0))
+                            .hasColors()) {
                         launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
                     }
                     break;
@@ -165,8 +170,5 @@ public class MainActivity extends AppCompatActivity {
                     break;
             }
         }
-
-        // Save in case something changed
-        Patterns.Save(this);
     }
 }

@@ -52,7 +52,9 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Integer> {
                     colorsCounted.put(Color.rgb(color[0], color[1], color[2]), 0f);
                 }
                 colorsCounted.put(Color.WHITE, 0f);
-                mPattern.setColors(colorsCounted);
+                mPattern.edit()
+                        .setColors(colorsCounted)
+                        .apply();
             } catch (IOException e) {
                 e.printStackTrace();
             }

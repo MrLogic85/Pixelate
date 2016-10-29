@@ -10,11 +10,7 @@ import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 
-/**
- * Created by fredrik.metcalf on 2016-04-13.
- */
 public class ConfigurationImageActivity extends Activity {
     private static final int REQUEST_IMAGE = 1;
 
@@ -44,17 +40,18 @@ public class ConfigurationImageActivity extends Activity {
             }
             if ("content".equals(imageUri.getScheme())) {
                 String fileName = BitmapHandler.getFileName(ConfigurationImageActivity.this, imageUri);
-                Pattern pattern = new Pattern(Pattern.createTitleFromFileName(fileName));
-                fileName += String.format("%8x", pattern.Id);
+                String title = Pattern.createTitleFromFileName(fileName);
+                fileName += (int) (Math.random() * 99999999);
                 BetterLog.d(this, "File name created: " + fileName);
                 BitmapHandler.storeLocally(ConfigurationImageActivity.this, imageUri, fileName);
-                pattern.setFileName(fileName);
-                Patterns.Add(pattern);
-                Patterns.Save(ConfigurationImageActivity.this);
 
-                Intent result = new Intent();
-                result.putExtra(Patterns.INTENT_EXTRA_ID, pattern.Id);
-                setResult(RESULT_OK, result);
+                new Pattern.Empty(this)
+                        .edit()
+                        .setFile(fileName)
+                        .setTitle(title)
+                        .setTime(System.currentTimeMillis())
+                        .apply();
+
                 finish();
             }
         }

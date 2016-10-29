@@ -5,9 +5,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursorDriver;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQuery;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -15,9 +12,6 @@ import android.support.annotation.Nullable;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
-/**
- * Created by fredrikmetcalf on 20/10/16.
- */
 public class DatabaseProvider extends ContentProvider {
 
     public static final String AUTHORITY = BuildConfig.APPLICATION_ID;

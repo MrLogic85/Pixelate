@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting.model;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -12,14 +11,13 @@ import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
-/**
- * Created by fredrik.metcalf on 2016-04-08.
- */
 public class Pattern implements Comparable<Pattern> {
     private static final String PREF_ID = "ID";
     private static final String PREF_TITLE = "TITLE";
@@ -27,14 +25,15 @@ public class Pattern implements Comparable<Pattern> {
     private static final String PREF_FILE = "FILE";
     private static final String PREF_FILE_THUMB = "FILE_THUMB";
     private static final String PREF_FILE_PATTERN = "FILE_PATTERN";
-    private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
-    private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
+    private static final String PREF_PIXEL_WIDTH = "WIDTH";
+    private static final String PREF_PIXEL_HEIGHT = "HEIGHT";
     private static final String PREF_WEIGHT = "WEIGHT";
     private static final String PREF_NEEDS_CALCULATION = "RECALC";
 
     public final int Id;
+    private final Context mContext;
     private String mTitle = "";
-    private State mState = State.ACTIVE;
+    private int mState = PatternColumns.STATE_ACTIVE;
     private String mFileName = "";
     private String mFileNameThumb = "";
     private String mFileNamePattern = "";
@@ -44,45 +43,57 @@ public class Pattern implements Comparable<Pattern> {
     private long mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
-    private boolean mColorsIsDirty = false;
-    private boolean mPixelsIsDirty = false;
 
-    public enum State{
-        LATEST,
-        ACTIVE,
-        COMPLETED;
-
-        public static State valueOf(int ordinal) {
-            if (ordinal >= 0 && ordinal < State.values().length) {
-                return State.values()[ordinal];
-            }
-            return State.ACTIVE;
-        }
-    }
-
-    public Pattern(Cursor cursor) {
+    public Pattern(Context context, Cursor cursor) {
+        mContext = context;
         Id = cursor.getInt(cursor.getColumnIndex(PatternColumns._ID));
         mTitle = cursor.getString(cursor.getColumnIndex(PatternColumns.TITLE));
-        mState = State.valueOf(cursor.getInt(cursor.getColumnIndex(PatternColumns.STATE)));
+        mState = cursor.getInt(cursor.getColumnIndex(PatternColumns.STATE));
         mFileName = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE));
         mFileNameThumb = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE_THUMB));
         mFileNamePattern = cursor.getString(cursor.getColumnIndex(PatternColumns.FILE_PATTERN));
-        mPixelWidth = cursor.getInt(cursor.getColumnIndex(PatternColumns.PIXEL_WIDTH));
-        mPixelHeight = cursor.getInt(cursor.getColumnIndex(PatternColumns.PIXEL_HEIGHT));
+        mPixelWidth = cursor.getInt(cursor.getColumnIndex(PatternColumns.WIDTH));
+        mPixelHeight = cursor.getInt(cursor.getColumnIndex(PatternColumns.HEIGHT));
         mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
+        mNeedsRecalculation = cursor.getInt(cursor.getColumnIndex(PatternColumns.NEEDS_RECALCULATION)) == 1;
+        String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
+        if (colors == null || colors.isEmpty()) {
+            mColors = null;
+        } else {
+            try {
+                JSONObject json = new JSONObject(colors);
+                int size = json.getInt("size");
+                mColors = new HashMap<>(size);
+                for (int i = 0; i < size; ++i) {
+                    mColors.put(json.getInt("color" + i), (float) json.getDouble("weight" + i));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        String pixels = cursor.getString(cursor.getColumnIndex(PatternColumns.PIXELS));
+        if (pixels == null || pixels.isEmpty()) {
+            mPixels = null;
+        } else {
+            try {
+                JSONObject json = new JSONObject(pixels);
+                int width = json.getInt("width");
+                int height = json.getInt("height");
+                mPixels = new int[width][height];
+                for (int w = 0; w < width; ++w) {
+                    for (int h = 0; h  < height; ++h) {
+                        mPixels[w][h] = json.getInt("" + w + "," + h);
+                    }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public Pattern(int id) {
-        this(id, "");
-    }
-
-    public Pattern(String title) {
-        this((int) (Math.random() * Integer.MAX_VALUE), title);
-    }
-
-    public Pattern(int id, String title) {
-        Id = id;
-        mTitle = title;
+    private Pattern(Context context) {
+        mContext = context;
+        Id = -1;
     }
 
     public void destroy(Context context) {
@@ -104,9 +115,10 @@ public class Pattern implements Comparable<Pattern> {
     }
 
     public Pattern(Context context, int prefCounter, SharedPreferences pref) {
+        mContext = context;
         Id = pref.getInt("" + prefCounter + PREF_ID, -1);
         mTitle = pref.getString("" + prefCounter + PREF_TITLE, mTitle);
-        mState = State.valueOf(pref.getInt("" + prefCounter + PREF_STATE, State.ACTIVE.ordinal()));
+        mState = pref.getInt("" + prefCounter + PREF_STATE, PatternColumns.STATE_ACTIVE);
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
         mFileNamePattern = pref.getString("" + prefCounter + PREF_FILE_PATTERN, mFileNameThumb);
@@ -118,51 +130,17 @@ public class Pattern implements Comparable<Pattern> {
         mPixels = DataManager.LoadPixels(context, Id);
     }
 
-    public void save(Context context, int prefCounter, SharedPreferences.Editor editor) {
-        editor.putInt("" + prefCounter + PREF_ID, Id);
-        editor.putString("" + prefCounter + PREF_TITLE, mTitle);
-        editor.putInt("" + prefCounter + PREF_STATE, mState.ordinal());
-        editor.putString("" + prefCounter + PREF_FILE, mFileName);
-        editor.putString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
-        editor.putString("" + prefCounter + PREF_FILE_PATTERN, mFileNamePattern);
-        editor.putBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, mNeedsRecalculation);
-        editor.putInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
-        editor.putInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
-        editor.putInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
-        if (mColors != null && mColorsIsDirty) {
-            DataManager.SaveColors(context, Id, mColors);
-            mColorsIsDirty = false;
-        }
-        if (mPixels != null && mPixelsIsDirty) {
-            DataManager.SavePixels(context, Id, mPixels);
-            mPixelsIsDirty = false;
-        }
-    }
-
     @Override
     public int compareTo(Pattern another) {
         return this.mTitle.compareTo(another.mTitle);
-    }
-
-    public void setFileName(String fileName) {
-        mFileName = fileName;
-        setFileNameThumbnail(fileName + Constants.FILE_THUMBNAIL);
     }
 
     public String getFileName() {
         return mFileName;
     }
 
-    public void setState(State newState) {
-        mState = newState;
-    }
-
-    public State getState() {
+    public int getState() {
         return mState;
-    }
-
-    public void setFileNameThumbnail(String fileName) {
-        mFileNameThumb = fileName;
     }
 
     public String getFileNameThumbnail() {
@@ -173,8 +151,32 @@ public class Pattern implements Comparable<Pattern> {
         return mTitle;
     }
 
-    public void setTitle(String title) {
-        this.mTitle = title;
+    public int getPixelWidth() {
+        return mPixelWidth;
+    }
+
+    public int getPixelHeight() {
+        return mPixelHeight;
+    }
+
+    public Map<Integer, Float> getColors() {
+        return mColors;
+    }
+
+    public boolean hasColors() {
+        return getColors() != null && getColors().size() > 0;
+    }
+
+    public int[][] getPixels() {
+        return mPixels;
+    }
+
+    public boolean needsRecalculation() {
+        return mNeedsRecalculation;
+    }
+
+    public String getPatternFileName() {
+        return mFileNamePattern;
     }
 
     public static String createTitleFromFileName(String fileName) {
@@ -186,249 +188,214 @@ public class Pattern implements Comparable<Pattern> {
         return tmp;
     }
 
-    public long getWeight() {
-        return mWeight;
-    }
-
-    public void setWeight(int weight) {
-        mWeight = weight;
-    }
-
-    public void setPixelWidth(Context context, int i) {
-        if (mPixelWidth != i) {
-            setNeedsRecalculation(true);
-        }
-        mPixelWidth = i;
-
-        Bitmap bitmap = BitmapHandler.getFromFileName(context, getFileName());
-        float pixelSize = (float) bitmap.getWidth() / (float) getPixelWidth();
-        int height = (int) (bitmap.getHeight() / pixelSize);
-        setPixelHeight(height);
-        bitmap.recycle();
-    }
-
-    public void setPixelHeight(int i) {
-        if (mPixelHeight != i) {
-            setNeedsRecalculation(true);
-        }
-        mPixelHeight = i;
-    }
-
-    public int getPixelWidth() {
-        return mPixelWidth;
-    }
-
-    public int getPixelHeight() {
-        return mPixelHeight;
-    }
-
-    public void setColors(Map<Integer, Float> colors) {
-        mColors = colors;
-        setNeedsRecalculation(true);
-    }
-
-    public Map<Integer, Float> getColors() {
-        return mColors;
-    }
-
-    public boolean hasColors() {
-        return getColors() != null && getColors().size() > 0;
-    }
-
-    public void removeColor(int color) {
-        if (mColors.remove(color) != null) {
-            setNeedsRecalculation(true);
-            mColorsIsDirty = true;
-        }
-    }
-
-    public void addColor(int pixel) {
-        if (mColors == null) {
-            mColors = new HashMap<>();
-        }
-        mColors.put(pixel, 0f);
-        setNeedsRecalculation(true);
-        mColorsIsDirty = true;
-    }
-
-    public void setPixels(int[][] pixels) {
-        setNeedsRecalculation(pixels == null);
-        mPixels = pixels;
-        mPixelsIsDirty = true;
-    }
-
-    public int[][] getPixels() {
-        return mPixels;
-    }
-
-    public void setNeedsRecalculation(boolean recalc) {
-        mNeedsRecalculation = recalc;
-        if (recalc) {
-            setPatternFileName("");
-        }
-    }
-
-    public boolean needsRecalculation() {
-        return mNeedsRecalculation;
-    }
-
-    public void setPatternFileName(String patternFileName) {
-        mFileNamePattern = patternFileName;
-    }
-
-    public String getPatternFileName() {
-        return mFileNamePattern;
-    }
-
-    public Edit edit(ContentResolver resolver) {
+    public Edit edit() {
         return new Edit(this);
     }
 
+    public void delete(Context context) {
+        destroy(context);
+        DatabaseManager.deletePattern(context.getContentResolver(), Id);
+    }
+
     public static class Empty extends Pattern {
-        public Empty(int id) {
-            super(id);
+        public Empty(Context context) {
+            super(context);
         }
 
         @Override
-        public Edit edit(ContentResolver resolver) {
+        public Edit edit() {
             return new EmptyEdit(this);
         }
     }
 
     public static class Edit {
-        private final Map<String, Object> changes = new HashMap<>();
-        private final Pattern pattern;
+        private final Map<String, Object> mChanges = new HashMap<>();
+        protected final Pattern mPattern;
 
         public Edit(Pattern pattern) {
-            this.pattern = pattern;
+            this.mPattern = pattern;
         }
 
         public Edit set(Pattern copyOf) {
             setTitle(copyOf.mTitle);
-            setState(copyOf.mState.ordinal());
+            setState(copyOf.mState);
             setFile(copyOf.mFileName);
             setFileThumb(copyOf.mFileNameThumb);
             setFilePattern(copyOf.mFileNamePattern);
-            setPixelWidth(copyOf.mPixelWidth);
-            setPixelHeight(copyOf.mPixelHeight);
+            setWidth(copyOf.mPixelWidth);
             setTime(copyOf.mWeight);
+            setColors(copyOf.mColors);
+            setPixels(copyOf.mPixels);
+            setNeedsRecalculation(copyOf.mNeedsRecalculation);
             return this;
         }
 
         public Set<String> getChangeKeys() {
-            return changes.keySet();
+            return mChanges.keySet();
         }
 
         private <T> void set(String key, T value, Comparable<T> originalValue) {
-            if (originalValue.compareTo(value) == 0) {
-                changes.remove(key);
+            if (originalValue == null || originalValue.compareTo(value) != 0) {
+                mChanges.put(key, value);
             } else {
-                changes.put(key, value);
+                mChanges.remove(key);
             }
         }
 
         public Edit setTitle(String title) {
-            set(PatternColumns.TITLE, title, pattern.mTitle);
+            set(PatternColumns.TITLE, title, mPattern.mTitle);
             return this;
         }
 
         public Edit setState(int state) {
-            set(PatternColumns.STATE, state, pattern.mState.ordinal());
+            set(PatternColumns.STATE, state, mPattern.mState);
             return this;
         }
 
         public Edit setFile(String file) {
-            set(PatternColumns.FILE, file, pattern.mFileName);
+            set(PatternColumns.FILE, file, mPattern.mFileName);
+            setFileThumb(file + Constants.FILE_THUMBNAIL);
             return this;
         }
 
         public Edit setFileThumb(String file) {
-            set(PatternColumns.FILE_THUMB, file, pattern.mFileNameThumb);
+            set(PatternColumns.FILE_THUMB, file, mPattern.mFileNameThumb);
             return this;
         }
 
         public Edit setFilePattern(String file) {
-            set(PatternColumns.FILE_PATTERN, file, pattern.mFileNamePattern);
+            set(PatternColumns.FILE_PATTERN, file, mPattern.mFileNamePattern);
             return this;
         }
 
-        public Edit setPixelWidth(int width) {
-            set(PatternColumns.PIXEL_WIDTH, width, pattern.mPixelWidth);
-            return this;
-        }
+        public Edit setWidth(int width) {
+            set(PatternColumns.WIDTH, width, mPattern.mPixelWidth);
 
-        public Edit setPixelHeight(int height) {
-            set(PatternColumns.PIXEL_HEIGHT, height, pattern.mPixelHeight);
+            setNeedsRecalculation(mChanges.containsKey(PatternColumns.WIDTH));
+            Bitmap bitmap = BitmapHandler.getFromFileName(mPattern.mContext, getString(PatternColumns.FILE));
+            float pixelSize = (float) bitmap.getWidth() / (float) width;
+            int height = (int) (bitmap.getHeight() / pixelSize);
+            set(PatternColumns.HEIGHT, height, mPattern.mPixelHeight);
+            bitmap.recycle();
             return this;
         }
 
         public Edit setTime(long time) {
-            set(PatternColumns.TIME, time, (long) pattern.mWeight);
+            set(PatternColumns.TIME, time, mPattern.mWeight);
+            return this;
+        }
+
+        public Edit setColors(Map<Integer, Float> colors) {
+            set(PatternColumns.COLORS, colors, null);
+            setNeedsRecalculation(true);
+            return this;
+        }
+
+        public Edit removeColor(int color) {
+            @SuppressWarnings("unchecked")
+            Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
+            if (colors.remove(color) != null) {
+                setNeedsRecalculation(true);
+            }
+            return this;
+        }
+
+        public Edit addColor(int color) {
+            @SuppressWarnings("unchecked")
+            Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
+            colors.put(color, 0f);
+            setNeedsRecalculation(true);
+            return this;
+        }
+
+        public Edit setPixels(int[][] pixels) {
+            setNeedsRecalculation(pixels == null);
+            set(PatternColumns.PIXELS, pixels, null);
+            return this;
+        }
+
+        public Edit setNeedsRecalculation(boolean recalc) {
+            set(PatternColumns.NEEDS_RECALCULATION, recalc, mPattern.mNeedsRecalculation);
+            if (recalc) {
+                setFilePattern("");
+            }
             return this;
         }
 
         public String getString(String key) {
-            if (changes.containsKey(key)) {
-                return (String) changes.get(key);
+            if (mChanges.containsKey(key)) {
+                return (String) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.TITLE:
-                        return pattern.mTitle;
+                        return mPattern.mTitle;
                     case PatternColumns.FILE:
-                        return pattern.mFileName;
+                        return mPattern.mFileName;
                     case PatternColumns.FILE_THUMB:
-                        return pattern.mFileNameThumb;
+                        return mPattern.mFileNameThumb;
                     case PatternColumns.FILE_PATTERN:
-                        return pattern.mFileNamePattern;
+                        return mPattern.mFileNamePattern;
                 }
             }
             return null;
         }
 
         public long getLong(String key) {
-            if (changes.containsKey(key)) {
-                return (long) changes.get(key);
+            if (mChanges.containsKey(key)) {
+                return (long) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.TIME:
-                        return pattern.mWeight;
+                        return mPattern.mWeight;
                 }
             }
             return 0;
         }
 
         public int getInt(String key) {
-            if (changes.containsKey(key)) {
-                return (int) changes.get(key);
+            if (mChanges.containsKey(key)) {
+                return (int) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns._ID:
-                        return pattern.Id;
-                    case PatternColumns.PIXEL_WIDTH:
-                        return pattern.mPixelWidth;
-                    case PatternColumns.PIXEL_HEIGHT:
-                        return pattern.mPixelHeight;
+                        return mPattern.Id;
+                    case PatternColumns.WIDTH:
+                        return mPattern.mPixelWidth;
+                    case PatternColumns.HEIGHT:
+                        return mPattern.mPixelHeight;
                 }
             }
             return 0;
         }
 
-        public Object getBlob(String key) {
-            if (changes.containsKey(key)) {
-                return (int) changes.get(key);
+        public boolean getBoolean(String key) {
+            if (mChanges.containsKey(key)) {
+                return (boolean) mChanges.get(key);
+            } else {
+                switch (key) {
+                    case PatternColumns.NEEDS_RECALCULATION:
+                        return mPattern.mNeedsRecalculation;
+                }
+            }
+            return false;
+        }
+
+        public Object get(String key) {
+            if (mChanges.containsKey(key)) {
+                return mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.COLORS:
-                        return pattern.mColors;
+                        return mPattern.mColors;
                     case PatternColumns.PIXELS:
-                        return pattern.mPixels;
+                        return mPattern.mPixels;
                 }
             }
             return null;
         }
 
-        public void apply(ContentResolver resolver) {
-            DatabaseManager.update(resolver, this);
+        public void apply() {
+            DatabaseManager.update(mPattern.mContext.getContentResolver(), this);
         }
     }
 
@@ -439,8 +406,8 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         @Override
-        public void apply(ContentResolver resolver) {
-            DatabaseManager.create(resolver, this);
+        public void apply() {
+            DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
         }
     }
 }

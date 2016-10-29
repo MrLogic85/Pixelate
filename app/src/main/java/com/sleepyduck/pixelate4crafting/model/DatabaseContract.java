@@ -3,10 +3,6 @@ package com.sleepyduck.pixelate4crafting.model;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
-/**
- * Created by fredrikmetcalf on 20/10/16.
- */
-
 public final class DatabaseContract {
 
     private DatabaseContract() {}
@@ -14,7 +10,7 @@ public final class DatabaseContract {
     public static class PatternColumns implements BaseColumns {
         public static final String TABLE_NAME = "patterns";
 
-        public static final Uri URI = Uri.parse(DatabaseProvider.AUTHORITY + "/" + TABLE_NAME);
+        public static final Uri URI = Uri.parse("content://" + DatabaseProvider.AUTHORITY + "/" + TABLE_NAME);
 
         public static final String TITLE = "title";
 
@@ -29,16 +25,18 @@ public final class DatabaseContract {
 
         public static final String FILE_PATTERN = "file_pattern";
 
-        public static final String PIXEL_WIDTH = "pixel_width";
+        public static final String WIDTH = "width";
 
-        public static final String PIXEL_HEIGHT = "pixel_height";
+        public static final String HEIGHT = "height";
 
         public static final String COLORS = "colors";
 
         public static final String PIXELS = "pixels";
 
+        public static final String NEEDS_RECALCULATION = "needs_recalculation";
+
         /**
-         * Last time the pattern was accessed, used for sorting
+         * Last time the mPattern was accessed, used for sorting
          */
         public static final String TIME = "time";
     }

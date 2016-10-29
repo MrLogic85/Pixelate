@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationNameActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
@@ -32,8 +33,8 @@ public class PatternActivity extends AppCompatActivity {
 		ActionBar ab = getSupportActionBar();
 		ab.setDisplayHomeAsUpEnabled(true);
 
-		int id = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, -1);
-		mPattern = Patterns.GetPattern(id);
+        mPattern = DatabaseManager.getPattern(this,
+                getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, -1));
 
         ab.setTitle(mPattern.getTitle());
 		
@@ -82,7 +83,5 @@ public class PatternActivity extends AppCompatActivity {
         } else if (requestCode == REQUEST_CHANGE_NAME) {
             getSupportActionBar().setTitle(mPattern.getTitle());
         }
-
-        Patterns.Save(this);
     }
 }

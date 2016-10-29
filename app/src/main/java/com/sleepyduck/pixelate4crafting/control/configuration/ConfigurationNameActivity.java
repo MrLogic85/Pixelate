@@ -14,6 +14,7 @@ import android.widget.EditText;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.vi.swipenumberpicker.OnValueChangeListener;
@@ -34,7 +35,8 @@ public class ConfigurationNameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_name);
 
-        mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+        mPattern = DatabaseManager.getPattern(this
+                , getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
         EditText text = (EditText) findViewById(R.id.edit_text);
         text.setText(mPattern.getTitle());
 
@@ -44,8 +46,9 @@ public class ConfigurationNameActivity extends Activity {
     public void onDoneClicked(View view) {
         EditText text = (EditText) findViewById(R.id.edit_text);
         if (text.getText().length() > 0) {
-            mPattern.setTitle(text.getText().toString());
-            Patterns.Save(this);
+            mPattern.edit()
+                    .setTitle(text.getText().toString())
+                    .apply();
         }
 
         Intent result = new Intent();

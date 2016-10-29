@@ -32,6 +32,7 @@ import com.sleepyduck.pixelate4crafting.control.util.history.ChangeWidth;
 import com.sleepyduck.pixelate4crafting.control.util.history.History;
 import com.sleepyduck.pixelate4crafting.control.util.history.OnHistoryDo;
 import com.sleepyduck.pixelate4crafting.control.util.history.RemoveColor;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
@@ -45,9 +46,6 @@ import java.util.Stack;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
 
-/**
- * Created by fredrikmetcalf on 20/04/16.
- */
 public class ChangeParametersActivity extends AppCompatActivity {
     private static final int DEFAULT_INITIAL_COLORS = 4;
     private static final int CHECK_SQUARE_SIZE = 5;
@@ -85,7 +83,8 @@ public class ChangeParametersActivity extends AppCompatActivity {
         LayoutTransition layoutTransition = group.getLayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.CHANGING);
 
-        mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+        int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
+        mPattern = DatabaseManager.getPattern(this, patternId);
         mOriginalImage = (InteractiveImageView) findViewById(R.id.image_original);
         mPatternApproxImage = (PatternImageView) findViewById(R.id.image_approximated);
 
@@ -203,7 +202,6 @@ public class ChangeParametersActivity extends AppCompatActivity {
             mFindBestColorsTask = new FindBestColorsTask() {
                 @Override
                 protected void onPostExecute(Integer integer) {
-                    Patterns.Save(ChangeParametersActivity.this);
                     mPatternApproxImage.setPattern(mPattern, Simple);
                     mGridAdapter.updateColors(mPattern);
                     mGridAdapter.notifyDataSetChanged();
@@ -216,8 +214,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private OnHistoryDo mDoHistory = new OnHistoryDo() {
         @Override
         public void removeColor(int color) {
-            mPattern.removeColor(color);
-            Patterns.Save(ChangeParametersActivity.this);
+            mPattern.edit()
+                    .removeColor(color)
+                    .apply();
             mGridAdapter.updateColors(mPattern);
             mGridAdapter.notifyDataSetChanged();
             mPatternApproxImage.executeRedraw(Simple);
@@ -225,8 +224,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         @Override
         public void addColor(int color) {
-            mPattern.addColor(color);
-            Patterns.Save(ChangeParametersActivity.this);
+            mPattern.edit()
+                    .addColor(color)
+                    .apply();
             mGridAdapter.updateColors(mPattern);
             mGridAdapter.notifyDataSetChanged();
             mPatternApproxImage.executeRedraw(Simple);
@@ -234,8 +234,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         @Override
         public void setWidth(int width) {
-            mPattern.setPixelWidth(ChangeParametersActivity.this, width);
-            Patterns.Save(ChangeParametersActivity.this);
+            mPattern.edit()
+                    .setWidth(width)
+                    .apply();
             mPatternApproxImage.setPattern(mPattern, Simple);
             mPatternApproxImage.scaleToFit();
         }
@@ -290,8 +291,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
     };
 
     private void removeColor(int color) {
-        mPattern.removeColor(color);
-        Patterns.Save(this);
+        mPattern.edit()
+                .removeColor(color)
+                .apply();
         addHistory(new RemoveColor(color));
         mGridAdapter.updateColors(mPattern);
         mGridAdapter.notifyDataSetChanged();
@@ -344,14 +346,16 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
                         , Constants.DEFAULT_PIXELS);
                 addHistory(new ChangeWidth(mPattern.getPixelWidth(), newWidth));
-                mPattern.setPixelWidth(this, newWidth);
-                Patterns.Save(this);
+                mPattern.edit()
+                        .setWidth(newWidth)
+                        .apply();
                 mPatternApproxImage.setPattern(mPattern, Simple);
                 mPatternApproxImage.scaleToFit();
             } else if (requestCode == REQUEST_CHOOSE_COLOR) {
                 int pixel = data.getIntExtra("pixel", 0);
-                mPattern.addColor(pixel);
-                Patterns.Save(this);
+                mPattern.edit()
+                        .addColor(pixel)
+                        .apply();
                 addHistory(new AddColor(pixel));
                 mPatternApproxImage.setPattern(mPattern, Simple);
                 mGridAdapter.updateColors(mPattern);

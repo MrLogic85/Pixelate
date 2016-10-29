@@ -14,6 +14,7 @@ import android.widget.EditText;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.vi.swipenumberpicker.OnValueChangeListener;
@@ -33,9 +34,6 @@ public class ConfigurationWidthActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_configure_width);
-
-        //mPattern = Patterns.GetPattern(getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
-
         setFinishOnTouchOutside(false);
         setupSwipeNumberPicker();
     }
@@ -44,12 +42,11 @@ public class ConfigurationWidthActivity extends Activity {
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
         int val = picker.getValue();
 
-        int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
-        Patterns.Save(this);
-        Intent result = new Intent();
-        result.putExtra(EXTRA_WIDTH, val);
-        result.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-        setResult(RESULT_OK, result);
+        DatabaseManager.getPattern(this,
+                getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0))
+                .edit()
+                .setWidth(val)
+                .apply();
         finish();
     }
 

@@ -24,11 +24,12 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 PatternColumns.FILE + " TEXT, " +
                 PatternColumns.FILE_THUMB + " TEXT, " +
                 PatternColumns.FILE_PATTERN + " TEXT, " +
-                PatternColumns.PIXEL_HEIGHT + " INTEGER, " +
-                PatternColumns.PIXEL_WIDTH + " INTEGER, " +
-                PatternColumns.PIXELS + " BLOB, " +
-                PatternColumns.COLORS + " BLOB, " +
-                PatternColumns.TIME + " BIGINT)");
+                PatternColumns.HEIGHT + " INTEGER, " +
+                PatternColumns.WIDTH + " INTEGER, " +
+                PatternColumns.PIXELS + " TEXT, " +
+                PatternColumns.COLORS + " TEXT, " +
+                PatternColumns.TIME + " BIGINT, " +
+                PatternColumns.NEEDS_RECALCULATION + " BOOLEAN)");
     }
 
     @Override

@@ -189,7 +189,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
             RectF viewRect = new RectF(0, 0, getWidth(), getHeight());
             mMatrix.setRectToRect(drawableRect, viewRect, Matrix.ScaleToFit.CENTER);
             setImageMatrix(mMatrix);
-            BetterLog.d(this, "Scaling pattern to fit screen (" + getWidth() + ", " + getHeight() + ") with " + mMatrix);
+            BetterLog.d(this, "Scaling mPattern to fit screen (" + getWidth() + ", " + getHeight() + ") with " + mMatrix);
         }
     }
 
