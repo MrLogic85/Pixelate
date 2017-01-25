@@ -254,7 +254,6 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setFile(String file) {
             set(PatternColumns.FILE, file, mPattern.mFileName);
-            setFileThumb(file + Constants.FILE_THUMBNAIL);
             return this;
         }
 
@@ -394,8 +393,8 @@ public class Pattern implements Comparable<Pattern> {
             return null;
         }
 
-        public void apply() {
-            DatabaseManager.update(mPattern.mContext.getContentResolver(), this);
+        public int apply() {
+            return DatabaseManager.update(mPattern.mContext.getContentResolver(), this);
         }
     }
 
@@ -406,8 +405,8 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         @Override
-        public void apply() {
-            DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
+        public int apply() {
+            return DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
         }
     }
 }

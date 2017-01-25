@@ -9,7 +9,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -18,7 +18,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + PatternColumns.TABLE_NAME + " (" +
-                PatternColumns._ID + " INTEGER PRIMARY KEY," +
+                PatternColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 PatternColumns.TITLE + " TEXT," +
                 PatternColumns.STATE + " INTEGER, " +
                 PatternColumns.FILE + " TEXT, " +

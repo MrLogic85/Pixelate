@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control;
+package com.sleepyduck.pixelate4crafting.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,12 +10,15 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
+import com.sleepyduck.pixelate4crafting.view.recycler.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationActivity;
@@ -87,10 +90,6 @@ public class MainActivity extends AppCompatActivity {
         Patterns.Load(this);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
-        if (mRecyclerView.getLayoutManager() == null) {
-            LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-            mRecyclerView.setLayoutManager(layoutManager);
-        }
 
         if (mRecyclerView.getAdapter() == null) {
             mAdapter = new RecyclerAdapter(this);
@@ -98,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
             mAdapter.setOnRightButtonClickListener(mOnRightButtonClickListener);
             mAdapter.setOnLeftButtonClickListener(mOnLeftButtonClickListener);
             mRecyclerView.setAdapter(mAdapter);
+            mRecyclerView.setItemAnimator(new ItemAnimator());
             new PatternLoader(this, mAdapter);
         }
     }
@@ -143,7 +143,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createPattern() {
-        Intent intent = new Intent(this, ConfigurationActivity.class);
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("image/*");
         startActivityForResult(intent, REQUEST_NEW_PATTERN);
     }
 
@@ -155,8 +157,9 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_NEW_PATTERN:
-                    int patternId = data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
-                    launch(patternId);
+                    Intent intent = new Intent(this, AddNewPatternService.class);
+                    intent.setData(data.getData());
+                    startService(intent);
                     break;
                 case REQUEST_CHANGE_PARAMETERS:
                     if (DatabaseManager.getPattern(this,

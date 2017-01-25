@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control;
+package com.sleepyduck.pixelate4crafting.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

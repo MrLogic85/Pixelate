@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.sleepyduck.pixelate4crafting.BuildConfig;
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
 public class DatabaseProvider extends ContentProvider {
@@ -50,8 +51,20 @@ public class DatabaseProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, ContentValues values) {
-        long id = dbHelper.getWritableDatabase().insert(getTable(uri), null, values);
-        return ContentUris.withAppendedId(uri, id);
+
+        final long rowId = dbHelper.getWritableDatabase().insert(getTable(uri), null, values);
+
+        if (rowId == -1) {
+            BetterLog.d(this, "Failed to insert, uri='%s', %s", uri, values);
+            return null;
+
+        } else {
+            BetterLog.d(this, "insert [uri=%s] | '%s'", uri, values);
+            if (getContext() != null) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            return ContentUris.withAppendedId(uri, rowId);
+        }
     }
 
     @Override
@@ -61,6 +74,10 @@ public class DatabaseProvider extends ContentProvider {
                 selection = String.format("%s = ?", PatternColumns._ID);
                 selectionArgs = new String[] {uri.getLastPathSegment()};
                 break;
+        }
+
+        if (getContext() != null) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return dbHelper.getWritableDatabase().delete(getTable(uri), selection, selectionArgs);
@@ -74,6 +91,10 @@ public class DatabaseProvider extends ContentProvider {
                 selection = String.format("%s = ?", PatternColumns._ID);
                 selectionArgs = new String[] {uri.getLastPathSegment()};
                 break;
+        }
+
+        if (getContext() != null) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return dbHelper.getWritableDatabase()
@@ -94,8 +115,14 @@ public class DatabaseProvider extends ContentProvider {
                 break;
         }
 
-        return dbHelper.getWritableDatabase()
+        Cursor cursor = dbHelper.getReadableDatabase()
                 .query(getTable(uri), projection, selection, selectionArgs, null, null, sortOrder);
+
+        if (getContext() != null) {
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+
+        return cursor;
     }
 
     private String getTable(Uri uri) {

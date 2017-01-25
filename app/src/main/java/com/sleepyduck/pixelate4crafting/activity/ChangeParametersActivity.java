@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control;
+package com.sleepyduck.pixelate4crafting.activity;
 
 import android.animation.LayoutTransition;
 import android.content.Intent;
@@ -19,9 +19,11 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;

@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
 
-import com.sleepyduck.pixelate4crafting.control.ChangeParametersActivity;
+import com.sleepyduck.pixelate4crafting.activity.ChangeParametersActivity;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Patterns;

@@ -77,8 +77,10 @@ public class BitmapHandler {
 		return null;
 	}
 
-	public static void storeLocally(Context context, Uri uri, String fileName) {
+	public static void storeLocally(Context context, Uri uri, String title, OnFileStoredListener listener) {
 		try {
+			String fileName = title + (int) (Math.random() * 99999999);
+
             //--- Store image ---
             InputStream is = context.getContentResolver().openInputStream(uri);
             Bitmap orig = BitmapFactory.decodeStream(is);
@@ -105,6 +107,8 @@ public class BitmapHandler {
 			fos.write(bitmapdata, 0, bitmapdata.length);
 			bos.close();
 			fos.close();
+
+			listener.onFileStored(fileName, fileName + Constants.FILE_THUMBNAIL);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -115,5 +119,9 @@ public class BitmapHandler {
 		if (file != null) {
 			file.delete();
 		}
+	}
+
+	public interface OnFileStoredListener {
+		void onFileStored(String file, String thumbnail);
 	}
 }

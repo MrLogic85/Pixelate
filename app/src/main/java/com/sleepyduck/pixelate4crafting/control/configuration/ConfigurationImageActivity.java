@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import com.sleepyduck.pixelate4crafting.R;
@@ -37,13 +38,14 @@ public class ConfigurationImageActivity extends Activity {
             try {
                 getContentResolver().takePersistableUriPermission(imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             } catch (Exception e) {
+                Log.e(ConfigurationImageActivity.class.getSimpleName(), "Failed to take persistable permission", e);
             }
             if ("content".equals(imageUri.getScheme())) {
                 String fileName = BitmapHandler.getFileName(ConfigurationImageActivity.this, imageUri);
                 String title = Pattern.createTitleFromFileName(fileName);
                 fileName += (int) (Math.random() * 99999999);
                 BetterLog.d(this, "File name created: " + fileName);
-                BitmapHandler.storeLocally(ConfigurationImageActivity.this, imageUri, fileName);
+                BitmapHandler.storeLocally(ConfigurationImageActivity.this, imageUri, fileName, null);
 
                 new Pattern.Empty(this)
                         .edit()

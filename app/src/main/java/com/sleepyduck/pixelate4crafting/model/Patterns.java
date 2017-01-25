@@ -18,6 +18,7 @@ public class Patterns {
         if (pref.getBoolean(PREF_USING_DATABASE, false)) {
             context.getContentResolver().delete(DatabaseContract.PatternColumns.URI, null, null);
             //return;
+            // TODO, reverse the lines above, uncomment the return and remove the delete
         }
         int size = pref.getInt(PREF_COUNT, 0);
         for (int i = 0; i < size; ++i) {

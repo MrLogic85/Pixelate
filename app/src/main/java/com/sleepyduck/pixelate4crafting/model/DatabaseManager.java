@@ -5,7 +5,9 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 
+import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
 import org.json.JSONException;
@@ -34,7 +36,7 @@ public class DatabaseManager {
         return new Pattern(context, cursor);
     }
 
-    public static void update(ContentResolver resolver, Pattern.Edit edit) {
+    public static int update(ContentResolver resolver, Pattern.Edit edit) {
         ContentValues values = new ContentValues();
 
         for (String key : edit.getChangeKeys()) {
@@ -83,9 +85,10 @@ public class DatabaseManager {
 
         int id = edit.getInt(PatternColumns._ID);
         resolver.update(ContentUris.withAppendedId(PatternColumns.URI, id), values, null, null);
+        return id;
     }
 
-    public static void create(ContentResolver resolver, Pattern.EmptyEdit edit) {
+    public static int create(ContentResolver resolver, Pattern.EmptyEdit edit) {
         ContentValues values = new ContentValues();
 
         values.put(PatternColumns.TITLE, edit.getString(PatternColumns.TITLE));
@@ -116,7 +119,9 @@ public class DatabaseManager {
             values.put(PatternColumns.PIXELS, colors);
         }
 
-        resolver.insert(PatternColumns.URI, values);
+        Uri uri = resolver.insert(PatternColumns.URI, values);
+        BetterLog.d(DatabaseManager.class, "Inserted, %s", uri);
+        return (int) ContentUris.parseId(uri);
     }
 
     public static void deletePattern(ContentResolver resolver, int id) {
