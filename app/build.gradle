@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "com.sleepyduck.pixelate4crafting"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 9
         versionName "0.5.2"
     }
@@ -26,10 +26,10 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:support-v4:+'
-    compile 'com.android.support:appcompat-v7:+'
-    compile 'com.android.support:recyclerview-v7:+'
-    compile 'com.android.support:cardview-v7:+'
-    compile 'com.android.support:palette-v7:+'
-    compile 'com.github.supervital:swipenumberpicker:+'
+    compile 'com.android.support:support-v4:25.1.0'
+    compile 'com.android.support:appcompat-v7:25.1.0'
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.android.support:cardview-v7:25.1.0'
+    compile 'com.android.support:palette-v7:25.1.0'
+    compile 'com.github.supervital:swipenumberpicker:1.0.1'
 }
