@@ -9,7 +9,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -29,7 +29,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 PatternColumns.PIXELS + " TEXT, " +
                 PatternColumns.COLORS + " TEXT, " +
                 PatternColumns.TIME + " BIGINT, " +
-                PatternColumns.NEEDS_RECALCULATION + " BOOLEAN)");
+                PatternColumns.FLAG + " INTEGER)");
     }
 
     @Override

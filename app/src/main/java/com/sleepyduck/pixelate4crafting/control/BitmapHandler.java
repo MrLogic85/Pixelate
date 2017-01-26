@@ -85,7 +85,7 @@ public class BitmapHandler {
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inDensity = context.getResources().getDisplayMetrics().densityDpi;
 			options.inSampleSize = 1;
-            //--- Store image ---
+            //--- Calculate sample size ---
 			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
 				options.inJustDecodeBounds = true;
 				BitmapFactory.decodeStream(is, null, options);
@@ -96,10 +96,10 @@ public class BitmapHandler {
 					pixels /= 4;
 				}
 			}
+			//--- Store image ---
 			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
 				options.inJustDecodeBounds = false;
 				Bitmap orig = BitmapFactory.decodeStream(is, null, options);
-				int pixels = options.outHeight * options.outWidth;
 				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName))) {
 					orig.compress(CompressFormat.PNG, 0, fos);
 					orig.recycle();

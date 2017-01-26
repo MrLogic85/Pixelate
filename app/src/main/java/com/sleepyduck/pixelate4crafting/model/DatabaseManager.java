@@ -50,13 +50,11 @@ public class DatabaseManager {
                 case PatternColumns.STATE:
                 case PatternColumns.WIDTH:
                 case PatternColumns.HEIGHT:
+                case PatternColumns.FLAG:
                     values.put(key, edit.getInt(key));
                     break;
                 case PatternColumns.TIME:
                     values.put(key, edit.getLong(key));
-                    break;
-                case PatternColumns.NEEDS_RECALCULATION:
-                    values.put(key, edit.getBoolean(key));
                     break;
                 case PatternColumns.COLORS: {
                     Object value = edit.get(key);
@@ -99,7 +97,7 @@ public class DatabaseManager {
         values.put(PatternColumns.WIDTH, edit.getString(PatternColumns.WIDTH));
         values.put(PatternColumns.HEIGHT, edit.getInt(PatternColumns.HEIGHT));
         values.put(PatternColumns.TIME, edit.getLong(PatternColumns.TIME));
-        values.put(PatternColumns.NEEDS_RECALCULATION, edit.getBoolean(PatternColumns.NEEDS_RECALCULATION));
+        values.put(PatternColumns.FLAG, edit.getInt(PatternColumns.FLAG));
 
         Object colorObj = edit.get(PatternColumns.COLORS);
         if (colorObj == null) {

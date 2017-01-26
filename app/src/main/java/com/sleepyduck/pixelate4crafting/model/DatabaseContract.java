@@ -14,6 +14,9 @@ public final class DatabaseContract {
 
         public static final String TITLE = "title";
 
+        /**
+         * Flag used to keep track of active and completed patterns
+         */
         public static final String STATE = "state";
         public static final int STATE_LATEST = 0;
         public static final int STATE_ACTIVE = 1;
@@ -23,17 +26,40 @@ public final class DatabaseContract {
 
         public static final String FILE_THUMB = "file_thumb";
 
+        /**
+         * Path to png file of a bitmap drawn as PIXELS
+         */
         public static final String FILE_PATTERN = "file_pattern";
 
         public static final String WIDTH = "width";
 
         public static final String HEIGHT = "height";
 
+        /**
+         * Weighted Color map of all colors used in the pattern
+         */
         public static final String COLORS = "colors";
 
+        /**
+         * Pixel map of all the colors in COLORS drawn as the image
+         */
         public static final String PIXELS = "pixels";
 
-        public static final String NEEDS_RECALCULATION = "needs_recalculation";
+        /**
+         * Flag for what needs to be done with the pattern
+         */
+        public static final String FLAG = "flag";
+        public static final int FLAG_UNKNOWN = -1;
+        public static final int FLAG_PROCESS_COMPLETE = 0;
+        public static final int FLAG_STORING_IMAGE = 1;
+        public static final int FLAG_IMAGE_STORED = 2;
+        public static final int FLAG_SIZE_CHANGED = 3;
+        public static final int FLAG_COLORS_CHANGED = 4;
+        public static final int FLAG_COLORS_CALCULATING = 5;
+        public static final int FLAG_COLORS_CALCULATED = 6;
+        public static final int FLAG_PIXELS_CALCULATING = 7;
+        public static final int FLAG_PIXELS_CALCULATED = 8;
+        public static final int FLAG_PATTERN_DRAWING = 9;
 
         /**
          * Last time the mPattern was accessed, used for sorting

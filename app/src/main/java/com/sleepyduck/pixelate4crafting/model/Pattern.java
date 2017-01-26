@@ -28,7 +28,6 @@ public class Pattern implements Comparable<Pattern> {
     private static final String PREF_PIXEL_WIDTH = "WIDTH";
     private static final String PREF_PIXEL_HEIGHT = "HEIGHT";
     private static final String PREF_WEIGHT = "WEIGHT";
-    private static final String PREF_NEEDS_CALCULATION = "RECALC";
 
     public final int Id;
     private final Context mContext;
@@ -37,7 +36,7 @@ public class Pattern implements Comparable<Pattern> {
     private String mFileName = "";
     private String mFileNameThumb = "";
     private String mFileNamePattern = "";
-    private boolean mNeedsRecalculation = true;
+    private int mFlag = PatternColumns.FLAG_UNKNOWN;
     private int mPixelWidth = Constants.DEFAULT_PIXELS;
     private int mPixelHeight = Constants.DEFAULT_PIXELS;
     private long mWeight = 0;
@@ -55,7 +54,7 @@ public class Pattern implements Comparable<Pattern> {
         mPixelWidth = cursor.getInt(cursor.getColumnIndex(PatternColumns.WIDTH));
         mPixelHeight = cursor.getInt(cursor.getColumnIndex(PatternColumns.HEIGHT));
         mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
-        mNeedsRecalculation = cursor.getInt(cursor.getColumnIndex(PatternColumns.NEEDS_RECALCULATION)) == 1;
+        mFlag = cursor.getInt(cursor.getColumnIndex(PatternColumns.FLAG));
         String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
         if (colors == null || colors.isEmpty()) {
             mColors = null;
@@ -122,7 +121,7 @@ public class Pattern implements Comparable<Pattern> {
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
         mFileNamePattern = pref.getString("" + prefCounter + PREF_FILE_PATTERN, mFileNameThumb);
-        mNeedsRecalculation = pref.getBoolean("" + prefCounter + PREF_NEEDS_CALCULATION, true);
+        mFlag = PatternColumns.FLAG_IMAGE_STORED;
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
@@ -171,8 +170,8 @@ public class Pattern implements Comparable<Pattern> {
         return mPixels;
     }
 
-    public boolean needsRecalculation() {
-        return mNeedsRecalculation;
+    public int getFlag() {
+        return mFlag;
     }
 
     public String getPatternFileName() {
@@ -226,7 +225,7 @@ public class Pattern implements Comparable<Pattern> {
             setTime(copyOf.mWeight);
             setColors(copyOf.mColors);
             setPixels(copyOf.mPixels);
-            setNeedsRecalculation(copyOf.mNeedsRecalculation);
+            setFlag(copyOf.mFlag);
             return this;
         }
 
@@ -269,8 +268,9 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setWidth(int width) {
             set(PatternColumns.WIDTH, width, mPattern.mPixelWidth);
-
-            setNeedsRecalculation(mChanges.containsKey(PatternColumns.WIDTH));
+            if (mChanges.containsKey(PatternColumns.WIDTH)) {
+                setFlag(PatternColumns.FLAG_SIZE_CHANGED);
+            }
             Bitmap bitmap = BitmapHandler.getFromFileName(mPattern.mContext, getString(PatternColumns.FILE));
             float pixelSize = (float) bitmap.getWidth() / (float) width;
             int height = (int) (bitmap.getHeight() / pixelSize);
@@ -286,7 +286,7 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setColors(Map<Integer, Float> colors) {
             set(PatternColumns.COLORS, colors, null);
-            setNeedsRecalculation(true);
+            setFlag(PatternColumns.FLAG_COLORS_CHANGED);
             return this;
         }
 
@@ -294,7 +294,7 @@ public class Pattern implements Comparable<Pattern> {
             @SuppressWarnings("unchecked")
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             if (colors.remove(color) != null) {
-                setNeedsRecalculation(true);
+                setFlag(PatternColumns.FLAG_COLORS_CHANGED);
             }
             return this;
         }
@@ -303,21 +303,18 @@ public class Pattern implements Comparable<Pattern> {
             @SuppressWarnings("unchecked")
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             colors.put(color, 0f);
-            setNeedsRecalculation(true);
+            setFlag(PatternColumns.FLAG_COLORS_CHANGED);
             return this;
         }
 
         public Edit setPixels(int[][] pixels) {
-            setNeedsRecalculation(pixels == null);
+            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
             set(PatternColumns.PIXELS, pixels, null);
             return this;
         }
 
-        public Edit setNeedsRecalculation(boolean recalc) {
-            set(PatternColumns.NEEDS_RECALCULATION, recalc, mPattern.mNeedsRecalculation);
-            if (recalc) {
-                setFilePattern("");
-            }
+        public Edit setFlag(int flag) {
+            set(PatternColumns.FLAG, flag, mPattern.mFlag);
             return this;
         }
 
@@ -362,21 +359,11 @@ public class Pattern implements Comparable<Pattern> {
                         return mPattern.mPixelWidth;
                     case PatternColumns.HEIGHT:
                         return mPattern.mPixelHeight;
+                    case PatternColumns.FLAG:
+                        return mPattern.mFlag;
                 }
             }
             return 0;
-        }
-
-        public boolean getBoolean(String key) {
-            if (mChanges.containsKey(key)) {
-                return (boolean) mChanges.get(key);
-            } else {
-                switch (key) {
-                    case PatternColumns.NEEDS_RECALCULATION:
-                        return mPattern.mNeedsRecalculation;
-                }
-            }
-            return false;
         }
 
         public Object get(String key) {

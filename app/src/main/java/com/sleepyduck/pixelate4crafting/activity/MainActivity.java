@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
+import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
@@ -22,6 +23,11 @@ import com.sleepyduck.pixelate4crafting.view.recycler.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationActivity;
+
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CHANGED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_CHANGED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
 /**
  * Created by fredrik.metcalf on 2016-04-08.
@@ -119,13 +125,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void launch(int patternId) {
         Pattern pattern = DatabaseManager.getPattern(this, patternId);
-        if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
+        switch (pattern.getFlag()) {
+            case FLAG_STORING_IMAGE: {
+                Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
+            } break;
+            case FLAG_IMAGE_STORED: {
+                Intent intent = new Intent(this, ConfigurationWidthActivity.class);
+                startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
+            } break;
+        }
+        /*if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
             Toast.makeText(this, "Image not found! I am truly sorry, this mPattern is broken :(", Toast.LENGTH_LONG).show();
         } else if (!pattern.hasColors()) {
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
-        } else if (pattern.needsRecalculation()) {
+        } else if (pattern.getFlag() == FLAG_SIZE_CHANGED || pattern.getFlag() == FLAG_COLORS_CHANGED) {
             Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_REDO_PIXELS);
@@ -139,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, PatternActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivity(intent);
-        }
+        }*/
     }
 
     private void createPattern() {
@@ -161,14 +176,7 @@ public class MainActivity extends AppCompatActivity {
                     intent.setData(data.getData());
                     startService(intent);
                     break;
-                case REQUEST_CHANGE_PARAMETERS:
-                    if (DatabaseManager.getPattern(this,
-                            data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0))
-                            .hasColors()) {
-                        launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
-                    }
-                    break;
-                case REQUEST_REDO_PIXELS:
+                default:
                     launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
                     break;
             }
