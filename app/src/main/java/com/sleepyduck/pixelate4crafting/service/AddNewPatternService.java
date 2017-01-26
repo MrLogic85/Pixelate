@@ -3,6 +3,9 @@ package com.sleepyduck.pixelate4crafting.service;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
@@ -16,9 +19,13 @@ import com.sleepyduck.pixelate4crafting.model.Pattern;
  */
 
 public class AddNewPatternService extends IntentService {
+    Handler handler;
 
     public AddNewPatternService() {
         super(AddNewPatternService.class.getSimpleName());
+        HandlerThread handlerThread = new HandlerThread(AddNewPatternService.class.getSimpleName());
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
     }
 
     @Override
@@ -41,8 +48,7 @@ public class AddNewPatternService extends IntentService {
                     .setTime(System.currentTimeMillis())
                     .apply();
 
-            new Thread() {
-                @Override
+            handler.post(new Runnable() {
                 public void run() {
                     BitmapHandler.storeLocally(AddNewPatternService.this, imageUri, title, new BitmapHandler.OnFileStoredListener() {
                         @Override
@@ -55,7 +61,7 @@ public class AddNewPatternService extends IntentService {
                         }
                     });
                 }
-            }.start();
+            });
         }
     }
 }

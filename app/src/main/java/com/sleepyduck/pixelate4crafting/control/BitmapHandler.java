@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
@@ -81,32 +82,39 @@ public class BitmapHandler {
 		try {
 			String fileName = title + (int) (Math.random() * 99999999);
 
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inDensity = context.getResources().getDisplayMetrics().densityDpi;
+			options.inSampleSize = 1;
             //--- Store image ---
-            InputStream is = context.getContentResolver().openInputStream(uri);
-            Bitmap orig = BitmapFactory.decodeStream(is);
-            is.close();
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            orig.compress(CompressFormat.PNG, 0, bos);
-            byte[] bitmapdata = bos.toByteArray();
-            orig.recycle();
-            bos.close();
-            File file = new File(context.getFilesDir(), fileName);
-            FileOutputStream fos = new FileOutputStream(file);
-            fos.write(bitmapdata, 0, bitmapdata.length);
-            fos.close();
+			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+				options.inJustDecodeBounds = true;
+				BitmapFactory.decodeStream(is, null, options);
+				int pixels = options.outHeight * options.outHeight;
+				int maxPixels = context.getResources().getInteger(R.integer.max_num_pixels_in_orig_image);
+				while (pixels > maxPixels) {
+					options.inSampleSize *= 2;
+					pixels /= 4;
+				}
+			}
+			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+				options.inJustDecodeBounds = false;
+				Bitmap orig = BitmapFactory.decodeStream(is, null, options);
+				int pixels = options.outHeight * options.outWidth;
+				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName))) {
+					orig.compress(CompressFormat.PNG, 0, fos);
+					orig.recycle();
+				}
+			}
 
 			//--- Store thumbnail ---
-            is = context.getContentResolver().openInputStream(uri);
-			int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
-			Bitmap thumb = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(is), thumbSize, thumbSize);
-			bos = new ByteArrayOutputStream();
-			thumb.compress(CompressFormat.PNG, 100, bos);
-			bitmapdata = bos.toByteArray();
-			file = new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL);
-			fos = new FileOutputStream(file);
-			fos.write(bitmapdata, 0, bitmapdata.length);
-			bos.close();
-			fos.close();
+			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+				int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
+				Bitmap thumb = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(is), thumbSize, thumbSize);
+				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL))) {
+					thumb.compress(CompressFormat.PNG, 100, fos);
+					thumb.recycle();
+				}
+			}
 
 			listener.onFileStored(fileName, fileName + Constants.FILE_THUMBNAIL);
 		} catch (Exception e) {

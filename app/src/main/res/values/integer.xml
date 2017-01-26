@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <integer name="icon_disabled_alpha">0x8A</integer>
+
+    <integer name="max_num_pixels_in_orig_image">2457600</integer>
 </resources>
