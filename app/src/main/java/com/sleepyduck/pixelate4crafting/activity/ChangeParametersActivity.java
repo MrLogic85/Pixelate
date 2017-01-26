@@ -43,6 +43,7 @@ import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -203,13 +204,18 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (mPattern.getColors() == null) {
             mFindBestColorsTask = new FindBestColorsTask() {
                 @Override
-                protected void onPostExecute(Integer integer) {
+                protected void onPostExecute(Map<Integer, Float> colors) {
+                    int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
                     mPatternApproxImage.setPattern(mPattern, Simple);
                     mGridAdapter.updateColors(mPattern);
                     mGridAdapter.notifyDataSetChanged();
+                    mPattern.edit()
+                            .setColors(colors)
+                            .apply();
+                    mPattern = DatabaseManager.getPattern(ChangeParametersActivity.this, patternId);
                 }
             };
-            mFindBestColorsTask.execute(this, mPattern, DEFAULT_INITIAL_COLORS);
+            mFindBestColorsTask.execute(this, mPattern.getFileName(), DEFAULT_INITIAL_COLORS);
         }
     }
 
@@ -346,7 +352,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == REQUEST_CHANGE_WIDTH) {
                 int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
-                        , Constants.DEFAULT_PIXELS);
+                        , Constants.DEFAULT_WIDTH);
                 addHistory(new ChangeWidth(mPattern.getPixelWidth(), newWidth));
                 mPattern.edit()
                         .setWidth(newWidth)

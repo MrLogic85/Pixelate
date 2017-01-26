@@ -64,7 +64,7 @@ public class ConfigurationActivity extends Activity {
                 DatabaseManager.getPattern(this, mPatternId)
                         .edit()
                         .setWidth(data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
-                                , Constants.DEFAULT_PIXELS));
+                                , Constants.DEFAULT_WIDTH));
                 startActivityForResult(getIntent(REQUEST_CHANGE_PARAMETERS), REQUEST_CHANGE_PARAMETERS);
                 return;
             }

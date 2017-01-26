@@ -2,8 +2,6 @@ package com.sleepyduck.pixelate4crafting.control.configuration;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,10 +10,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.vi.swipenumberpicker.OnValueChangeListener;
 import com.vi.swipenumberpicker.SwipeNumberPicker;
@@ -47,11 +43,12 @@ public class ConfigurationWidthActivity extends Activity {
                 .edit()
                 .setWidth(val)
                 .apply();
+        setResult(RESULT_OK, getIntent());
         finish();
     }
 
     private void setupSwipeNumberPicker() {
-        int width = getIntent().getIntExtra(EXTRA_WIDTH, Constants.DEFAULT_PIXELS);
+        int width = getIntent().getIntExtra(EXTRA_WIDTH, Constants.DEFAULT_WIDTH);
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
         picker.setValue(width, false);
         picker.setOnValueChangeListener(new OnValueChangeListener() {

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
@@ -37,8 +38,8 @@ public class Pattern implements Comparable<Pattern> {
     private String mFileNameThumb = "";
     private String mFileNamePattern = "";
     private int mFlag = PatternColumns.FLAG_UNKNOWN;
-    private int mPixelWidth = Constants.DEFAULT_PIXELS;
-    private int mPixelHeight = Constants.DEFAULT_PIXELS;
+    private int mPixelWidth = 0;
+    private int mPixelHeight = 0;
     private long mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
@@ -271,11 +272,11 @@ public class Pattern implements Comparable<Pattern> {
             if (mChanges.containsKey(PatternColumns.WIDTH)) {
                 setFlag(PatternColumns.FLAG_SIZE_CHANGED);
             }
-            Bitmap bitmap = BitmapHandler.getFromFileName(mPattern.mContext, getString(PatternColumns.FILE));
-            float pixelSize = (float) bitmap.getWidth() / (float) width;
-            int height = (int) (bitmap.getHeight() / pixelSize);
+            Rect rect = new Rect();
+            BitmapHandler.getSize(mPattern.mContext, getString(PatternColumns.FILE), rect);
+            float pixelSize = (float) rect.width() / (float) width;
+            int height = (int) (rect.height() / pixelSize);
             set(PatternColumns.HEIGHT, height, mPattern.mPixelHeight);
-            bitmap.recycle();
             return this;
         }
 
@@ -295,6 +296,7 @@ public class Pattern implements Comparable<Pattern> {
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             if (colors.remove(color) != null) {
                 setFlag(PatternColumns.FLAG_COLORS_CHANGED);
+                mChanges.put(PatternColumns.COLORS, colors);
             }
             return this;
         }
@@ -304,6 +306,7 @@ public class Pattern implements Comparable<Pattern> {
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             colors.put(color, 0f);
             setFlag(PatternColumns.FLAG_COLORS_CHANGED);
+            mChanges.put(PatternColumns.COLORS, colors);
             return this;
         }
 

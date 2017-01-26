@@ -18,19 +18,29 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class BitmapHandler {
 
 	public static Bitmap getFromFileName(Context context, String fileName) {
-		InputStream is;
-		try {
-			is = context.openFileInput(fileName);
+		try (InputStream is = context.openFileInput(fileName)) {
 			return BitmapFactory.decodeStream(is);
-		} catch (FileNotFoundException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static void getSize(Context context, String fileName, Rect outSize) {
+		try (InputStream is = context.openFileInput(fileName)) {
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(is, null, options);
+			outSize.set(0, 0, options.outWidth, options.outHeight);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static Drawable getDrawableFromFileName(Context context, String fileName) {

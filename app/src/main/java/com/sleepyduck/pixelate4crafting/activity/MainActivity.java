@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationImageActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
@@ -126,13 +127,16 @@ public class MainActivity extends AppCompatActivity {
     private void launch(int patternId) {
         Pattern pattern = DatabaseManager.getPattern(this, patternId);
         switch (pattern.getFlag()) {
-            case FLAG_STORING_IMAGE: {
+            case FLAG_STORING_IMAGE:
+            case FLAG_IMAGE_STORED: {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
             } break;
-            case FLAG_IMAGE_STORED: {
-                Intent intent = new Intent(this, ConfigurationWidthActivity.class);
-                startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
-            } break;
+            case FLAG_SIZE_CHANGED:
+            case FLAG_COLORS_CHANGED: {
+                Intent intent = new Intent(this, ChangeParametersActivity.class);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
+                startActivity(intent);
+            }
         }
         /*if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
             Toast.makeText(this, "Image not found! I am truly sorry, this mPattern is broken :(", Toast.LENGTH_LONG).show();

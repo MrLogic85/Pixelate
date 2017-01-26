@@ -5,14 +5,20 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.Looper;
-import android.util.Log;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationImageActivity;
+import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.control.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+
+import java.util.Map;
+
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CHANGED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
 /**
  * Created by fredrikmetcalf on 25/01/17.
@@ -39,25 +45,38 @@ public class AddNewPatternService extends IntentService {
             Log.e(ConfigurationImageActivity.class.getSimpleName(), "Failed to take persistable permission", e);
         }*/
         if ("content".equals(imageUri.getScheme())) {
-            String fileName = BitmapHandler.getFileName(this, imageUri);
+            final String fileName = BitmapHandler.getFileName(this, imageUri);
             final String title = Pattern.createTitleFromFileName(fileName);
 
             final int id = new Pattern.Empty(this)
                     .edit()
                     .setTitle(title)
                     .setTime(System.currentTimeMillis())
+                    .setFlag(FLAG_STORING_IMAGE)
                     .apply();
 
             handler.post(new Runnable() {
                 public void run() {
-                    BitmapHandler.storeLocally(AddNewPatternService.this, imageUri, title, new BitmapHandler.OnFileStoredListener() {
+                    BitmapHandler.storeLocally(AddNewPatternService.this, imageUri, fileName, new BitmapHandler.OnFileStoredListener() {
                         @Override
                         public void onFileStored(String file, String thumbnail) {
                             DatabaseManager.getPattern(AddNewPatternService.this, id)
                                     .edit()
                                     .setFile(file)
                                     .setFileThumb(thumbnail)
+                                    .setWidth(Constants.DEFAULT_WIDTH)
+                                    .setFlag(FLAG_IMAGE_STORED)
                                     .apply();
+
+                            new FindBestColorsTask() {
+                                @Override
+                                protected void onPostExecute(Map<Integer, Float> colors) {
+                                    DatabaseManager.getPattern(AddNewPatternService.this, id)
+                                            .edit()
+                                            .setColors(colors)
+                                            .apply();
+                                }
+                            }.execute(AddNewPatternService.this, file, Constants.DEFAULT_NUM_COLORS);
                         }
                     });
                 }
