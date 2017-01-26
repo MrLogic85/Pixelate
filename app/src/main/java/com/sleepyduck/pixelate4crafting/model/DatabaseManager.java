@@ -51,6 +51,7 @@ public class DatabaseManager {
                 case PatternColumns.WIDTH:
                 case PatternColumns.HEIGHT:
                 case PatternColumns.FLAG:
+                case PatternColumns.PROGRESS:
                     values.put(key, edit.getInt(key));
                     break;
                 case PatternColumns.TIME:
@@ -98,6 +99,7 @@ public class DatabaseManager {
         values.put(PatternColumns.HEIGHT, edit.getInt(PatternColumns.HEIGHT));
         values.put(PatternColumns.TIME, edit.getLong(PatternColumns.TIME));
         values.put(PatternColumns.FLAG, edit.getInt(PatternColumns.FLAG));
+        values.put(PatternColumns.PROGRESS, edit.getInt(PatternColumns.PROGRESS));
 
         Object colorObj = edit.get(PatternColumns.COLORS);
         if (colorObj == null) {

@@ -12,6 +12,8 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 
+import java.util.Map;
+
 /**
  * Created by fredrik.metcalf on 2016-04-13.
  */
@@ -54,7 +56,7 @@ public class ConfigurationPixelsActivity extends Activity {
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
+            protected void onPostExecute(int[][] aVoid) {
                 super.onPostExecute(aVoid);
                 mDestroyListener = null;
                 finish();
@@ -69,7 +71,7 @@ public class ConfigurationPixelsActivity extends Activity {
             }
 
             @Override
-            protected void onPostExecute(Void aVoid) {
+            protected void onPostExecute(Map<Integer, Float> aVoid) {
                 super.onPostExecute(aVoid);
                 mDestroyListener = null;
                 task2.execute(ConfigurationPixelsActivity.this, mPattern);

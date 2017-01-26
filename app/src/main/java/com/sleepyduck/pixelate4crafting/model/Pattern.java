@@ -3,11 +3,9 @@ package com.sleepyduck.pixelate4crafting.model;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
@@ -43,6 +41,7 @@ public class Pattern implements Comparable<Pattern> {
     private long mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
+    private int mProgress = 0;
 
     public Pattern(Context context, Cursor cursor) {
         mContext = context;
@@ -179,6 +178,10 @@ public class Pattern implements Comparable<Pattern> {
         return mFileNamePattern;
     }
 
+    public int getProgress() {
+        return mProgress;
+    }
+
     public static String createTitleFromFileName(String fileName) {
         BetterLog.d(Pattern.class, fileName);
         String tmp = fileName.split("\\.")[0];
@@ -227,6 +230,7 @@ public class Pattern implements Comparable<Pattern> {
             setColors(copyOf.mColors);
             setPixels(copyOf.mPixels);
             setFlag(copyOf.mFlag);
+            setProgress(copyOf.mProgress);
             return this;
         }
 
@@ -270,7 +274,7 @@ public class Pattern implements Comparable<Pattern> {
         public Edit setWidth(int width) {
             set(PatternColumns.WIDTH, width, mPattern.mPixelWidth);
             if (mChanges.containsKey(PatternColumns.WIDTH)) {
-                setFlag(PatternColumns.FLAG_SIZE_CHANGED);
+                setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
             }
             Rect rect = new Rect();
             BitmapHandler.getSize(mPattern.mContext, getString(PatternColumns.FILE), rect);
@@ -287,7 +291,7 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setColors(Map<Integer, Float> colors) {
             set(PatternColumns.COLORS, colors, null);
-            setFlag(PatternColumns.FLAG_COLORS_CHANGED);
+            setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
             return this;
         }
 
@@ -295,7 +299,7 @@ public class Pattern implements Comparable<Pattern> {
             @SuppressWarnings("unchecked")
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             if (colors.remove(color) != null) {
-                setFlag(PatternColumns.FLAG_COLORS_CHANGED);
+                setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
                 mChanges.put(PatternColumns.COLORS, colors);
             }
             return this;
@@ -305,7 +309,7 @@ public class Pattern implements Comparable<Pattern> {
             @SuppressWarnings("unchecked")
             Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
             colors.put(color, 0f);
-            setFlag(PatternColumns.FLAG_COLORS_CHANGED);
+            setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
             mChanges.put(PatternColumns.COLORS, colors);
             return this;
         }
@@ -318,6 +322,11 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setFlag(int flag) {
             set(PatternColumns.FLAG, flag, mPattern.mFlag);
+            return this;
+        }
+
+        public Edit setProgress(int progress) {
+            set(PatternColumns.PROGRESS, progress, mPattern.mProgress);
             return this;
         }
 

@@ -1,33 +1,31 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationImageActivity;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
+import com.sleepyduck.pixelate4crafting.service.CalculateService;
 import com.sleepyduck.pixelate4crafting.view.recycler.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationActivity;
 
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CHANGED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_CHANGED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
 /**
@@ -86,6 +84,18 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         Patterns.Load(this);
+        bindService(new Intent(this, CalculateService.class), serviceConnection, BIND_AUTO_CREATE);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
 
@@ -131,8 +142,12 @@ public class MainActivity extends AppCompatActivity {
             case FLAG_IMAGE_STORED: {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
             } break;
-            case FLAG_SIZE_CHANGED:
-            case FLAG_COLORS_CHANGED: {
+            case FLAG_PIXELS_CALCULATED: {
+                Intent intent = new Intent(this, PatternActivity.class);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
+                startActivity(intent);
+            }
+            default: {
                 Intent intent = new Intent(this, ChangeParametersActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
                 startActivity(intent);
@@ -144,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
-        } else if (pattern.getFlag() == FLAG_SIZE_CHANGED || pattern.getFlag() == FLAG_COLORS_CHANGED) {
+        } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED || pattern.getFlag() == FLAG_COLORS_CHANGED) {
             Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivityForResult(intent, REQUEST_REDO_PIXELS);
@@ -159,6 +174,12 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
             startActivity(intent);
         }*/
+    }
+
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
     }
 
     private void createPattern() {

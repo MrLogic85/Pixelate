@@ -53,8 +53,7 @@ public final class DatabaseContract {
         public static final int FLAG_PROCESS_COMPLETE = 0;
         public static final int FLAG_STORING_IMAGE = 1;
         public static final int FLAG_IMAGE_STORED = 2;
-        public static final int FLAG_SIZE_CHANGED = 3;
-        public static final int FLAG_COLORS_CHANGED = 4;
+        public static final int FLAG_SIZE_OR_COLOR_CHANGED = 3;
         public static final int FLAG_COLORS_CALCULATING = 5;
         public static final int FLAG_COLORS_CALCULATED = 6;
         public static final int FLAG_PIXELS_CALCULATING = 7;
@@ -65,5 +64,7 @@ public final class DatabaseContract {
          * Last time the mPattern was accessed, used for sorting
          */
         public static final String TIME = "time";
+
+        public static final String PROGRESS = "progress";
     }
 }

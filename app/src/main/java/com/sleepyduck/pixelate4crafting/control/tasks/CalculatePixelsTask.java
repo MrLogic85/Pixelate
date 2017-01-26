@@ -15,25 +15,20 @@ import java.util.Map;
 /**
  * Created by fredrik.metcalf on 2016-04-12.
  */
-public class CalculatePixelsTask extends AsyncTask<Object, Integer, Void> {
+public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
     private Pattern mPattern;
     private Context mContext;
     private Bitmap mBitmap;
 
     @Override
-    protected Void doInBackground(Object... params) {
+    protected int[][] doInBackground(Object... params) {
         publishProgress(0);
         if (params.length > 0) {
             mContext = (Context) params[0];
             mPattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
 
-            int[][] colorMatrix = calculatePixels();
-            if (colorMatrix != null) {
-                mPattern.edit()
-                        .setPixels(colorMatrix)
-                        .apply();
-            }
+            return calculatePixels();
         }
         return null;
     }

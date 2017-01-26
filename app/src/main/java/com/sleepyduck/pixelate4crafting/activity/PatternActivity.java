@@ -11,15 +11,13 @@ import android.view.MenuItem;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationNameActivity;
 import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
-import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CHANGED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_CHANGED;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 
 public class PatternActivity extends AppCompatActivity {
     private static final int REQUEST_CHANGE_PARAMETERS = 1;
@@ -74,7 +72,7 @@ public class PatternActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CHANGE_PARAMETERS) {
             if (!mPattern.hasColors()) {
                 finish();
-            } else if (mPattern.getFlag() == FLAG_COLORS_CHANGED || mPattern.getFlag() == FLAG_SIZE_CHANGED) {
+            } else if (mPattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED) {
                 Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
                 startActivityForResult(intent, REQUEST_NEW_PIXELS);

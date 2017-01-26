@@ -1,6 +1,7 @@
 package com.sleepyduck.pixelate4crafting.control.tasks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -15,13 +16,13 @@ import java.util.Map;
 /**
  * Created by fredrik.metcalf on 2016-04-12.
  */
-public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
+public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Float>> {
     private Pattern mPattern;
     private Context mContext;
     private Bitmap mBitmap;
 
     @Override
-    protected Void doInBackground(Object... params) {
+    protected Map<Integer, Float> doInBackground(Object... params) {
         publishProgress(0);
         if (params.length > 0) {
             mContext = (Context) params[0];
@@ -32,6 +33,8 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Void> {
                 color.setValue(0f);
             }
             countColors(mBitmap, mPattern.getColors());
+
+            return mPattern.getColors();
         }
         return null;
     }

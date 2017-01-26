@@ -10,26 +10,27 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-
         <provider
-            android:authorities="com.sleepyduck.pixelate4crafting"
             android:name=".model.DatabaseProvider"
-            android:exported="false"/>
+            android:authorities="com.sleepyduck.pixelate4crafting"
+            android:exported="false" />
 
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="image/*" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".activity.PatternActivity"
             android:label="@string/app_name"
@@ -38,43 +39,43 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MainActivity" />
         </activity>
-
         <activity
             android:name=".activity.ChangeParametersActivity"
-            android:label="@string/app_name"/>
-
+            android:label="@string/app_name" />
         <activity
             android:name=".control.configuration.ConfigurationActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
-
         <activity
             android:name=".control.configuration.ConfigurationImageActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
-
         <activity
             android:name=".control.configuration.ConfigurationWidthActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
-
         <activity
             android:name=".control.configuration.ConfigurationPixelsActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
-
         <activity
             android:name=".control.configuration.ConfigurationNameActivity"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog" />
-
         <activity
             android:name=".control.ChooseColorDialog"
             android:label="@string/app_name"
             android:theme="@style/MyAlertDialog.NoDim" />
 
-        <service android:name=".service.AddNewPatternService"/>
+        <service
+            android:name=".service.AddNewPatternService"
+            android:enabled="true"
+            android:exported="false"/>
 
+        <service
+            android:name=".service.CalculateService"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>

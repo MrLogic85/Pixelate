@@ -86,6 +86,10 @@ public class DatabaseProvider extends ContentProvider {
     @Override
     public int update(@NonNull Uri uri, ContentValues values,
                       String selection, String[] selectionArgs) {
+        if (values.size() == 0) {
+            return 0;
+        }
+
         switch (matcher.match(uri)) {
             case MATCH_TABLE_ID:
                 selection = String.format("%s = ?", PatternColumns._ID);
