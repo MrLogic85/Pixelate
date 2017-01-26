@@ -1,27 +1,15 @@
-package com.sleepyduck.pixelate4crafting.control.configuration;
+package com.sleepyduck.pixelate4crafting.configuration;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
-import com.vi.swipenumberpicker.OnValueChangeListener;
-import com.vi.swipenumberpicker.SwipeNumberPicker;
-
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 
 /**
  * Created by fredrik.metcalf on 2016-04-13.

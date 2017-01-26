@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.view.recycler;
+package com.sleepyduck.pixelate4crafting.util;
 
 import android.support.v7.widget.DefaultItemAnimator;
 

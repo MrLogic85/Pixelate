@@ -7,7 +7,7 @@ import android.graphics.Rect;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
 import org.json.JSONException;
@@ -55,6 +55,7 @@ public class Pattern implements Comparable<Pattern> {
         mPixelHeight = cursor.getInt(cursor.getColumnIndex(PatternColumns.HEIGHT));
         mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
         mFlag = cursor.getInt(cursor.getColumnIndex(PatternColumns.FLAG));
+        mProgress = cursor.getInt(cursor.getColumnIndex(PatternColumns.PROGRESS));
         String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
         if (colors == null || colors.isEmpty()) {
             mColors = null;
@@ -268,6 +269,7 @@ public class Pattern implements Comparable<Pattern> {
 
         public Edit setFilePattern(String file) {
             set(PatternColumns.FILE_PATTERN, file, mPattern.mFileNamePattern);
+            setFlag(PatternColumns.FLAG_COMPLETE);
             return this;
         }
 
@@ -315,8 +317,8 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         public Edit setPixels(int[][] pixels) {
-            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
             set(PatternColumns.PIXELS, pixels, null);
+            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
             return this;
         }
 

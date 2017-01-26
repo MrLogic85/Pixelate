@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control.tasks;
+package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,7 +6,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
 import java.util.HashMap;
@@ -17,18 +17,19 @@ import java.util.Map;
  */
 public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
     private Pattern mPattern;
-    private Context mContext;
     private Bitmap mBitmap;
 
     @Override
     protected int[][] doInBackground(Object... params) {
         publishProgress(0);
         if (params.length > 0) {
-            mContext = (Context) params[0];
+            Context context = (Context) params[0];
             mPattern = (Pattern) params[1];
-            mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
+            mBitmap = BitmapHandler.getFromFileName(context, mPattern.getFileName());
 
-            return calculatePixels();
+            if (mPattern.getColors() != null && mPattern.getColors().size() > 0) {
+                return calculatePixels();
+            }
         }
         return null;
     }

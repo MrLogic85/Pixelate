@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="LineProgressBar">
+        <attr name="progressColor" format="color"/>
+        <attr name="progressBackground" format="color"/>
+        <attr name="progressMargin" format="dimension"/>
+        <attr name="progressToolsProgress" format="integer"/>
+    </declare-styleable>
+</resources>

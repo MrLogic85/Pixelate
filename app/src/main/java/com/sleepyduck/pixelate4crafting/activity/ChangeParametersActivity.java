@@ -21,36 +21,36 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationWidthActivity;
-import com.sleepyduck.pixelate4crafting.control.tasks.FindBestColorsTask;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
-import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
-import com.sleepyduck.pixelate4crafting.control.util.history.AddColor;
-import com.sleepyduck.pixelate4crafting.control.util.history.ChangeWidth;
-import com.sleepyduck.pixelate4crafting.control.util.history.History;
-import com.sleepyduck.pixelate4crafting.control.util.history.OnHistoryDo;
-import com.sleepyduck.pixelate4crafting.control.util.history.RemoveColor;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.util.MMCQ;
+import com.sleepyduck.pixelate4crafting.util.history.AddColor;
+import com.sleepyduck.pixelate4crafting.util.history.ChangeWidth;
+import com.sleepyduck.pixelate4crafting.util.history.History;
+import com.sleepyduck.pixelate4crafting.util.history.OnHistoryDo;
+import com.sleepyduck.pixelate4crafting.util.history.RemoveColor;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
 
 public class ChangeParametersActivity extends AppCompatActivity {
-    private static final int DEFAULT_INITIAL_COLORS = 4;
     private static final int CHECK_SQUARE_SIZE = 5;
     private static final int CHECK_SQUARE_RADIUS = (CHECK_SQUARE_SIZE - 1) / 2;
     private static final int CHECK_SQUARE_COLORS = 9;
@@ -61,16 +61,15 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private static final int REQUEST_CHANGE_WIDTH = 1;
     private static final int REQUEST_CHOOSE_COLOR = 2;
 
-    private Pattern mPattern;
-    private InteractiveImageView mOriginalImage;
+    private int mPatternId;
     private PatternImageView mPatternApproxImage;
-    private FindBestColorsTask mFindBestColorsTask;
     private GridView mPaletteGrid;
     private GridAdapter mGridAdapter;
     private int mState = STATE_FOCUSED_OFF;
     private Stack<History> mHistory = new Stack<>();
     private Stack<History> mUndoneHistory = new Stack<>();
     private Menu mOptionMenu;
+    private int mOrigFlag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,22 +85,24 @@ public class ChangeParametersActivity extends AppCompatActivity {
         LayoutTransition layoutTransition = group.getLayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.CHANGING);
 
-        int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
-        mPattern = DatabaseManager.getPattern(this, patternId);
-        mOriginalImage = (InteractiveImageView) findViewById(R.id.image_original);
+        mPatternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
+        Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
+        mOrigFlag = pattern.getFlag();
+        pattern.edit()
+                .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
+                .apply();
+
         mPatternApproxImage = (PatternImageView) findViewById(R.id.image_approximated);
+        mPatternApproxImage.setPattern(pattern, Simple);
 
-        mOriginalImage.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getFileName()));
-        mPatternApproxImage.setPattern(mPattern, Simple);
-
-        mOriginalImage.setOnImageClickListener(mOnImageClickListener);
+        InteractiveImageView originalImage = (InteractiveImageView) findViewById(R.id.image_original);
+        originalImage.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getFileName()));
+        originalImage.setOnImageClickListener(mOnImageClickListener);
 
         mPaletteGrid = (GridView) findViewById(R.id.palette_grid);
-        mGridAdapter = new GridAdapter(mPattern);
+        mGridAdapter = new GridAdapter(pattern);
         mPaletteGrid.setAdapter(mGridAdapter);
         mPaletteGrid.setOnItemClickListener(mItemClickListener);
-
-        checkForZeroColors();
     }
 
     @Override
@@ -118,14 +119,15 @@ public class ChangeParametersActivity extends AppCompatActivity {
         switch (menuItem.getItemId()) {
             case android.R.id.home: {
                 Intent intent = new Intent();
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
                 setResult(RESULT_OK, intent);
                 finish();
                 return true;
             }
             case R.id.menu_item_change_width: {
+                Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
                 Intent intent = new Intent(this, ConfigurationWidthActivity.class);
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+                intent.putExtra(ConfigurationWidthActivity.EXTRA_WIDTH, pattern.getPixelWidth());
                 startActivityForResult(intent, REQUEST_CHANGE_WIDTH);
                 return super.onOptionsItemSelected(menuItem);
             }
@@ -144,8 +146,15 @@ public class ChangeParametersActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mFindBestColorsTask != null) {
-            mFindBestColorsTask.cancel(true);
+        Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
+        if (mHistory.size() > 0 || mOrigFlag != FLAG_COMPLETE) {
+            pattern.edit()
+                    .setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
+                    .apply();
+        } else {
+            pattern.edit()
+                    .setFlag(mOrigFlag)
+                    .apply();
         }
     }
 
@@ -155,7 +164,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             setState(STATE_FOCUSED_OFF);
         } else {
             Intent intent = new Intent();
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
             setResult(RESULT_OK, intent);
             finish();
         }
@@ -200,52 +209,39 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     }
 
-    private void checkForZeroColors() {
-        if (mPattern.getColors() == null) {
-            mFindBestColorsTask = new FindBestColorsTask() {
-                @Override
-                protected void onPostExecute(Map<Integer, Float> colors) {
-                    int patternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
-                    mPatternApproxImage.setPattern(mPattern, Simple);
-                    mGridAdapter.updateColors(mPattern);
-                    mGridAdapter.notifyDataSetChanged();
-                    mPattern.edit()
-                            .setColors(colors)
-                            .apply();
-                    mPattern = DatabaseManager.getPattern(ChangeParametersActivity.this, patternId);
-                }
-            };
-            mFindBestColorsTask.execute(this, mPattern.getFileName(), DEFAULT_INITIAL_COLORS);
-        }
-    }
-
     private OnHistoryDo mDoHistory = new OnHistoryDo() {
         @Override
         public void removeColor(int color) {
-            mPattern.edit()
+            Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
+            pattern.edit()
                     .removeColor(color)
+                    .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                     .apply();
-            mGridAdapter.updateColors(mPattern);
+            mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             mPatternApproxImage.executeRedraw(Simple);
         }
 
         @Override
         public void addColor(int color) {
-            mPattern.edit()
+            Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
+            pattern.edit()
                     .addColor(color)
+                    .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                     .apply();
-            mGridAdapter.updateColors(mPattern);
+            mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             mPatternApproxImage.executeRedraw(Simple);
         }
 
         @Override
         public void setWidth(int width) {
-            mPattern.edit()
+            Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
+            pattern.edit()
                     .setWidth(width)
+                    .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                     .apply();
-            mPatternApproxImage.setPattern(mPattern, Simple);
+            mPatternApproxImage.setPattern(pattern, Simple);
             mPatternApproxImage.scaleToFit();
         }
     };
@@ -266,7 +262,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         public void onImageClicked(Bitmap bitmap, int x, int y) {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
-            List<int[]> colorsFound = new ArrayList<int[]>();
+            List<int[]> colorsFound = new ArrayList<>();
             for (int ix = 0; ix < CHECK_SQUARE_SIZE; ++ix) {
                 for (int iy = 0; iy < CHECK_SQUARE_SIZE; ++iy) {
                     int tx = x - CHECK_SQUARE_RADIUS + ix;
@@ -299,11 +295,13 @@ public class ChangeParametersActivity extends AppCompatActivity {
     };
 
     private void removeColor(int color) {
-        mPattern.edit()
+        Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
+        pattern.edit()
                 .removeColor(color)
+                .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                 .apply();
         addHistory(new RemoveColor(color));
-        mGridAdapter.updateColors(mPattern);
+        mGridAdapter.updateColors(pattern);
         mGridAdapter.notifyDataSetChanged();
         mPatternApproxImage.executeRedraw(Simple);
     }
@@ -350,40 +348,43 @@ public class ChangeParametersActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
+            Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             if (requestCode == REQUEST_CHANGE_WIDTH) {
                 int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
                         , Constants.DEFAULT_WIDTH);
-                addHistory(new ChangeWidth(mPattern.getPixelWidth(), newWidth));
-                mPattern.edit()
+                addHistory(new ChangeWidth(pattern.getPixelWidth(), newWidth));
+                pattern.edit()
                         .setWidth(newWidth)
+                        .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                         .apply();
-                mPatternApproxImage.setPattern(mPattern, Simple);
+                mPatternApproxImage.setPattern(pattern, Simple);
                 mPatternApproxImage.scaleToFit();
             } else if (requestCode == REQUEST_CHOOSE_COLOR) {
                 int pixel = data.getIntExtra("pixel", 0);
-                mPattern.edit()
+                pattern.edit()
                         .addColor(pixel)
+                        .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                         .apply();
                 addHistory(new AddColor(pixel));
-                mPatternApproxImage.setPattern(mPattern, Simple);
-                mGridAdapter.updateColors(mPattern);
+                mPatternApproxImage.setPattern(pattern, Simple);
+                mGridAdapter.updateColors(pattern);
                 mGridAdapter.notifyDataSetChanged();
             }
         }
     }
 
     private static class GridAdapter extends BaseAdapter {
-        public static final int STATE_SMALL = 1;
-        public static final int STATE_LARGE = 2;
+        static final int STATE_SMALL = 1;
+        static final int STATE_LARGE = 2;
 
         private int[] mColors;
         private int mState = STATE_SMALL;
 
-        public GridAdapter(Pattern pattern) {
+        GridAdapter(Pattern pattern) {
             updateColors(pattern);
         }
 
-        public void updateColors(Pattern pattern) {
+        void updateColors(Pattern pattern) {
             if (pattern.getColors() != null) {
                 mColors = new int[pattern.getColors().size()];
                 int count = 0;
@@ -441,11 +442,11 @@ public class ChangeParametersActivity extends AppCompatActivity {
             return layout;
         }
 
-        public void setState(int state) {
+        void setState(int state) {
             mState = state;
         }
 
-        public int getState() {
+        int getState() {
             return mState;
         }
     }

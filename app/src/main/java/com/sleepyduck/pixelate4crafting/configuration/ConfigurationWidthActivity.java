@@ -1,7 +1,8 @@
-package com.sleepyduck.pixelate4crafting.control.configuration;
+package com.sleepyduck.pixelate4crafting.configuration;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,7 +25,6 @@ import static android.view.View.VISIBLE;
  */
 public class ConfigurationWidthActivity extends Activity {
     public static final String EXTRA_WIDTH = "width";
-    //private Pattern mPattern;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +37,9 @@ public class ConfigurationWidthActivity extends Activity {
     public void onChooseNumberClicked(View view) {
         SwipeNumberPicker picker = (SwipeNumberPicker) findViewById(R.id.number_picker);
         int val = picker.getValue();
-
-        DatabaseManager.getPattern(this,
-                getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0))
-                .edit()
-                .setWidth(val)
-                .apply();
-        setResult(RESULT_OK, getIntent());
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_WIDTH, val);
+        setResult(RESULT_OK, intent);
         finish();
     }
 

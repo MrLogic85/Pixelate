@@ -8,10 +8,8 @@ import android.os.AsyncTask;
 import android.util.AttributeSet;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +18,7 @@ import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
 
 public class PatternImageView extends InteractiveImageView {
     private Bitmap mImageBitmap;
-    private AsyncTask mBitmapAsyncTask;
+    private AsyncTask<Object, Object, Bitmap> mBitmapAsyncTask;
 	private Pattern mPattern;
     private Bitmap mOrigBitmap;
     private Style mStyle;

@@ -17,7 +17,12 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.view.LineProgressBar;
 import com.sleepyduck.pixelate4crafting.view.SwipeCard;
+
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATING;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
 
 public class RecyclerAdapter extends CursorRecyclerViewAdapter<RecyclerAdapter.ViewHolder> {
     private final Context mContext;
@@ -113,6 +118,15 @@ public class RecyclerAdapter extends CursorRecyclerViewAdapter<RecyclerAdapter.V
                         x = 0;
                     }
                 }
+            }
+
+            LineProgressBar lineProgressBar = (LineProgressBar) mItemView.findViewById(R.id.progress_bar);
+            int flag = pattern.getFlag();
+            if (flag != FLAG_COMPLETE) {
+                lineProgressBar.setVisibility(View.VISIBLE);
+                lineProgressBar.setProgress(pattern.getProgress());
+            } else {
+                lineProgressBar.setVisibility(View.INVISIBLE);
             }
 
             mItemView.setTag(pattern);

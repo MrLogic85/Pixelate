@@ -7,7 +7,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 
 import org.json.JSONException;

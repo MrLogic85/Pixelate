@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control.util;
+package com.sleepyduck.pixelate4crafting.util;
 
 import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;

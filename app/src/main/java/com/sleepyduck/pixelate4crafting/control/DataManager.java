@@ -2,7 +2,7 @@ package com.sleepyduck.pixelate4crafting.control;
 
 import android.content.Context;
 
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import java.io.File;
 import java.io.FileInputStream;

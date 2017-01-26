@@ -2,12 +2,8 @@ package com.sleepyduck.pixelate4crafting.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -18,10 +14,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
-
-import java.util.Arrays;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class InteractiveImageView extends ImageView implements View.OnTouchListener {
     private Matrix mMatrix;

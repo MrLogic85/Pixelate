@@ -1,6 +1,10 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
+import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -9,17 +13,22 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationNameActivity;
-import com.sleepyduck.pixelate4crafting.control.configuration.ConfigurationPixelsActivity;
+import com.sleepyduck.pixelate4crafting.configuration.ConfigurationNameActivity;
+import com.sleepyduck.pixelate4crafting.configuration.ConfigurationPixelsActivity;
+import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
+import java.util.Random;
+
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 
-public class PatternActivity extends AppCompatActivity {
+public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int REQUEST_CHANGE_PARAMETERS = 1;
     private static final int REQUEST_NEW_PIXELS = 2;
     private static final int REQUEST_CHANGE_NAME = 3;
@@ -42,7 +51,9 @@ public class PatternActivity extends AppCompatActivity {
         ab.setTitle(mPattern.getTitle());
 		
 		mCanvas = (PatternImageView) findViewById(R.id.canvas);
-		mCanvas.setPattern(mPattern);
+        mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getPatternFileName()));
+
+        getLoaderManager().initLoader(new Random().nextInt(), null, this);
 	}
 
 	@Override
@@ -86,5 +97,34 @@ public class PatternActivity extends AppCompatActivity {
         } else if (requestCode == REQUEST_CHANGE_NAME) {
             getSupportActionBar().setTitle(mPattern.getTitle());
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        String selection = String.format("%s=?", DatabaseContract.PatternColumns._ID);
+        String[] selectionArgs = { Integer.toString(mPattern.Id) };
+        return new CursorLoader(this, DatabaseContract.PatternColumns.URI, null, selection, selectionArgs, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        while (cursor.moveToNext()) {
+            mPattern = new Pattern(this, cursor);
+            switch (mPattern.getFlag()) {
+                case FLAG_COMPLETE:
+                    mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getPatternFileName()));
+                    mCanvas.scaleToFit();
+                    break;
+                default:
+                    // TODO Update some progress bar
+                    mCanvas.setImageAlpha(0xff / 2);
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
     }
 }

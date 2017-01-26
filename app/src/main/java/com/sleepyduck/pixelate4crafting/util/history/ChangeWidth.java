@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control.util.history;
+package com.sleepyduck.pixelate4crafting.util.history;
 
 /**
  * Created by fredrikmetcalf on 21/04/16.

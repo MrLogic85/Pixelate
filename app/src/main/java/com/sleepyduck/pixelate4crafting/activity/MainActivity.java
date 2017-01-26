@@ -12,20 +12,20 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.control.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
 import com.sleepyduck.pixelate4crafting.service.CalculateService;
-import com.sleepyduck.pixelate4crafting.view.recycler.ItemAnimator;
+import com.sleepyduck.pixelate4crafting.util.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
 
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATED;
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
 /**
@@ -142,38 +142,17 @@ public class MainActivity extends AppCompatActivity {
             case FLAG_IMAGE_STORED: {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
             } break;
-            case FLAG_PIXELS_CALCULATED: {
+            case FLAG_COMPLETE: {
                 Intent intent = new Intent(this, PatternActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
                 startActivity(intent);
-            }
+            } break;
             default: {
                 Intent intent = new Intent(this, ChangeParametersActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
                 startActivity(intent);
-            }
+            } break;
         }
-        /*if (BitmapHandler.getFromFileName(this, pattern.getFileName()) == null) {
-            Toast.makeText(this, "Image not found! I am truly sorry, this mPattern is broken :(", Toast.LENGTH_LONG).show();
-        } else if (!pattern.hasColors()) {
-            Intent intent = new Intent(this, ChangeParametersActivity.class);
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-            startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
-        } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED || pattern.getFlag() == FLAG_COLORS_CHANGED) {
-            Intent intent = new Intent(this, ConfigurationPixelsActivity.class);
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-            startActivityForResult(intent, REQUEST_REDO_PIXELS);
-        } else {
-            if (pattern.getState() == DatabaseContract.PatternColumns.STATE_ACTIVE) {
-                pattern.edit()
-                        .setState(DatabaseContract.PatternColumns.STATE_LATEST)
-                        .setTime(System.currentTimeMillis())
-                        .apply();
-            }
-            Intent intent = new Intent(this, PatternActivity.class);
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-            startActivity(intent);
-        }*/
     }
 
     @Override

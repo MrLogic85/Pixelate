@@ -1,7 +1,6 @@
-package com.sleepyduck.pixelate4crafting.control.util;
+package com.sleepyduck.pixelate4crafting.util;
 
 import android.util.Log;
-import android.widget.AdapterView;
 
 public class BetterLog {
     public static boolean DEBUG = true;

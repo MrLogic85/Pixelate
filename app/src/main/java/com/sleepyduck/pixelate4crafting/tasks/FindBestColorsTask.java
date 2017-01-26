@@ -1,4 +1,4 @@
-package com.sleepyduck.pixelate4crafting.control.tasks;
+package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,11 +6,9 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.util.MMCQ;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 

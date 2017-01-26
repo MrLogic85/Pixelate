@@ -1,14 +1,13 @@
-package com.sleepyduck.pixelate4crafting.control.tasks;
+package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.util.ColorUtil;
-import com.sleepyduck.pixelate4crafting.control.util.MMCQ;
+import com.sleepyduck.pixelate4crafting.util.ColorUtil;
+import com.sleepyduck.pixelate4crafting.util.MMCQ;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
 import java.util.Map;
@@ -17,28 +16,31 @@ import java.util.Map;
  * Created by fredrik.metcalf on 2016-04-12.
  */
 public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Float>> {
-    private Pattern mPattern;
-    private Context mContext;
-    private Bitmap mBitmap;
 
     @Override
     protected Map<Integer, Float> doInBackground(Object... params) {
         publishProgress(0);
         if (params.length > 0) {
-            mContext = (Context) params[0];
-            mPattern = (Pattern) params[1];
-            mBitmap = BitmapHandler.getFromFileName(mContext, mPattern.getFileName());
+            Context context = (Context) params[0];
+            Pattern pattern = (Pattern) params[1];
+            Bitmap bitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
 
-            for (Map.Entry<Integer, Float> color : mPattern.getColors().entrySet()) {
+            // Clear the color map
+            for (Map.Entry<Integer, Float> color : pattern.getColors().entrySet()) {
                 color.setValue(0f);
             }
-            countColors(mBitmap, mPattern.getColors());
 
-            return mPattern.getColors();
+            // Count the colors
+            if (pattern.getColors() != null && pattern.getColors().size() > 0) {
+                countColors(bitmap, pattern.getColors());
+            }
+
+            return pattern.getColors();
         }
         return null;
     }
 
+    // TODO remove as many allocations as possible
     private void countColors(Bitmap mBitmap, Map<Integer, Float> colors) {
         double diff, bestDiff;
         float resInv = 1f / (float) (mBitmap.getWidth() * mBitmap.getHeight());
