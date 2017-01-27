@@ -27,12 +27,7 @@ public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder
     public ColorsAdapter(Map<Integer, Float> colorMap) {
         if (colorMap != null) {
             colors = new ArrayList<>(colorMap.keySet());
-            Collections.sort(colors, new Comparator<Integer>() {
-                @Override
-                public int compare(Integer left, Integer right) {
-                    return (int) ((ColorUtil.Diff(right, COMPARE_COLOR) - ColorUtil.Diff(left, COMPARE_COLOR)) * 1000f);
-                }
-            });
+            ColorUtil.Sort(colors);
         } else {
             colors = new ArrayList<>();
         }

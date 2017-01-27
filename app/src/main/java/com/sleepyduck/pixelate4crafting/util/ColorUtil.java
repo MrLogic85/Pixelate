@@ -4,6 +4,10 @@ import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,5 +56,36 @@ public class ColorUtil {
 
     public static int[] splitColor(int pixel) {
         return new int[] {Color.red(pixel), Color.green(pixel), Color.blue(pixel)};
+    }
+
+    public static void Sort(List<Integer> colors) {
+        final int[] sortBy = {
+                Color.BLACK,
+                Color.WHITE,
+                Color.RED,
+                Color.BLUE,
+                Color.GREEN,
+                Color.YELLOW
+        };
+        Collections.sort(colors, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer left, Integer right) {
+                return (int) (diff(right) - diff(left));
+            }
+
+            private double diff(Integer color) {
+                double[] diffs = new double[sortBy.length];
+                double smallestDiff = Double.MAX_VALUE;
+                int sortByI = -1;
+                for (int i = 0; i < sortBy.length; ++i) {
+                    diffs[i] = ColorUtil.Diff(color, sortBy[i]);
+                    if (diffs[i] < smallestDiff) {
+                        smallestDiff = diffs[i];
+                        sortByI = i;
+                    }
+                }
+                return diffs[sortByI] * Math.pow(100., sortByI);
+            }
+        });
     }
 }
