@@ -4,8 +4,14 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.renderscript.Allocation;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsic;
+import android.renderscript.Type;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.util.MMCQ;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -25,14 +31,14 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             Pattern pattern = (Pattern) params[1];
             Bitmap bitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
 
-            // Clear the color map
-            for (Map.Entry<Integer, Float> color : pattern.getColors().entrySet()) {
-                color.setValue(0f);
-            }
-
-            // Count the colors
             if (pattern.getColors() != null && pattern.getColors().size() > 0) {
-                countColors(bitmap, pattern.getColors());
+                // Clear the color map
+                for (Map.Entry<Integer, Float> color : pattern.getColors().entrySet()) {
+                    color.setValue(0f);
+                }
+
+                // Count the colors
+                countColors(context, bitmap, pattern.getColors());
             }
 
             return pattern.getColors();
@@ -40,52 +46,49 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
         return null;
     }
 
-    // TODO remove as many allocations as possible
-    private void countColors(Bitmap mBitmap, Map<Integer, Float> colors) {
+    private void countColors(final Context context, final Bitmap mBitmap, final Map<Integer, Float> colorMap) {
+        long timeStart = SystemClock.currentThreadTimeMillis();
+        long timeGetPixel = 0, timeGetPixelStart, timeDiff = 0, timeDiffStart;
         double diff, bestDiff;
-        float resInv = 1f / (float) (mBitmap.getWidth() * mBitmap.getHeight());
-        MMCQ.CMap CMap = null;// = mPattern.getCMap();
-        int[] colorRGB = new int[3];
-        Map.Entry<Integer, Float> bestColor = null;
-        for (int x = 0; x < mBitmap.getWidth(); ++x) {
-            if(isCancelled()) {
-                clearCount(colors);
+        final float resInv = 1f / (float) (mBitmap.getWidth() * mBitmap.getHeight());
+        int bestColor, i, pixel;
+        final int size = colorMap.size();
+        final int[] colors = new int[size];
+        final float[] weights = new float[size];
+        timeGetPixelStart = SystemClock.currentThreadTimeMillis();
+        final int pixelCount = mBitmap.getWidth() * mBitmap.getHeight();
+        final int[] pixels = new int[pixelCount];
+        mBitmap.getPixels(pixels, 0, mBitmap.getWidth(), 0, 0, mBitmap.getWidth(), mBitmap.getHeight());
+        timeGetPixel += SystemClock.currentThreadTimeMillis() - timeGetPixelStart;
+        for (int p = 0; p < pixelCount; ++p) {
+            if (isCancelled()) {
                 return;
             }
-            publishProgress(x * 100 / mBitmap.getWidth());
-            for (int y = 0; y < mBitmap.getHeight(); ++y) {
-                int pixel = mBitmap.getPixel(x, y);
-                if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
-                    // Transparent
-                    continue;
-                }
-                if (CMap != null) {
-                    colorRGB[0] = Color.red(pixel);
-                    colorRGB[1] = Color.green(pixel);
-                    colorRGB[2] = Color.blue(pixel);
-                    int[] mapColor = CMap.map(new int[]{Color.red(pixel), Color.green(pixel), Color.blue(pixel)});
-                    int rgb = Color.rgb(mapColor[0], mapColor[1], mapColor[2]);
-                    colors.put(rgb, colors.get(rgb) + resInv);
-                } else {
-                    bestDiff = Integer.MAX_VALUE;
-                    for (Map.Entry<Integer, Float> color : colors.entrySet()) {
-                        diff = ColorUtil.Diff(pixel, color.getKey());
-                        if (diff < bestDiff) {
-                            bestDiff = diff;
-                            bestColor = color;
-                        }
-                    }
-                    if (bestColor != null) {
-                        bestColor.setValue(bestColor.getValue() + resInv);
-                    }
+            if ((p * 100) % pixelCount == 0) {
+                publishProgress(p * 100 / pixelCount);
+            }
+            bestColor = -1;
+            if ((pixels[p] & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                // Transparent
+                continue;
+            }
+            bestDiff = Integer.MAX_VALUE;
+            timeDiffStart = SystemClock.currentThreadTimeMillis();
+            for (i = 0; i < size; ++i) {
+                diff = ColorUtil.DiffMap(pixels[p], colors[i]);
+                if (diff < bestDiff) {
+                    bestDiff = diff;
+                    bestColor = i;
                 }
             }
+            timeDiff += SystemClock.currentThreadTimeMillis() - timeDiffStart;
+            if (bestColor >= 0) {
+                weights[bestColor] += resInv;
+            }
         }
-    }
-
-    private void clearCount(Map<Integer, Float> colors) {
-        for (Map.Entry<Integer, Float> entry : colors.entrySet()) {
-            entry.setValue(0f);
+        for (i = 0; i < size; ++i) {
+            colorMap.put(colors[i], weights[i]);
         }
+        BetterLog.d(CountColorsTask.class, "Count colors time: %d (Get: %d, Diff: %d)", SystemClock.currentThreadTimeMillis() - timeStart, timeGetPixel, timeDiff);
     }
 }
