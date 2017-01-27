@@ -14,7 +14,7 @@ public class ColorUtil {
     private static double[] LabLeft = new double[3];
     private static double[] LabRight = new double[3];
 
-    public static double Diff(int left, int right) {
+    synchronized public static double Diff(int left, int right) {
         ColorUtils.colorToLAB(left, LabLeft);
         ColorUtils.colorToLAB(right, LabRight);
         return ColorUtils.distanceEuclidean(LabLeft, LabRight);

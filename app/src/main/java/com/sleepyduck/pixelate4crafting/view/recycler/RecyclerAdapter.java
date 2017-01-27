@@ -90,35 +90,9 @@ public class RecyclerAdapter extends CursorRecyclerViewAdapter<RecyclerAdapter.V
             TextView title = (TextView) mItemView.findViewById(R.id.title);
             title.setText(pattern.getTitle());
 
-            GridLayout grid = (GridLayout) mItemView.findViewById(R.id.pattern_colors);
-            grid.removeAllViews();
-            if (pattern.getColors() != null) {
-                int countColors = pattern.getColors().size();
-                int margin = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_spacing);
-                int colorSize = (int) mItemView.getContext().getResources().getDimension(R.dimen.color_square_size_small);
-                int columnCount = grid.getColumnCount();
-                int rowCount = countColors / columnCount + (countColors % columnCount > 0 ? 1 : 0);
-                grid.setRowCount(rowCount);
-
-                int x = 0, y = 0;
-                for (int color : pattern.getColors().keySet()) {
-                    View view = new CardView(mItemView.getContext());
-                    view.setBackgroundColor(color);
-                    GridLayout.LayoutParams params = new GridLayout.LayoutParams();
-                    params.width = colorSize;
-                    params.height = colorSize;
-                    params.columnSpec = GridLayout.spec(x);
-                    params.rowSpec = GridLayout.spec(y);
-                    params.setMargins(margin, margin, margin, margin);
-                    grid.addView(view, params);
-
-                    x++;
-                    if (x == grid.getColumnCount()) {
-                        y++;
-                        x = 0;
-                    }
-                }
-            }
+            RecyclerView recyclerView = (RecyclerView) mItemView.findViewById(R.id.color_recycler);
+            recyclerView.setAdapter(new ColorsAdapter(pattern.getColors()));
+            recyclerView.setOnClickListener(mOnItemClickListener);
 
             LineProgressBar lineProgressBar = (LineProgressBar) mItemView.findViewById(R.id.progress_bar);
             int flag = pattern.getFlag();

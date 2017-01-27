@@ -7,9 +7,12 @@
     <dimen name="divider">1dp</dimen>
 
     <dimen name="color_square_size">50dp</dimen>
+
     <dimen name="color_square_size_small">15dp</dimen>
     <dimen name="color_square_spacing">3dp</dimen>
+    <dimen name="color_square_size_small_with_margin">21dp</dimen>
     <dimen name="color_grid_height">42dp</dimen>
+
     <dimen name="color_grid_size">250dp</dimen>
     <dimen name="palette_2x_size">119dp</dimen>
     <dimen name="palette_2x_size_small">49dp</dimen>
