@@ -2,18 +2,12 @@ package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.SystemClock;
-import android.renderscript.Allocation;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsic;
-import android.renderscript.Type;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
-import com.sleepyduck.pixelate4crafting.util.MMCQ;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
 import java.util.Map;
@@ -54,6 +48,10 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
         int bestColor, i, pixel;
         final int size = colorMap.size();
         final int[] colors = new int[size];
+        Object[] colorObject = colorMap.keySet().toArray();
+        for (i = 0; i < size; ++i) {
+            colors[i] = (Integer) colorObject[i];
+        }
         final float[] weights = new float[size];
         timeGetPixelStart = SystemClock.currentThreadTimeMillis();
         final int pixelCount = mBitmap.getWidth() * mBitmap.getHeight();
@@ -75,7 +73,7 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             bestDiff = Integer.MAX_VALUE;
             timeDiffStart = SystemClock.currentThreadTimeMillis();
             for (i = 0; i < size; ++i) {
-                diff = ColorUtil.DiffMap(pixels[p], colors[i]);
+                diff = ColorUtil.Diff(pixels[p], colors[i]);
                 if (diff < bestDiff) {
                     bestDiff = diff;
                     bestColor = i;
@@ -87,7 +85,8 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             }
         }
         for (i = 0; i < size; ++i) {
-            colorMap.put(colors[i], weights[i]);
+            Float oldWeight = colorMap.put(colors[i], weights[i]);
+            assert oldWeight != null;
         }
         BetterLog.d(CountColorsTask.class, "Count colors time: %d (Get: %d, Diff: %d)", SystemClock.currentThreadTimeMillis() - timeStart, timeGetPixel, timeDiff);
     }

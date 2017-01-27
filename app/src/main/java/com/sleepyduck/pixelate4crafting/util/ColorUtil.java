@@ -4,8 +4,6 @@ import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.SparseArray;
 
-import java.nio.DoubleBuffer;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,9 +16,9 @@ public class ColorUtil {
     private static double[] LabRight = new double[3];
     private static SparseArray<SparseArray<Double>> DiffMap = new SparseArray<>();
 
-    synchronized public static double DiffMap(int left, int right) {
+    synchronized public static double Diff(int left, int right) {
         int _left = Math.max(left, right);
-        int _right = Math.max(left, right);
+        int _right = Math.min(left, right);
         SparseArray<Double> map = DiffMap.get(_left);
         if (map != null) {
             Double diff = map.get(_right);
@@ -39,17 +37,11 @@ public class ColorUtil {
         return diff;
     }
 
-    synchronized public static double Diff(int left, int right) {
-        ColorUtils.colorToLAB(left, LabLeft);
-        ColorUtils.colorToLAB(right, LabRight);
-        return ColorUtils.distanceEuclidean(LabLeft, LabRight);
-    }
-
-    public static Map.Entry<Integer, Float> getBestColorFor(int pixel, Map<Integer, Float> colors) {
+    public static int getBestColorFor(int pixel, int[] colors) {
         double diff, minDiff = Integer.MAX_VALUE;
-        Map.Entry<Integer, Float> bestColor = null;
-        for (Map.Entry<Integer, Float> color : colors.entrySet()) {
-            diff = ColorUtil.Diff(color.getKey(), pixel);
+        int bestColor = 0;
+        for (int color : colors) {
+            diff = ColorUtil.Diff(color, pixel);
             if (diff < minDiff) {
                 minDiff = diff;
                 bestColor = color;

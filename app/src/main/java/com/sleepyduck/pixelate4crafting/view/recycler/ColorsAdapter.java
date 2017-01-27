@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
 import java.util.ArrayList;
@@ -28,7 +27,6 @@ public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder
     public ColorsAdapter(Map<Integer, Float> colorMap) {
         if (colorMap != null) {
             colors = new ArrayList<>(colorMap.keySet());
-            colors.remove(Color.TRANSPARENT);
             Collections.sort(colors, new Comparator<Integer>() {
                 @Override
                 public int compare(Integer left, Integer right) {

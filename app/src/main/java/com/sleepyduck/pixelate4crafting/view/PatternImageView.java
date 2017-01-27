@@ -11,8 +11,10 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.IntUnaryOperator;
 
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
 
@@ -120,18 +122,20 @@ public class PatternImageView extends InteractiveImageView {
 
         private Bitmap pixelBitmap;
         int pixelsWidth, pixelsHeight;
-        private Map<Integer, Float> mColors;
+        private int[] mColors;
 
         @Override
         protected Bitmap doInBackground(Object... params) {
             pixelsWidth = mPattern.getPixelWidth();
             pixelsHeight = mPattern.getPixelHeight();
             if (mPattern.hasColors()) {
-                mColors = new HashMap<>(mPattern.getColors());
+                mColors = new int[mPattern.getColors().size()];
+                final Object[] pixelObjeccts = mPattern.getColors().keySet().toArray();
+                for (int i = 0; i < mColors.length; ++i) {
+                    mColors[i] = (int) pixelObjeccts[i];
+                }
             } else {
-                mColors = new HashMap<>();
-                mColors.put(Color.WHITE, 0f);
-                mColors.put(Color.BLACK, 0f);
+                mColors = new int[] { Color.WHITE, Color.BLACK };
             }
             float dRes = (float)mOrigBitmap.getWidth() / (float) pixelsWidth;
             int pixelSize = Math.max(1, Math.min(PIXEL_SIZE_MAX, 300/pixelsWidth));
@@ -144,7 +148,7 @@ public class PatternImageView extends InteractiveImageView {
                     if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                         continue;
                     }
-                    pixel = ColorUtil.getBestColorFor(pixel, mColors).getKey();
+                    pixel = ColorUtil.getBestColorFor(pixel, mColors);
                     for (int ix = x * pixelSize; ix < (x + 1) * pixelSize; ++ix) {
                         for (int iy = y * pixelSize; iy < (y + 1) * pixelSize; ++iy) {
                             pixelBitmap.setPixel(ix, iy, pixel);

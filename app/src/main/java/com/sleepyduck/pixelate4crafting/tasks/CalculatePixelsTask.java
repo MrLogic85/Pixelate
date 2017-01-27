@@ -4,8 +4,11 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
+import android.os.SystemClock;
+import android.util.SparseArray;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
@@ -35,11 +38,13 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
     }
 
     private int[][] calculatePixels() {
+        long timeStart = SystemClock.currentThreadTimeMillis();
+        long checkColorsStart, checkColorsTime = 0;
         float pixelSize = (float) mBitmap.getWidth() / (float) mPattern.getPixelWidth();
         int width = mPattern.getPixelWidth();
         int height = mPattern.getPixelHeight();
 
-        int[][] colorMatrix = new int[width][height];
+        int[][] pixels = new int[width][height];
         float dx, dy;
         for (int x = 0; x < width; ++x) {
             if (isCancelled()) {
@@ -49,11 +54,24 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
             for (int y = 0; y < height; ++y) {
                 dx = pixelSize * (float) x;
                 dy = pixelSize * (float) y;
-                colorMatrix[x][y] = checkColorsFor(dx, dy, pixelSize);
+                pixels[x][y] = findColorForPixel(dx, dy, pixelSize);
             }
         }
-        return colorMatrix;
+        BetterLog.d(
+                CalculatePixelsTask.class,
+                "Calculate pixels: %d (Init %d, Count %d, Find %d, Get pixel %d)",
+                SystemClock.currentThreadTimeMillis() - timeStart,
+                initializeTime,
+                countTime,
+                findBestTime,
+                getPixelTime);
+        return pixels;
     }
+
+    long initializeStart, initializeTime = 0;
+    long countStart, countTime = 0;
+    long findBestStart, findBestTime = 0;
+    long getPixelStart, getPixelTime = 0;
 
     /**
      * Find the dominant color in the pixel, comparing the color weight in the pixel compared to
@@ -63,52 +81,52 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
      * @param pixelSize
      * @return
      */
-    private int checkColorsFor(float dx, float dy, float pixelSize) {
+    private int findColorForPixel(float dx, float dy, float pixelSize) {
+        initializeStart = SystemClock.currentThreadTimeMillis();
         int x = Math.round(dx);
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
-        int stepX = 1;
-        int stepY = 1;
-
-        int checkXPixels = 99;
-        if (width > checkXPixels) {
-            //BetterLog.d(this, "Width > 6, " + width);
-            stepX = width / checkXPixels;
-        }
-        if (height > checkXPixels) {
-            stepY = height / checkXPixels;
+        int[] colors = new int[mPattern.getColors().size()];
+        final Object[] pixelObjects = mPattern.getColors().keySet().toArray();
+        for (int i = 0; i < colors.length; ++i) {
+            colors[i] = (int) pixelObjects[i];
         }
 
-        Map<Integer, Float> countPixelColors = new HashMap<>();
+        SparseArray<Float> countPixelColors = new SparseArray<>();
         float resInv = 1f / (float)(width*height);
-        for (int i = 0; i < width; i += stepX) {
-            for (int j = 0; j < height; j += stepY) {
+        initializeTime += SystemClock.currentThreadTimeMillis() - initializeStart;
+        countStart = SystemClock.currentThreadTimeMillis();
+        for (int i = 0; i < width; i += 1) {
+            for (int j = 0; j < height; j += 1) {
+                getPixelStart = SystemClock.currentThreadTimeMillis();
                 int pixel = mBitmap.getPixel(i+x, j+y);
+                getPixelTime += SystemClock.currentThreadTimeMillis() - countStart;
                 if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                     continue;
                 }
-                Integer color = ColorUtil.getBestColorFor(pixel, mPattern.getColors()).getKey();
-                if (countPixelColors.containsKey(color)) {
-                    countPixelColors.put(color, (countPixelColors.get(color) + resInv));
-                } else {
-                    countPixelColors.put(color, resInv);
-                }
+                Integer color = ColorUtil.getBestColorFor(pixel, colors);
+                Float weight = countPixelColors.get(color, 0f);
+                countPixelColors.put(color, weight + resInv);
             }
         }
-        Map<Integer, Float> colors = mPattern.getColors();
+        countTime += SystemClock.currentThreadTimeMillis() - countStart;
+        findBestStart = SystemClock.currentThreadTimeMillis();
+        Map<Integer, Float> colorMap = mPattern.getColors();
         if (countPixelColors.size() > 0) {
             int bestColor = Color.TRANSPARENT;
             float bestWeight = Float.MIN_VALUE, weight;
-            for (Map.Entry<Integer, Float> entry : countPixelColors.entrySet()) {
-                weight = entry.getValue() / colors.get(entry.getKey());
+            for(int i = 0; i < countPixelColors.size(); i++) {
+                int color = countPixelColors.keyAt(i);
+                weight = countPixelColors.valueAt(i) / colorMap.get(color);
                 if (weight > bestWeight) {
                     bestWeight = weight;
-                    bestColor = entry.getKey();
+                    bestColor = color;
                 }
             }
             return bestColor;
         }
+        findBestTime += SystemClock.currentThreadTimeMillis() - findBestStart;
         return Color.TRANSPARENT;
     }
 }
