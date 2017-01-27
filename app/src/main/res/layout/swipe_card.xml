@@ -85,7 +85,7 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/small_picture_size"
                 android:layout_marginLeft="@dimen/padding"
                 android:layout_margin="@dimen/padding_small"
                 android:orientation="vertical">
@@ -98,13 +98,18 @@
                     android:lines="1"
                     tools:text="Title"/>
 
-                <android.support.v7.widget.RecyclerView
+                <com.sleepyduck.pixelate4crafting.view.recycler.UntouchableRecyclerView
                     android:id="@+id/color_recycler"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/color_grid_height"
                     app:layoutManager="com.sleepyduck.pixelate4crafting.view.recycler.GridAutoFitLayoutManager"
                     app:span="@dimen/color_square_size_small_with_margin"
-                    tools:listitem="android.support.v7.widget.CardView"/>
+                    tools:listitem="@layout/color_grid_item_small"/>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
 
                 <com.sleepyduck.pixelate4crafting.view.LineProgressBar
                     android:id="@+id/progress_bar"

@@ -43,7 +43,7 @@ public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder
     public ColorsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.color_grid_item_small, null));
+                .inflate(R.layout.color_grid_item_small, parent, false));
     }
 
     @Override

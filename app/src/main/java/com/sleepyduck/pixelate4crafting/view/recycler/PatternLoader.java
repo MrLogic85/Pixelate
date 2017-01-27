@@ -14,11 +14,11 @@ import java.util.Random;
 public class PatternLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final String SORT_ORDER = DatabaseContract.PatternColumns.TIME + " DESC";
 
-    private final RecyclerAdapter mAdapter;
+    private final SwipeCardAdapter mAdapter;
     private final int mLoaderId;
     private final AppCompatActivity mActivity;
 
-    public PatternLoader(AppCompatActivity activity, RecyclerAdapter adapter) {
+    public PatternLoader(AppCompatActivity activity, SwipeCardAdapter adapter) {
         this.mAdapter = adapter;
         this.mActivity = activity;
         mLoaderId = new Random().nextInt();

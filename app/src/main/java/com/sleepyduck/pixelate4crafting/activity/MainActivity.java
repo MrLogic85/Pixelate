@@ -21,11 +21,10 @@ import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
 import com.sleepyduck.pixelate4crafting.service.CalculateService;
 import com.sleepyduck.pixelate4crafting.util.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
-import com.sleepyduck.pixelate4crafting.view.recycler.RecyclerAdapter;
+import com.sleepyduck.pixelate4crafting.view.recycler.SwipeCardAdapter;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
 /**
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
     private static final int REQUEST_REDO_PIXELS = 2;
     private static final int REQUEST_CHANGE_PARAMETERS = 4;
-    private RecyclerAdapter mAdapter;
+    private SwipeCardAdapter mAdapter;
     private RecyclerView mRecyclerView;
 
     private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
@@ -110,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
 
         if (mRecyclerView.getAdapter() == null) {
-            mAdapter = new RecyclerAdapter(this);
+            mAdapter = new SwipeCardAdapter(this);
             mAdapter.setOnItemClickListener(mOnItemClickListener);
             mAdapter.setOnRightButtonClickListener(mOnRightButtonClickListener);
             mAdapter.setOnLeftButtonClickListener(mOnLeftButtonClickListener);

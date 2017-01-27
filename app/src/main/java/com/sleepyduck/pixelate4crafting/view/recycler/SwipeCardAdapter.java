@@ -3,12 +3,10 @@ package com.sleepyduck.pixelate4crafting.view.recycler;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -20,17 +18,15 @@ import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.view.LineProgressBar;
 import com.sleepyduck.pixelate4crafting.view.SwipeCard;
 
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
 
-public class RecyclerAdapter extends CursorRecyclerViewAdapter<RecyclerAdapter.ViewHolder> {
+public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter.ViewHolder> {
     private final Context mContext;
     private View.OnClickListener mOnItemClickListener;
     private View.OnClickListener mOnRightButtonClickListener;
     private View.OnClickListener mOnLeftButtonClickListener;
 
-    public RecyclerAdapter(Context context) {
+    public SwipeCardAdapter(Context context) {
         super();
         mContext = context;
     }
@@ -92,7 +88,6 @@ public class RecyclerAdapter extends CursorRecyclerViewAdapter<RecyclerAdapter.V
 
             RecyclerView recyclerView = (RecyclerView) mItemView.findViewById(R.id.color_recycler);
             recyclerView.setAdapter(new ColorsAdapter(pattern.getColors()));
-            recyclerView.setOnClickListener(mOnItemClickListener);
 
             LineProgressBar lineProgressBar = (LineProgressBar) mItemView.findViewById(R.id.progress_bar);
             int flag = pattern.getFlag();
