@@ -1,5 +1,6 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -32,10 +33,7 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
-    private static final int REQUEST_REDO_PIXELS = 2;
-    private static final int REQUEST_CHANGE_PARAMETERS = 4;
     private SwipeCardAdapter mAdapter;
-    private RecyclerView mRecyclerView;
 
     private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
         @Override
@@ -106,16 +104,30 @@ public class MainActivity extends AppCompatActivity {
         Patterns.Load(this);
         bindService(new Intent(this, CalculateService.class), serviceConnection, BIND_AUTO_CREATE);
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler);
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
 
-        if (mRecyclerView.getAdapter() == null) {
+        if (recyclerView.getAdapter() == null) {
             mAdapter = new SwipeCardAdapter(this);
             mAdapter.setOnItemClickListener(mOnItemClickListener);
             mAdapter.setOnRightButtonClickListener(mOnRightButtonClickListener);
             mAdapter.setOnLeftButtonClickListener(mOnLeftButtonClickListener);
-            mRecyclerView.setAdapter(mAdapter);
-            mRecyclerView.setItemAnimator(new ItemAnimator());
+            recyclerView.setAdapter(mAdapter);
+            recyclerView.setItemAnimator(new ItemAnimator());
             new PatternLoader(this, mAdapter);
+        }
+
+        onNewIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        if (intent.getClipData() != null) {
+            ClipData clipData = intent.getClipData();
+            for (int i = 0; i < clipData.getItemCount(); ++i) {
+                Intent serviceIntent = new Intent(this, AddNewPatternService.class);
+                serviceIntent.setData(clipData.getItemAt(i).getUri());
+                startService(serviceIntent);
+            }
         }
     }
 
