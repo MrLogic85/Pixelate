@@ -1,17 +1,26 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
+import android.Manifest;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
@@ -116,8 +125,31 @@ public class MainActivity extends AppCompatActivity {
             new PatternLoader(this, mAdapter);
         }
 
+        //requestPermissions();
+
+        AdView adView = (AdView) findViewById(R.id.adView);
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+        if (BuildConfig.DEBUG) {
+            adRequestBuilder.addTestDevice("C39E64851CA596B020F5A5C95550CBDA");
+        }
+        AdRequest adRequest = adRequestBuilder.build();
+        adView.loadAd(adRequest);
+
         onNewIntent(getIntent());
     }
+
+    /*private void requestPermissions() {
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.INTERNET);
+        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 0);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        requestPermissions();
+    }*/
 
     @Override
     protected void onNewIntent(Intent intent) {

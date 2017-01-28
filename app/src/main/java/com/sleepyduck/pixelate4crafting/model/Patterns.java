@@ -16,8 +16,8 @@ public class Patterns {
     public static synchronized void Load(Context context) {
         SharedPreferences pref = context.getSharedPreferences(PREFERENCE_NAME, 0);
         if (pref.getBoolean(PREF_USING_DATABASE, false)) {
-            context.getContentResolver().delete(DatabaseContract.PatternColumns.URI, null, null);
-            //return;
+            //context.getContentResolver().delete(DatabaseContract.PatternColumns.URI, null, null);
+            return;
             // TODO, reverse the lines above, uncomment the return and remove the delete
         }
         int size = pref.getInt(PREF_COUNT, 0);

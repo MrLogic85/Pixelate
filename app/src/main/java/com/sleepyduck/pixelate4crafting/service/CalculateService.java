@@ -239,13 +239,6 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
         return super.onUnbind(intent);
     }
 
-    public static CalculateService Get(IBinder binder) {
-        if (binder instanceof Binder) {
-            return ((Binder) binder).service;
-        }
-        return null;
-    }
-
     private class Binder extends android.os.Binder {
         CalculateService service = CalculateService.this;
     }

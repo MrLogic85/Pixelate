@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "267489560129",
+    "firebase_url": "https://pixelate-85552.firebaseio.com",
+    "project_id": "pixelate-85552",
+    "storage_bucket": "pixelate-85552.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267489560129:android:78edf9eb443833a7",
+        "android_client_info": {
+          "package_name": "com.sleepyduck.pixelate4crafting"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "267489560129-004jmv1rrfhbnouii64m2074ie2f16vv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sleepyduck.pixelate4crafting",
+            "certificate_hash": "4B8E5CB5562580A49780EE48507761E045B6F86F"
+          }
+        },
+        {
+          "client_id": "267489560129-48am9plrtd4vrk6s74tp8hj119soue3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASTkh8ESs8Rz60zlgyEjIhnofyYSyYp0Q"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "267489560129-48am9plrtd4vrk6s74tp8hj119soue3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
