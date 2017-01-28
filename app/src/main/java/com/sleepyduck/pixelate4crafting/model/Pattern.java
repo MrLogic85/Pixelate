@@ -24,8 +24,8 @@ public class Pattern implements Comparable<Pattern> {
     private static final String PREF_FILE = "FILE";
     private static final String PREF_FILE_THUMB = "FILE_THUMB";
     private static final String PREF_FILE_PATTERN = "FILE_PATTERN";
-    private static final String PREF_PIXEL_WIDTH = "WIDTH";
-    private static final String PREF_PIXEL_HEIGHT = "HEIGHT";
+    private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
+    private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
     private static final String PREF_WEIGHT = "WEIGHT";
 
     public final int Id;

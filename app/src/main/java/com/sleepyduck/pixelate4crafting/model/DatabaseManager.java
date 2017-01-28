@@ -95,7 +95,7 @@ public class DatabaseManager {
         values.put(PatternColumns.FILE, edit.getString(PatternColumns.FILE));
         values.put(PatternColumns.FILE_THUMB, edit.getString(PatternColumns.FILE_THUMB));
         values.put(PatternColumns.FILE_PATTERN, edit.getString(PatternColumns.FILE_PATTERN));
-        values.put(PatternColumns.WIDTH, edit.getString(PatternColumns.WIDTH));
+        values.put(PatternColumns.WIDTH, edit.getInt(PatternColumns.WIDTH));
         values.put(PatternColumns.HEIGHT, edit.getInt(PatternColumns.HEIGHT));
         values.put(PatternColumns.TIME, edit.getLong(PatternColumns.TIME));
         values.put(PatternColumns.FLAG, edit.getInt(PatternColumns.FLAG));
