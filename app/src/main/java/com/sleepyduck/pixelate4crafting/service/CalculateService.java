@@ -96,11 +96,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                                     .setFlag(FLAG_COLORS_CALCULATED)
                                     .apply();
                         }
+                        BetterLog.d(CalculateService.class, "CountColors finished: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
+                        BetterLog.d(CalculateService.class, "CountColors cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -132,11 +134,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                                     .setPixels(pixels)
                                     .apply();
                         }
+                        BetterLog.d(CalculateService.class, "CalcPixels finished: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
+                        BetterLog.d(CalculateService.class, "CalcPixels cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -155,12 +159,14 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                             pattern.edit()
                                     .setFilePattern(patternName)
                                     .apply();
-                            removeTask(pattern.Id);
                         }
+                        BetterLog.d(CalculateService.class, "PixelBitmap finished: %d", pattern.Id);
+                        removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
+                        BetterLog.d(CalculateService.class, "PixelBitmap cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -171,6 +177,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     private void cancelTask(int id) {
+        BetterLog.d(this, "Cancelling task: %d", id);
         synchronized (runningTasks) {
             if (runningTasks.containsKey(id)) {
                 runningTasks.get(id).cancel(false);
@@ -181,7 +188,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     private void addTask(int id, AsyncTask asyncTask) {
         synchronized (runningTasks) {
             while(runningTasks.containsKey(id)) {
-                BetterLog.d(this, "Waiting for task to finnish");
+                BetterLog.d(this, "Waiting for task to finnish: %d", id);
                 try {
                     runningTasks.wait(1000);
                 } catch (InterruptedException ignored) {
@@ -192,6 +199,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     private void removeTask(int id) {
+        BetterLog.d(this, "Processing finished: %d", id);
         synchronized (runningTasks) {
             runningTasks.remove(id);
             runningTasks.notifyAll();
@@ -207,7 +215,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
             } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED
                     || pattern.getFlag() == FLAG_COLORS_CALCULATED
                     || pattern.getFlag() == FLAG_PIXELS_CALCULATED) {
-                BetterLog.d(this, "Loading %s", cursor);
+                BetterLog.d(this, "Loading %s, %d", pattern.getTitle(), pattern.Id);
                 Message message = handler.obtainMessage();
                 message.obj = pattern;
                 handler.sendMessage(message);
