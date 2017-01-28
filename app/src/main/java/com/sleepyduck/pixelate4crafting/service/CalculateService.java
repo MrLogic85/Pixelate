@@ -90,10 +90,12 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                     @Override
                     protected void onPostExecute(Map<Integer, Float> colors) {
-                        pattern.edit()
-                                .setColors(colors)
-                                .setFlag(FLAG_COLORS_CALCULATED)
-                                .apply();
+                        if (colors != null) {
+                            pattern.edit()
+                                    .setColors(colors)
+                                    .setFlag(FLAG_COLORS_CALCULATED)
+                                    .apply();
+                        }
                         removeTask(pattern.Id);
                     }
 
@@ -125,9 +127,11 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                     @Override
                     protected void onPostExecute(int[][] pixels) {
-                        pattern.edit()
-                                .setPixels(pixels)
-                                .apply();
+                        if (pixels != null) {
+                            pattern.edit()
+                                    .setPixels(pixels)
+                                    .apply();
+                        }
                         removeTask(pattern.Id);
                     }
 

@@ -122,7 +122,7 @@ public class Pattern implements Comparable<Pattern> {
         mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
         mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
         mFileNamePattern = pref.getString("" + prefCounter + PREF_FILE_PATTERN, mFileNameThumb);
-        mFlag = PatternColumns.FLAG_IMAGE_STORED;
+        mFlag = PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
         mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
         mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
         mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
