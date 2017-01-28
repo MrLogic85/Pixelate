@@ -12,6 +12,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationNameActivity;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationPixelsActivity;
@@ -54,6 +57,14 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getPatternFileName()));
 
         getLoaderManager().initLoader(new Random().nextInt(), null, this);
+
+        AdView adView = (AdView) findViewById(R.id.adView);
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+        if (BuildConfig.DEBUG) {
+            adRequestBuilder.addTestDevice("C39E64851CA596B020F5A5C95550CBDA");
+        }
+        AdRequest adRequest = adRequestBuilder.build();
+        adView.loadAd(adRequest);
 	}
 
 	@Override

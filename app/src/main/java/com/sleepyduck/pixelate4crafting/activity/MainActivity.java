@@ -125,8 +125,6 @@ public class MainActivity extends AppCompatActivity {
             new PatternLoader(this, mAdapter);
         }
 
-        //requestPermissions();
-
         AdView adView = (AdView) findViewById(R.id.adView);
         AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
         if (BuildConfig.DEBUG) {
@@ -137,19 +135,6 @@ public class MainActivity extends AppCompatActivity {
 
         onNewIntent(getIntent());
     }
-
-    /*private void requestPermissions() {
-        int permissionCheck = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.INTERNET);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.INTERNET}, 0);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        requestPermissions();
-    }*/
 
     @Override
     protected void onNewIntent(Intent intent) {
