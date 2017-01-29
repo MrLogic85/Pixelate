@@ -88,6 +88,6 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             Float oldWeight = colorMap.put(colors[i], weights[i]);
             assert oldWeight != null;
         }
-        BetterLog.d(CountColorsTask.class, "Count colors time: %d (Get: %d, Diff: %d)", SystemClock.currentThreadTimeMillis() - timeStart, timeGetPixel, timeDiff);
+        BetterLog.d(this, "Count colors time: %d (Get: %d, Diff: %d)", SystemClock.currentThreadTimeMillis() - timeStart, timeGetPixel, timeDiff);
     }
 }

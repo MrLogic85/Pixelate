@@ -7,10 +7,13 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
+import android.support.v7.util.DiffUtil;
+import android.support.v7.util.ListUpdateCallback;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.tasks.CalculatePixelsTask;
@@ -19,6 +22,7 @@ import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,6 +42,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     Handler handler;
 
     final Map<Integer, AsyncTask> runningTasks = new HashMap<>();
+    private Cursor mCursor;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -70,12 +75,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     private void processPattern(final Pattern pattern) {
-        BetterLog.d(CalculateService.class);
+        BetterLog.d(this, "Processing %d", pattern.Id);
 
         cancelTask(pattern.Id);
 
         switch (pattern.getFlag()) {
             case FLAG_SIZE_OR_COLOR_CHANGED: {
+                BetterLog.d(this, "Start counting colors: %d", pattern.Id);
                 pattern.edit()
                         .setProgress(0)
                         .setFlag(FLAG_COLORS_CALCULATING)
@@ -90,19 +96,19 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                     @Override
                     protected void onPostExecute(Map<Integer, Float> colors) {
+                        BetterLog.d(this, "CountColors finished: %d", pattern.Id);
+                        removeTask(pattern.Id);
                         if (colors != null) {
                             pattern.edit()
                                     .setColors(colors)
                                     .setFlag(FLAG_COLORS_CALCULATED)
                                     .apply();
                         }
-                        BetterLog.d(CalculateService.class, "CountColors finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
-                        BetterLog.d(CalculateService.class, "CountColors cancelled: %d", pattern.Id);
+                        BetterLog.d(this, "CountColors cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -116,6 +122,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 colorsTask.execute(this, pattern);
             } break;
             case FLAG_COLORS_CALCULATED: {
+                BetterLog.d(this, "Start calculating pixels: %d", pattern.Id);
                 pattern.edit()
                         .setFlag(FLAG_PIXELS_CALCULATING)
                         .apply();
@@ -129,18 +136,18 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                     @Override
                     protected void onPostExecute(int[][] pixels) {
+                        BetterLog.d(this, "CalcPixels finished: %d", pattern.Id);
+                        removeTask(pattern.Id);
                         if (pixels != null) {
                             pattern.edit()
                                     .setPixels(pixels)
                                     .apply();
                         }
-                        BetterLog.d(CalculateService.class, "CalcPixels finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
-                        BetterLog.d(CalculateService.class, "CalcPixels cancelled: %d", pattern.Id);
+                        BetterLog.d(this, "CalcPixels cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -148,25 +155,26 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 pixelsTask.execute(this, pattern);
             } break;
             case FLAG_PIXELS_CALCULATED: {
+                BetterLog.d(this, "Start storing PixelBitmap: %d", pattern.Id);
                 pattern.edit()
                         .setFlag(FLAG_PATTERN_DRAWING)
                         .apply();
                 PixelBitmapTask bitmapTask = new PixelBitmapTask() {
                     @Override
                     protected void onPostExecute(Bitmap bitmap) {
+                        BetterLog.d(this, "PixelBitmap finished: %d", pattern.Id);
+                        removeTask(pattern.Id);
                         if (bitmap != null) {
                             String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, pattern.getFileName());
                             pattern.edit()
                                     .setFilePattern(patternName)
                                     .apply();
                         }
-                        BetterLog.d(CalculateService.class, "PixelBitmap finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
                     }
 
                     @Override
                     protected void onCancelled() {
-                        BetterLog.d(CalculateService.class, "PixelBitmap cancelled: %d", pattern.Id);
+                        BetterLog.d(this, "PixelBitmap cancelled: %d", pattern.Id);
                         removeTask(pattern.Id);
                     }
                 };
@@ -177,9 +185,9 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     private void cancelTask(int id) {
-        BetterLog.d(this, "Cancelling task: %d", id);
         synchronized (runningTasks) {
             if (runningTasks.containsKey(id)) {
+                BetterLog.d(this, "Cancelling task: %d", id);
                 runningTasks.get(id).cancel(false);
             }
         }
@@ -207,19 +215,62 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     @Override
-    synchronized public void onLoadComplete(Loader<Cursor> loader, Cursor cursor) {
-        while (cursor.moveToNext()) {
-            Pattern pattern = new Pattern(this, cursor);
-            if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGING) {
-                cancelTask(pattern.Id);
-            } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED
-                    || pattern.getFlag() == FLAG_COLORS_CALCULATED
-                    || pattern.getFlag() == FLAG_PIXELS_CALCULATED) {
-                BetterLog.d(this, "Loading %s, %d", pattern.getTitle(), pattern.Id);
-                Message message = handler.obtainMessage();
-                message.obj = pattern;
-                handler.sendMessage(message);
+    synchronized public void onLoadComplete(Loader<Cursor> loader, final Cursor cursor) {
+        DiffUtil.calculateDiff(new CursorDiffUtilCallback(mCursor, cursor)).dispatchUpdatesTo(new ListUpdateCallback() {
+            @Override
+            public void onInserted(int position, int count) {
+                for (int i = position; i < position + count; ++i) {
+                    cursor.moveToPosition(i);
+                    Pattern pattern = new Pattern(CalculateService.this, cursor);
+                    BetterLog.d(this, "Inserted %s", pattern.getTitle());
+                    handlePattern(pattern);
+                }
             }
+
+            @Override
+            public void onRemoved(int position, int count) {
+                for (int i = position; i < position + count; ++i){
+                    mCursor.moveToPosition(i);
+                    Pattern pattern = new Pattern(CalculateService.this, mCursor);
+                    BetterLog.d(this, "Removed %s", pattern.getTitle());
+                    cancelTask(pattern.Id);
+                }
+            }
+
+            @Override
+            public void onMoved(int fromPosition, int toPosition) {
+                // Ignore
+            }
+
+            @Override
+            public void onChanged(int position, int count, Object payload) {
+                for (int i = position; i < position + count; ++i){
+                    Bundle bundle = (Bundle) payload;
+                    if (bundle.containsKey(DatabaseContract.PatternColumns.FLAG)) {
+                        cursor.moveToPosition(-1);
+                        int idColumn = mCursor.getColumnIndex(DatabaseContract.PatternColumns._ID);
+                        int id = mCursor.getInt(idColumn);
+                        while (cursor.moveToNext() && cursor.getInt(idColumn) != id);
+                        if (cursor.getInt(idColumn) == id) {
+                            handlePattern(new Pattern(CalculateService.this, cursor));
+                        }
+                    }
+                }
+            }
+        });
+        mCursor = cursor;
+    }
+
+    private void handlePattern(Pattern pattern) {
+        if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGING) {
+            cancelTask(pattern.Id);
+        } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED
+                || pattern.getFlag() == FLAG_COLORS_CALCULATED
+                || pattern.getFlag() == FLAG_PIXELS_CALCULATED) {
+            BetterLog.d(this, "Loading %s, %d", pattern.getTitle(), pattern.Id);
+            Message message = handler.obtainMessage();
+            message.obj = pattern;
+            handler.sendMessage(message);
         }
     }
 

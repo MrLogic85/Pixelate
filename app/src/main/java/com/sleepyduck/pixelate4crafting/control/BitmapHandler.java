@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.provider.OpenableColumns;
 
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -120,6 +121,7 @@ public class BitmapHandler {
 	}
 
 	public static boolean removeFileOfName(Context context, String fileName) {
+		BetterLog.d(BitmapHandler.class, "Removing file %s", fileName);
 		File file = new File(context.getFilesDir(), fileName);
 		return file.exists() && file.delete();
 	}

@@ -58,7 +58,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
             }
         }
         BetterLog.d(
-                CalculatePixelsTask.class,
+                this,
                 "Calculate pixels: %d (Init %d, Count %d, Find %d, Get pixel %d)",
                 SystemClock.currentThreadTimeMillis() - timeStart,
                 initializeTime,
