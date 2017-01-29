@@ -37,11 +37,12 @@ public class AddNewPatternService extends IntentService {
         BetterLog.d(this, "New pattern %s", intent);
 
         final Uri imageUri = intent.getData();
-        /*try {
+
+        try {
             getContentResolver().takePersistableUriPermission(imageUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        } catch (Exception e) {
-            Log.e(ConfigurationImageActivity.class.getSimpleName(), "Failed to take persistable permission", e);
-        }*/
+        } catch (Exception ignored) {
+        }
+
         if ("content".equals(imageUri.getScheme())) {
             final String fileName = BitmapHandler.getFileName(this, imageUri);
             final String title = Pattern.createTitleFromFileName(fileName);
