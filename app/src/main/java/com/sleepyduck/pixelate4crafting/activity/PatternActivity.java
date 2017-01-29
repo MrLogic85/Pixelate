@@ -1,6 +1,7 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -9,8 +10,16 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -23,6 +32,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
 import java.util.Random;
@@ -47,11 +57,42 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 		setSupportActionBar(toolbar);
 		ActionBar ab = getSupportActionBar();
 		ab.setDisplayHomeAsUpEnabled(true);
+        ab.setTitle("");
 
         mPattern = DatabaseManager.getPattern(this,
                 getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, -1));
 
-        ab.setTitle(mPattern.getTitle());
+        //ab.setTitle(mPattern.getTitle());
+        final EditText title = (EditText) toolbar.findViewById(R.id.editable_title);
+        title.setVisibility(View.VISIBLE);
+        title.setText(mPattern.getTitle());
+        title.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                BetterLog.d(this, "Before: %s", s);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String name = s.toString();
+                if (name.contains("\n")) {
+                    name = name.replaceAll("\n", "");
+                    s.replace(0, s.length(), name);
+                    hideSoftKeyboard(title);
+                    title.clearFocus();
+                    BetterLog.d(this, "Return typed");
+                }
+                mPattern.edit().setTitle(name).apply();
+            }
+        });
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(title.getWindowToken(), 0);
 		
 		mCanvas = (PatternImageView) findViewById(R.id.canvas);
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, mPattern.getPatternFileName()));
@@ -67,6 +108,29 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         adView.loadAd(adRequest);
 	}
 
+    /**
+     * Hide keyboard while focus is moved
+     */
+    public void hideSoftKeyboard(View view) {
+        if (view != null) {
+            InputMethodManager inputManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (inputManager != null) {
+                if (android.os.Build.VERSION.SDK_INT < 11) {
+                    inputManager.hideSoftInputFromWindow(view.getWindowToken(),
+                            0);
+                } else {
+                    if (getCurrentFocus() != null) {
+                        inputManager.hideSoftInputFromWindow(this
+                                        .getCurrentFocus().getWindowToken(),
+                                InputMethodManager.HIDE_NOT_ALWAYS);
+                    }
+                    view.clearFocus();
+                }
+                view.clearFocus();
+            }
+        }
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.pattern_menu, menu);
@@ -79,11 +143,6 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
             Intent intent = new Intent(this, ChangeParametersActivity.class);
             intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
             startActivityForResult(intent, REQUEST_CHANGE_PARAMETERS);
-            return true;
-        } else if (item.getItemId() == R.id.menu_item_change_name) {
-            Intent intent = new Intent(this, ConfigurationNameActivity.class);
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
-            startActivityForResult(intent, REQUEST_CHANGE_NAME);
             return true;
         }
 		return super.onOptionsItemSelected(item);
