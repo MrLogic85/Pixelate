@@ -6,15 +6,11 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
+import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.IntUnaryOperator;
+import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
 
@@ -94,7 +90,11 @@ public class PatternImageView extends InteractiveImageView {
     public void setPattern(Pattern pattern, Style style) {
         mPattern = pattern;
         mOrigBitmap = BitmapHandler.getFromFileName(getContext(), mPattern.getFileName());
-        executeRedraw(style);
+        if (mOrigBitmap != null) {
+            executeRedraw(style);
+        } else {
+            Toast.makeText(getContext(), "Failed to retrieve original image, pattern may be broken", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

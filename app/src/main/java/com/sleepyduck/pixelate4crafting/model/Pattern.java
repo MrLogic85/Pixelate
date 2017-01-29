@@ -58,7 +58,7 @@ public class Pattern implements Comparable<Pattern> {
         mProgress = cursor.getInt(cursor.getColumnIndex(PatternColumns.PROGRESS));
         String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
         if (colors == null || colors.isEmpty()) {
-            mColors = null;
+            mColors = new HashMap<>();
         } else {
             try {
                 JSONObject json = new JSONObject(colors);
