@@ -35,6 +35,4 @@ dependencies {
     compile 'com.google.firebase:firebase-crash:10.0.1'
 }
 
-
-
 apply plugin: 'com.google.gms.google-services'

@@ -14,11 +14,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
@@ -255,6 +257,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             if (mState != STATE_FOCUSED_PALETTE) {
                 setState(STATE_FOCUSED_PALETTE);
             } else {
+                Toast.makeText(ChangeParametersActivity.this, "Color clicked", Toast.LENGTH_SHORT).show();
                 removeColor((int) mGridAdapter.getItem(position));
             }
         }
@@ -436,7 +439,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             } else {
                 size = (int) parent.getContext().getResources().getDimension(R.dimen.color_square_size_small);
             }
-            layout.setLayoutParams(new FrameLayout.LayoutParams(size, size));
+            layout.setLayoutParams(new AbsListView.LayoutParams(size, size));
 
             // Layout card
             FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(

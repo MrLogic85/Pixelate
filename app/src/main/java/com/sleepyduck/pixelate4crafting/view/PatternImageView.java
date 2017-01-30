@@ -130,9 +130,9 @@ public class PatternImageView extends InteractiveImageView {
             pixelsHeight = mPattern.getPixelHeight();
             if (mPattern.hasColors()) {
                 mColors = new int[mPattern.getColors().size()];
-                final Object[] pixelObjeccts = mPattern.getColors().keySet().toArray();
+                final Object[] pixelObjects = mPattern.getColors().keySet().toArray();
                 for (int i = 0; i < mColors.length; ++i) {
-                    mColors[i] = (int) pixelObjeccts[i];
+                    mColors[i] = (int) pixelObjects[i];
                 }
             } else {
                 mColors = new int[] { Color.WHITE, Color.BLACK };
