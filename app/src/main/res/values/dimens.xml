@@ -16,5 +16,7 @@
     <dimen name="color_grid_size">250dp</dimen>
     <dimen name="palette_2x_size">119dp</dimen>
     <dimen name="palette_2x_size_small">49dp</dimen>
+
+    <dimen name="fab_margin">16dp</dimen>
 </resources>
 

@@ -1,51 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <include layout="@layout/toolbar"/>
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <LinearLayout
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            app:layout_scrollFlags="scroll|enterAlways" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar"
-        android:orientation="vertical">
+        android:onClick="onAddClicked"
+        android:orientation="vertical"
+        app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recycler"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onAddClicked"
+        android:src="@drawable/ic_add_white_24dp"
+        app:layout_anchor="@id/toolbar"
+        app:layout_anchorGravity="bottom|end"
+        app:useCompatPadding="true" />
 
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            app:adSize="BANNER"
-            app:adUnitId="@string/main_banner_ad_unit_id">
-        </com.google.android.gms.ads.AdView>
-    </LinearLayout>
-
-    <android.support.v7.widget.CardView
-        android:layout_width="48dip"
-        android:layout_height="48dip"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="@dimen/padding"
-        android:layout_marginEnd="@dimen/padding"
-        android:layout_marginRight="@dimen/padding"
-        app:cardCornerRadius="24dip">
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/colorAccent"
-            android:onClick="onAddClicked"
-            android:src="@drawable/ic_add"/>
-    </android.support.v7.widget.CardView>
-</RelativeLayout>
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|bottom"
+        app:adSize="BANNER"
+        app:adUnitId="@string/main_banner_ad_unit_id" />
+</android.support.design.widget.CoordinatorLayout>
