@@ -20,7 +20,6 @@ import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
@@ -257,7 +256,6 @@ public class ChangeParametersActivity extends AppCompatActivity {
             if (mState != STATE_FOCUSED_PALETTE) {
                 setState(STATE_FOCUSED_PALETTE);
             } else {
-                Toast.makeText(ChangeParametersActivity.this, "Color clicked", Toast.LENGTH_SHORT).show();
                 removeColor((int) mGridAdapter.getItem(position));
             }
         }

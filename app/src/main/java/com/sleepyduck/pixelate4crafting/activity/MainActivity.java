@@ -1,17 +1,13 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
-import android.Manifest;
 import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -42,6 +38,7 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
+    private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
     private SwipeCardAdapter mAdapter;
 
     private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
@@ -50,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
             Object tag = v.getTag();
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
-                launch(pattern.Id);
+                launch(pattern.Id, v.findViewById(R.id.icon));
             }
         }
     };
@@ -163,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         createPattern();
     }
 
-    private void launch(int patternId) {
+    private void launch(int patternId, View transitionView) {
         Pattern pattern = DatabaseManager.getPattern(this, patternId);
         switch (pattern.getFlag()) {
             case FLAG_STORING_IMAGE:
@@ -171,9 +168,11 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
             } break;
             case FLAG_COMPLETE: {
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
+                    this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
-                startActivity(intent);
+                ActivityCompat.startActivity(this, intent, options.toBundle());
             } break;
             default: {
                 Intent intent = new Intent(this, ChangeParametersActivity.class);
@@ -209,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
                     startService(intent);
                     break;
                 default:
-                    launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+                    launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0), null);
                     break;
             }
         }

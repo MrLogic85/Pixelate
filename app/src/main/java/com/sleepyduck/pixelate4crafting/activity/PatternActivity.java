@@ -53,10 +53,17 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pattern);
 
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 		ActionBar ab = getSupportActionBar();
 		ab.setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackPressed();
+                toolbar.setNavigationOnClickListener(null);
+            }
+        });
         ab.setTitle("");
 
         mPattern = DatabaseManager.getPattern(this,
