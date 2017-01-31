@@ -15,9 +15,7 @@ import android.provider.OpenableColumns;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;

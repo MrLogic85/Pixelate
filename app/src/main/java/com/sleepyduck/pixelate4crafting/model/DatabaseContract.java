@@ -46,6 +46,11 @@ public final class DatabaseContract {
         public static final String PIXELS = "pixels";
 
         /**
+         * Weighted Color map of all colors used in the pattern
+         */
+        public static final String CHANGED_PIXELS = "changed_pixels";
+
+        /**
          * Flag for what needs to be done with the pattern
          */
         public static final String FLAG = "flag";

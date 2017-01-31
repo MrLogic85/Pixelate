@@ -4,11 +4,12 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,6 +80,17 @@ public class DatabaseManager {
                     values.put(key, pixels);
                     break;
                 }
+                case PatternColumns.CHANGED_PIXELS: {
+                    Object value = edit.get(key);
+                    if (value == null) {
+                        values.put(key, "");
+                        break;
+                    }
+                    @SuppressWarnings("unchecked")
+                    String changedPixels = changePixelsToString((Map<Integer, Map<Integer, Integer>>) value);
+                    values.put(key, changedPixels);
+                    break;
+                }
             }
         }
 
@@ -136,6 +148,31 @@ public class DatabaseManager {
             for (int w = 0; w < pixels.length; ++w) {
                 for (int h = 0; h < pixels[w].length; ++h) {
                     json.put("" + w + "," + h, pixels[w][h]);
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json.toString();
+    }
+
+    private static String changePixelsToString(Map<Integer, Map<Integer, Integer>> changedPixels) {
+        JSONObject json = new JSONObject();
+        try {
+            int count = 0;
+            for (Map<Integer, Integer> values : changedPixels.values()) {
+                count += values.size();
+            }
+            json.put("count", count);
+
+
+            int counter = 0;
+            for (Map.Entry<Integer, Map<Integer, Integer>> xEntry : changedPixels.entrySet()) {
+                for (Map.Entry<Integer, Integer> yEntry : xEntry.getValue().entrySet()) {
+                    json.put("x" + counter, xEntry.getKey());
+                    json.put("y" + counter, yEntry.getKey());
+                    json.put("color" + counter, yEntry.getValue());
+                    counter++;
                 }
             }
         } catch (JSONException e) {

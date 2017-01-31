@@ -4,11 +4,9 @@ import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.SparseArray;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by fredrikmetcalf on 13/04/16.

@@ -4,12 +4,9 @@ import android.database.Cursor;
 import android.provider.BaseColumns;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
-
-import java.util.Arrays;
 
 public abstract class CursorRecyclerViewAdapter<T extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<T> {
 

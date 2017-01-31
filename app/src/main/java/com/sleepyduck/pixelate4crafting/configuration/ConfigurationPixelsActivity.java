@@ -5,11 +5,11 @@ import android.os.Bundle;
 import android.widget.ProgressBar;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.tasks.CalculatePixelsTask;
-import com.sleepyduck.pixelate4crafting.tasks.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
+import com.sleepyduck.pixelate4crafting.tasks.CalculatePixelsTask;
+import com.sleepyduck.pixelate4crafting.tasks.CountColorsTask;
 
 import java.util.Map;
 

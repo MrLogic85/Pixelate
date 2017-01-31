@@ -10,4 +10,10 @@
     <declare-styleable name="RecyclerView">
         <attr name="span" format="dimension"/>
     </declare-styleable>
+
+    <declare-styleable name="CircleColorView">
+        <attr name="colorRadius" format="dimension"/>
+        <attr name="innerCircleColorCount" format="integer"/>
+        <attr name="testColorCount" format="integer"/>
+    </declare-styleable>
 </resources>

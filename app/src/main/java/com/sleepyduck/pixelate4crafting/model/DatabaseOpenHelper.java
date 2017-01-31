@@ -1,6 +1,7 @@
 package com.sleepyduck.pixelate4crafting.model;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -9,7 +10,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -28,6 +29,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 PatternColumns.WIDTH + " INTEGER, " +
                 PatternColumns.PIXELS + " TEXT, " +
                 PatternColumns.COLORS + " TEXT, " +
+                PatternColumns.CHANGED_PIXELS + " TEXT, " +
                 PatternColumns.TIME + " BIGINT, " +
                 PatternColumns.FLAG + " INTEGER, " +
                 PatternColumns.PROGRESS + " INTEGER)");
@@ -35,8 +37,18 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + PatternColumns.TABLE_NAME);
-        onCreate(db);
+        if (oldVersion == newVersion) {
+            return;
+        }
+
+        switch (oldVersion) {
+            case 4: {
+                db.execSQL("ALTER TABLE " + PatternColumns.TABLE_NAME +
+                 " ADD " + PatternColumns.CHANGED_PIXELS + " TEXT");
+            }
+        }
+
+        onUpgrade(db, oldVersion + 1, newVersion);
     }
 
     @Override

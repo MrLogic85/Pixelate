@@ -38,7 +38,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
                 mMatrix.invert(inv);
                 float[] point = {ev.getX(), ev.getY()};
                 inv.mapPoints(point);
-                mImageListener.onImageClicked(mImageBitmap, (int) point[0], (int) point[1]);
+                mImageListener.onImageClicked(mImageBitmap, (int) point[0], (int) point[1], ev.getX(), ev.getY());
             }
             return false;
         }
@@ -198,6 +198,6 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
     }
 
     public interface OnImageClickListener {
-        void onImageClicked(Bitmap bitmap, int x, int y);
+        void onImageClicked(Bitmap bitmap, int x, int y, float rawX, float rawY);
     }
 }

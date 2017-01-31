@@ -7,20 +7,20 @@
     android:layout_height="?attr/actionBarSize"
     android:background="?attr/colorPrimary"
     android:elevation="4dp"
+    android:focusableInTouchMode="true"
     android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-    app:popupTheme="@style/ThemeOverlay.AppCompat.Dark"
-    android:focusableInTouchMode="true">
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Dark">
 
     <EditText
         android:id="@+id/editable_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
+        android:background="@android:color/transparent"
         android:lines="1"
         android:maxLines="1"
-        android:textStyle="bold"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textStyle="bold"
+        android:visibility="gone"
         tools:text="Title"
-        android:background="@android:color/transparent"
-        tools:visibility="visible"/>
+        tools:visibility="visible" />
 </android.support.v7.widget.Toolbar>

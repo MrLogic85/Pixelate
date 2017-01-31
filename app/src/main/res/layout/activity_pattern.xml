@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:keepScreenOn="true"
     tools:context=".activity.PatternActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar" />
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            app:layout_scrollFlags="scroll|enterAlways" />
+
+    </android.support.design.widget.AppBarLayout>
 
     <com.sleepyduck.pixelate4crafting.view.PatternImageView
         android:id="@+id/canvas"
@@ -17,14 +27,34 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
         android:scaleType="matrix"
-        android:transitionName="@string/transitionImage" />
+        android:transitionName="@string/transitionImage"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onEditClicked"
+        android:src="@drawable/ic_editor_mode_edit"
+        app:layout_anchor="@id/toolbar"
+        app:layout_anchorGravity="bottom|end"
+        app:useCompatPadding="true" />
+
+    <com.sleepyduck.pixelate4crafting.view.CircleColorView
+        android:id="@+id/circle_color_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:colorRadius="20dp"
+        app:innerCircleColorCount="8"
+        app:testColorCount="21"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:visibility="visible" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_gravity="center|bottom"
         app:adSize="BANNER"
-        app:adUnitId="@string/pattern_banner_ad_unit_id"/>
-</RelativeLayout>
+        app:adUnitId="@string/pattern_banner_ad_unit_id" />
+</android.support.design.widget.CoordinatorLayout>

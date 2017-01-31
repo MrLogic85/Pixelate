@@ -263,7 +263,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
     private InteractiveImageView.OnImageClickListener mOnImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
-        public void onImageClicked(Bitmap bitmap, int x, int y) {
+        public void onImageClicked(Bitmap bitmap, int x, int y, float rawX, float rawY) {
             int width = bitmap.getWidth();
             int height = bitmap.getHeight();
             List<int[]> colorsFound = new ArrayList<>();

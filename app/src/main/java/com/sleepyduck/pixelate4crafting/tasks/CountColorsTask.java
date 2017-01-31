@@ -2,14 +2,16 @@ package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.SystemClock;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,17 +27,21 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             Pattern pattern = (Pattern) params[1];
             Bitmap bitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
 
-            if (pattern.getColors() != null && pattern.getColors().size() > 0) {
-                // Clear the color map
-                for (Map.Entry<Integer, Float> color : pattern.getColors().entrySet()) {
-                    color.setValue(0f);
-                }
-
-                // Count the colors
-                countColors(context, bitmap, pattern.getColors());
+            Map<Integer, Float> colors = pattern.getColors();
+            if (colors == null || colors.size() == 0) {
+                colors = new HashMap<>();
+                colors.put(Color.BLACK, 0f);
+                colors.put(Color.WHITE, 0f);
             }
 
-            return pattern.getColors();
+            for (Map.Entry<Integer, Float> color : colors.entrySet()) {
+                color.setValue(0f);
+            }
+
+            // Count the colors
+            countColors(context, bitmap, colors);
+
+            return colors;
         }
         return null;
     }

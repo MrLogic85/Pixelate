@@ -7,8 +7,8 @@ import android.graphics.Rect;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.DataManager;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +41,7 @@ public class Pattern implements Comparable<Pattern> {
     private long mWeight = 0;
     private Map<Integer, Float> mColors;
     private int[][] mPixels;
+    private Map<Integer, Map<Integer, Integer>> mChangedPixels = new HashMap<>();
     private int mProgress = 0;
 
     public Pattern(Context context, Cursor cursor) {
@@ -84,6 +85,24 @@ public class Pattern implements Comparable<Pattern> {
                     for (int h = 0; h  < height; ++h) {
                         mPixels[w][h] = json.getInt("" + w + "," + h);
                     }
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        String changedPixels = cursor.getString(cursor.getColumnIndex(PatternColumns.CHANGED_PIXELS));
+        if (changedPixels != null && changedPixels.length() > 0) {
+            try {
+                JSONObject json = new JSONObject(changedPixels);
+                int count = json.getInt("count");
+                for (int c = 0; c < count; ++c) {
+                    int x = json.getInt("x" + c);
+                    int y = json.getInt("y" + c);
+                    int color = json.getInt("color" + c);
+                    if (!mChangedPixels.containsKey(x)) {
+                        mChangedPixels.put(x, new HashMap<Integer, Integer>());
+                    }
+                    mChangedPixels.get(x).put(y, color);
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -169,6 +188,14 @@ public class Pattern implements Comparable<Pattern> {
 
     public int[][] getPixels() {
         return mPixels;
+    }
+
+    public boolean hasChangedPixelAt(int x, int y) {
+        return mChangedPixels.containsKey(x) && mChangedPixels.get(x).containsKey(y);
+    }
+
+    public int getChangedPixelAt(int x, int y) {
+        return mChangedPixels.containsKey(x) ? mChangedPixels.get(x).get(y) : 0;
     }
 
     public int getFlag() {
@@ -316,6 +343,19 @@ public class Pattern implements Comparable<Pattern> {
             return this;
         }
 
+        public Edit changePixelAt(int x, int y, int color) {
+            @SuppressWarnings("unchecked")
+            Map<Integer, Map<Integer, Integer>> changePixels =
+                    (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
+            if (!changePixels.containsKey(x)) {
+                changePixels.put(x, new HashMap<Integer, Integer>());
+            }
+            changePixels.get(x).put(y, color);
+            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+            mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            return this;
+        }
+
         public Edit setPixels(int[][] pixels) {
             set(PatternColumns.PIXELS, pixels, null);
             setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
@@ -389,6 +429,8 @@ public class Pattern implements Comparable<Pattern> {
                         return mPattern.mColors;
                     case PatternColumns.PIXELS:
                         return mPattern.mPixels;
+                    case PatternColumns.CHANGED_PIXELS:
+                        return mPattern.mChangedPixels;
                 }
             }
             return null;

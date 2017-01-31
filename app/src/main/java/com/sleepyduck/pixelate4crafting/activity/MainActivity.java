@@ -18,13 +18,13 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
 import com.sleepyduck.pixelate4crafting.service.CalculateService;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ItemAnimator;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.SwipeCardAdapter;
@@ -38,7 +38,6 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
-    private static final String EXTRA_IMAGE = "EXTRA_IMAGE";
     private SwipeCardAdapter mAdapter;
 
     private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
@@ -169,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
             } break;
             case FLAG_COMPLETE: {
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
-                    this, transitionView, getString(R.string.transitionImage));
+                        this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
                 intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
                 ActivityCompat.startActivity(this, intent, options.toBundle());

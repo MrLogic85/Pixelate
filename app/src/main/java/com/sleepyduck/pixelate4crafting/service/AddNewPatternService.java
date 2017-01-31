@@ -8,10 +8,10 @@ import android.os.HandlerThread;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.tasks.FindBestColorsTask;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.tasks.FindBestColorsTask;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import java.util.Map;
 

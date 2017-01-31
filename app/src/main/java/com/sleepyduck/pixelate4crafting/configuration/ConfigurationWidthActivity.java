@@ -12,8 +12,6 @@ import android.widget.EditText;
 
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.vi.swipenumberpicker.OnValueChangeListener;
 import com.vi.swipenumberpicker.SwipeNumberPicker;
 

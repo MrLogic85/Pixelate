@@ -5,11 +5,9 @@ import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.GridLayout;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 /**
  * Created by fredrikmetcalf on 21/04/16.

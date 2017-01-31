@@ -16,12 +16,12 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.CalculatePixelsTask;
 import com.sleepyduck.pixelate4crafting.tasks.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
 
 import java.util.HashMap;
@@ -34,7 +34,6 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING;
-import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
 
 public class CalculateService extends Service implements Loader.OnLoadCompleteListener<Cursor> {
 
@@ -246,7 +245,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
             public void onChanged(int position, int count, Object payload) {
                 for (int i = position; i < position + count; ++i){
                     Bundle bundle = (Bundle) payload;
-                    if (bundle.containsKey(DatabaseContract.PatternColumns.FLAG)) {
+                    if (bundle != null && bundle.containsKey(DatabaseContract.PatternColumns.FLAG)) {
                         cursor.moveToPosition(-1);
                         int idColumn = mCursor.getColumnIndex(DatabaseContract.PatternColumns._ID);
                         int id = mCursor.getInt(idColumn);

@@ -11,8 +11,6 @@ import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Map;
 
 /**

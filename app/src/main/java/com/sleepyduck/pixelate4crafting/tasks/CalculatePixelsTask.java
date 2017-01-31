@@ -8,9 +8,9 @@ import android.os.SystemClock;
 import android.util.SparseArray;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
-import com.sleepyduck.pixelate4crafting.model.Pattern;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,30 +19,39 @@ import java.util.Map;
  * Created by fredrik.metcalf on 2016-04-12.
  */
 public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
-    private Pattern mPattern;
+    private Map<Integer, Float> mColors;
     private Bitmap mBitmap;
+    private int mWidth;
+    private int mHeight;
 
     @Override
     protected int[][] doInBackground(Object... params) {
         publishProgress(0);
         if (params.length > 0) {
             Context context = (Context) params[0];
-            mPattern = (Pattern) params[1];
-            mBitmap = BitmapHandler.getFromFileName(context, mPattern.getFileName());
+            Pattern pattern = (Pattern) params[1];
+            mBitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
+            mColors = pattern.getColors();
+            mWidth = pattern.getPixelWidth();
+            mHeight = pattern.getPixelHeight();
 
-            if (mPattern.getColors() != null && mPattern.getColors().size() > 0) {
-                return calculatePixels();
+            Map<Integer, Float> colors = pattern.getColors();
+            if (colors == null || colors.size() == 0) {
+                colors = new HashMap<>();
+                colors.put(Color.BLACK, 1f);
+                colors.put(Color.WHITE, 1f);
             }
+
+            return calculatePixels();
         }
         return null;
     }
 
     private int[][] calculatePixels() {
         long timeStart = SystemClock.currentThreadTimeMillis();
-        long checkColorsStart, checkColorsTime = 0;
-        float pixelSize = (float) mBitmap.getWidth() / (float) mPattern.getPixelWidth();
-        int width = mPattern.getPixelWidth();
-        int height = mPattern.getPixelHeight();
+        float pixelSize = (float) mBitmap.getWidth() / (float) mWidth;
+        int width = mWidth;
+        int height = mHeight;
 
         int[][] pixels = new int[width][height];
         float dx, dy;
@@ -87,8 +96,8 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
-        int[] colors = new int[mPattern.getColors().size()];
-        final Object[] pixelObjects = mPattern.getColors().keySet().toArray();
+        int[] colors = new int[mColors.size()];
+        final Object[] pixelObjects = mColors.keySet().toArray();
         for (int i = 0; i < colors.length; ++i) {
             colors[i] = (int) pixelObjects[i];
         }
@@ -112,7 +121,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
         }
         countTime += SystemClock.currentThreadTimeMillis() - countStart;
         findBestStart = SystemClock.currentThreadTimeMillis();
-        Map<Integer, Float> colorMap = mPattern.getColors();
+        Map<Integer, Float> colorMap = mColors;
         if (countPixelColors.size() > 0) {
             int bestColor = Color.TRANSPARENT;
             float bestWeight = Float.MIN_VALUE, weight;
