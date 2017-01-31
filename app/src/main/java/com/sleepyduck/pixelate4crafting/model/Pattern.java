@@ -436,7 +436,7 @@ public class Pattern implements Comparable<Pattern> {
             return null;
         }
 
-        public int apply() {
+        public int apply(boolean createIfEmpty) {
             return DatabaseManager.update(mPattern.mContext.getContentResolver(), this);
         }
     }
@@ -448,8 +448,11 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         @Override
-        public int apply() {
-            return DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
+        public int apply(boolean createIfEmpty) {
+            if (createIfEmpty) {
+                return DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
+            }
+            return 0;
         }
     }
 }

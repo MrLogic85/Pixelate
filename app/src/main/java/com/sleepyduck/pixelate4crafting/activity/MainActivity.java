@@ -62,12 +62,12 @@ public class MainActivity extends AppCompatActivity {
                     case DatabaseContract.PatternColumns.STATE_ACTIVE:
                         pattern.edit()
                                 .setState(DatabaseContract.PatternColumns.STATE_COMPLETED)
-                                .apply();
+                                .apply(false);
                         break;
                     case DatabaseContract.PatternColumns.STATE_COMPLETED:
                         pattern.edit()
                                 .setState(DatabaseContract.PatternColumns.STATE_ACTIVE)
-                                .apply();
+                                .apply(false);
                         break;
                 }
                 mAdapter.notifyDataSetChanged();

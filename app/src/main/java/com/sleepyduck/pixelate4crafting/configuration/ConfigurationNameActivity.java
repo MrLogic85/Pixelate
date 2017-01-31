@@ -36,7 +36,7 @@ public class ConfigurationNameActivity extends Activity {
         if (text.getText().length() > 0) {
             mPattern.edit()
                     .setTitle(text.getText().toString())
-                    .apply();
+                    .apply(false);
         }
 
         Intent result = new Intent();

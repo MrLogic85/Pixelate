@@ -122,11 +122,15 @@ public class CursorDiffUtilCallback extends DiffUtil.Callback {
 
         Bundle payload = new Bundle();
         for (int colIndex = 0; colIndex < numNewColumns; colIndex++) {
-            final int newType = newCursor.getType(colIndex);
+            int newType = newCursor.getType(colIndex);
             final int oldType = oldCursor.getType(colIndex);
 
-            if (newType != oldType) {
+            if (newType != oldType && newType != 0 && oldType != 0) {
                 return null;
+            }
+
+            if (newType == 0) {
+                newType = oldType;
             }
 
             switch (newType) {

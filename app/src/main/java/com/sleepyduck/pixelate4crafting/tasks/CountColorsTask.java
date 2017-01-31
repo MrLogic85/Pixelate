@@ -27,6 +27,11 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             Pattern pattern = (Pattern) params[1];
             Bitmap bitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
 
+            if (bitmap == null) {
+                cancel(true);
+                return null;
+            }
+
             Map<Integer, Float> colors = pattern.getColors();
             if (colors == null || colors.size() == 0) {
                 colors = new HashMap<>();

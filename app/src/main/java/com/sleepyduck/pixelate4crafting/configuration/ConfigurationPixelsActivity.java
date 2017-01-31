@@ -31,7 +31,7 @@ public class ConfigurationPixelsActivity extends Activity {
                 getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
         mPattern.edit()
                 .setPixels(null)
-                .apply();
+                .apply(false);
         preparePixels();
     }
 

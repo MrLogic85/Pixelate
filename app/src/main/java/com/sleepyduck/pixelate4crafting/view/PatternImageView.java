@@ -259,7 +259,7 @@ public class PatternImageView extends InteractiveImageView {
                     String patternName = BitmapHandler.storePattern(getContext(), mImageBitmap, mPattern.getFileName());
                     mPattern.edit()
                             .setFilePattern(patternName)
-                            .apply();
+                            .apply(false);
                 }
                 mScaleToFitNewImage = true;
 				setImageBitmap(bitmap);

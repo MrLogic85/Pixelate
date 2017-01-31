@@ -52,7 +52,7 @@ public class AddNewPatternService extends IntentService {
                     .setTitle(title)
                     .setTime(System.currentTimeMillis())
                     .setFlag(FLAG_STORING_IMAGE)
-                    .apply();
+                    .apply(true);
 
             handler.post(new Runnable() {
                 public void run() {
@@ -65,7 +65,7 @@ public class AddNewPatternService extends IntentService {
                                     .setFileThumb(thumbnail)
                                     .setWidth(Constants.DEFAULT_WIDTH)
                                     .setFlag(FLAG_IMAGE_STORED)
-                                    .apply();
+                                    .apply(false);
 
                             new FindBestColorsTask() {
                                 @Override
@@ -73,7 +73,7 @@ public class AddNewPatternService extends IntentService {
                                     DatabaseManager.getPattern(AddNewPatternService.this, id)
                                             .edit()
                                             .setColors(colors)
-                                            .apply();
+                                            .apply(false);
                                 }
                             }.execute(AddNewPatternService.this, file, Constants.DEFAULT_NUM_COLORS);
                         }

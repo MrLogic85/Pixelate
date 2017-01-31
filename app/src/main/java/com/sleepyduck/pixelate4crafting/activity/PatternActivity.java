@@ -58,7 +58,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
                 pattern.edit()
                         .changePixelAt(patternX, patternY, mSelectedColor)
-                        .apply();
+                        .apply(false);
             }
             /*
 
@@ -145,7 +145,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                     }
                     BetterLog.d(this, "Return typed");
                 }
-                pattern.edit().setTitle(name).apply();
+                pattern.edit().setTitle(name).apply(false);
             }
         });
         mTitle.setOnTouchListener(new View.OnTouchListener() {

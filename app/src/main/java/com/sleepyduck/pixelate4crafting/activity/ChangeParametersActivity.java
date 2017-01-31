@@ -91,7 +91,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         mOrigFlag = pattern.getFlag();
         pattern.edit()
                 .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                .apply();
+                .apply(false);
 
         mPatternApproxImage = (PatternImageView) findViewById(R.id.image_approximated);
         mPatternApproxImage.setPattern(pattern, Simple);
@@ -151,11 +151,11 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (mHistory.size() > 0 || mOrigFlag != FLAG_COMPLETE) {
             pattern.edit()
                     .setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
-                    .apply();
+                    .apply(false);
         } else {
             pattern.edit()
                     .setFlag(mOrigFlag)
-                    .apply();
+                    .apply(false);
         }
     }
 
@@ -217,7 +217,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             pattern.edit()
                     .removeColor(color)
                     .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                    .apply();
+                    .apply(false);
             mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
@@ -230,7 +230,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             pattern.edit()
                     .addColor(color)
                     .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                    .apply();
+                    .apply(false);
             mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
@@ -243,7 +243,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             pattern.edit()
                     .setWidth(width)
                     .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                    .apply();
+                    .apply(false);
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             mPatternApproxImage.setPattern(pattern, Simple);
             mPatternApproxImage.scaleToFit();
@@ -303,7 +303,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         pattern.edit()
                 .removeColor(color)
                 .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                .apply();
+                .apply(false);
         addHistory(new RemoveColor(color));
         mGridAdapter.updateColors(pattern);
         mGridAdapter.notifyDataSetChanged();
@@ -362,7 +362,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 pattern.edit()
                         .setWidth(newWidth)
                         .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                        .apply();
+                        .apply(false);
                 pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
                 mPatternApproxImage.setPattern(pattern, Simple);
                 mPatternApproxImage.scaleToFit();
@@ -371,7 +371,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 pattern.edit()
                         .addColor(pixel)
                         .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                        .apply();
+                        .apply(false);
                 addHistory(new AddColor(pixel));
                 pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
                 mPatternApproxImage.setPattern(pattern, Simple);

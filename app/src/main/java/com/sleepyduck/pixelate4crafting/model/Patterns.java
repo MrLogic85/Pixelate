@@ -25,7 +25,7 @@ public class Patterns {
             Pattern pattern = new Pattern(context, i, pref);
 
             Pattern p = DatabaseManager.getPattern(context, pattern.Id);
-            p.edit().set(pattern).apply();
+            p.edit().set(pattern).apply(true);
         }
         pref.edit().putBoolean(PREF_USING_DATABASE, true).apply();
     }

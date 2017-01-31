@@ -84,13 +84,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 pattern.edit()
                         .setProgress(0)
                         .setFlag(FLAG_COLORS_CALCULATING)
-                        .apply();
+                        .apply(false);
                 final CountColorsTask colorsTask = new CountColorsTask() {
                     @Override
                     protected void onProgressUpdate(Integer... values) {
                         pattern.edit()
                                 .setProgress(values[0] / 2)
-                                .apply();
+                                .apply(false);
                     }
 
                     @Override
@@ -101,7 +101,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                             pattern.edit()
                                     .setColors(colors)
                                     .setFlag(FLAG_COLORS_CALCULATED)
-                                    .apply();
+                                    .apply(false);
                         }
                     }
 
@@ -124,13 +124,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 BetterLog.d(this, "Start calculating pixels: %d", pattern.Id);
                 pattern.edit()
                         .setFlag(FLAG_PIXELS_CALCULATING)
-                        .apply();
+                        .apply(false);
                 CalculatePixelsTask pixelsTask = new CalculatePixelsTask() {
                     @Override
                     protected void onProgressUpdate(Integer... values) {
                         pattern.edit()
                                 .setProgress(values[0] / 2 + 50)
-                                .apply();
+                                .apply(false);
                     }
 
                     @Override
@@ -140,7 +140,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                         if (pixels != null) {
                             pattern.edit()
                                     .setPixels(pixels)
-                                    .apply();
+                                    .apply(false);
                         }
                     }
 
@@ -157,7 +157,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 BetterLog.d(this, "Start storing PixelBitmap: %d", pattern.Id);
                 pattern.edit()
                         .setFlag(FLAG_PATTERN_DRAWING)
-                        .apply();
+                        .apply(false);
                 PixelBitmapTask bitmapTask = new PixelBitmapTask() {
                     @Override
                     protected void onPostExecute(Bitmap bitmap) {
@@ -167,7 +167,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                             String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, pattern.getFileName());
                             pattern.edit()
                                     .setFilePattern(patternName)
-                                    .apply();
+                                    .apply(false);
                         }
                     }
 
