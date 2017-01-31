@@ -168,9 +168,13 @@ public class CircleColorView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int size = (int) Math.ceil((getRadius(getLayer(colors.length - 1)) + colorRadius + DROP_SHADOW) * 2);
-        super.onMeasure(
-                MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY),
-                MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY));
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.AT_MOST) {
+            widthMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);
+        }
+        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.AT_MOST) {
+            heightMeasureSpec = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY);
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 
     @Override
@@ -181,7 +185,10 @@ public class CircleColorView extends View {
             float x;
             float y;
             if (scaleAnim < 1f) {
-                if (selectColor == -1 || selectColor == i) {
+                if (selectColor == i) {
+                    x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
+                    y = (getMeasuredHeight() / 2f - colorPos[i][1]) * scaleAnim;
+                } else if (selectColor == -1) {
                     x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
                     y = getMeasuredHeight() / 2f - colorPos[i][1] * scaleAnim;
                     paint.setAlpha(0xFF);
@@ -221,10 +228,17 @@ public class CircleColorView extends View {
     }
 
     public void hide() {
+        hide(null);
+    }
+
+    private void hide(final OnColorClickListener listener) {
         hideAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 setVisibility(INVISIBLE);
+                if (listener != null) {
+                    listener.onColorClicked(selectColor);
+                }
                 selectColor = -1;
                 hideAnimator.removeListener(this);
             }
@@ -254,9 +268,8 @@ public class CircleColorView extends View {
                 if (listener != null) {
                     if (getDistanceToNearestColor(touchPos) < colorRadius) {
                         int colorIndex = getNearestColor(touchPos);
-                        listener.onColorClicked(colorIndex);
                         selectColor = colorIndex;
-                        hide();
+                        hide(listener);
                     }
                 }
             }

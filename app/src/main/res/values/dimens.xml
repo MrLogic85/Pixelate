@@ -1,8 +1,9 @@
 <resources>
     <dimen name="small_picture_size">68dp</dimen>
 
-    <dimen name="padding">20dp</dimen>
+    <dimen name="padding">24dp</dimen>
     <dimen name="padding_small">8dp</dimen>
+    <dimen name="padding_large">32dp</dimen>
 
     <dimen name="divider">1dp</dimen>
 
@@ -18,5 +19,6 @@
     <dimen name="palette_2x_size_small">49dp</dimen>
 
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="padding_tiny">4dp</dimen>
 </resources>
 

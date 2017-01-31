@@ -5,15 +5,18 @@ import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -41,10 +44,24 @@ import java.util.Set;
 public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private int mPatternId;
     private PatternImageView mCanvas;
+    private EditText mTitle;
+    private int mLoaderId;
+    private int mSelectedColor;
 
     private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
+            FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
+            if (colorFab.getVisibility() == View.VISIBLE) {
+                Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
+                int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
+                int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
+                pattern.edit()
+                        .changePixelAt(patternX, patternY, mSelectedColor)
+                        .apply();
+            }
+            /*
+
             CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
             if (circleColorView.getVisibility() != View.VISIBLE) {
                 if (x > 0 && y > 0 && x < bitmap.getWidth() && y < bitmap.getHeight()) {
@@ -56,7 +73,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         colors[i++] = color;
                     }
                     circleColorView.setColors(colors);
-                    circleColorView.setRawPos(posX, posY);
+                    //circleColorView.setRawPos(posX, posY);
                     circleColorView.show();
 
                     circleColorView.setOnColorClickListener(new CircleColorView.OnColorClickListener() {
@@ -73,7 +90,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 }
             } else {
                 circleColorView.hide();
-            }
+            }*/
         }
     };
 
@@ -101,10 +118,10 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
         final Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
 
-        final EditText title = (EditText) toolbar.findViewById(R.id.editable_title);
-        title.setVisibility(View.VISIBLE);
-        title.setText(pattern.getTitle());
-        title.addTextChangedListener(new TextWatcher() {
+        mTitle = (EditText) toolbar.findViewById(R.id.editable_title);
+        mTitle.setVisibility(View.VISIBLE);
+        mTitle.setText(pattern.getTitle());
+        mTitle.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 BetterLog.d(this, "Before: %s", s);
@@ -121,22 +138,35 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 if (name.contains("\n")) {
                     name = name.replaceAll("\n", "");
                     s.replace(0, s.length(), name);
-                    hideSoftKeyboard(title);
-                    title.clearFocus();
+                    if (findViewById(R.id.color_fab).getVisibility() == View.VISIBLE) {
+                        hideSoftKeyboard(mTitle);
+                    } else {
+                        onOpenEditMenuClicked(null);
+                    }
                     BetterLog.d(this, "Return typed");
                 }
                 pattern.edit().setTitle(name).apply();
             }
         });
+        mTitle.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (!mTitle.hasFocus()) {
+                    onEditNameClicked(v);
+                }
+                return false;
+            }
+        });
 
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(title.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(mTitle.getWindowToken(), 0);
 
         mCanvas = (PatternImageView) findViewById(R.id.canvas);
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getPatternFileName()));
         mCanvas.setOnImageClickListener(mImageClickListener);
 
-        getLoaderManager().initLoader(new Random().nextInt(), null, this);
+        mLoaderId = new Random().nextInt();
+        getLoaderManager().initLoader(mLoaderId, null, this);
 
         AdView adView = (AdView) findViewById(R.id.adView);
         AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
@@ -145,6 +175,12 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         }
         AdRequest adRequest = adRequestBuilder.build();
         adView.loadAd(adRequest);
+    }
+
+    @Override
+    protected void onDestroy() {
+        getLoaderManager().destroyLoader(mLoaderId);
+        super.onDestroy();
     }
 
     /**
@@ -168,12 +204,6 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 view.clearFocus();
             }
         }
-    }
-
-    public void onEditClicked(View view) {
-        Intent intent = new Intent(this, ChangeParametersActivity.class);
-        intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
-        startActivity(intent);
     }
 
     @Override
@@ -210,5 +240,93 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    public void onOpenEditMenuClicked(View view) {
+        boolean openMenu = true;
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_editor_mode_edit);
+
+        if (mTitle.hasFocus()) {
+            openMenu = false;
+            hideSoftKeyboard(mTitle);
+        }
+
+        FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
+        if (colorFab.getVisibility() == View.VISIBLE) {
+            colorFab.setVisibility(View.GONE);
+            openMenu = false;
+        }
+
+        CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
+        if (circleColorView.getVisibility() == View.VISIBLE) {
+            circleColorView.hide();
+            openMenu = false;
+        }
+
+        if (openMenu) {
+            View editMenu = findViewById(R.id.edit_menu);
+            if (editMenu.getVisibility() == View.VISIBLE) {
+                hideMenu();
+            } else {
+                showMenu();
+            }
+        }
+    }
+
+    public void onEditNameClicked(View view) {
+        mTitle.setSelection(mTitle.getText().toString().length());
+        mTitle.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(mTitle, 0);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_action_done);
+        hideMenu();
+    }
+
+    public void onEditColorsClicked(View view) {
+        Intent intent = new Intent(this, ChangeParametersActivity.class);
+        intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
+        startActivity(intent);
+        hideMenu();
+    }
+
+    public void onEditPixelsClicked(View view) {
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setImageResource(R.drawable.ic_action_done);
+        hideMenu();
+
+        CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
+        if (circleColorView.getVisibility() != View.VISIBLE) {
+            final Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
+            Set<Integer> colorSet = pattern.getColors().keySet();
+            final int[] colors = new int[colorSet.size()];
+            int i = 0;
+            for (int color : colorSet) {
+                colors[i++] = color;
+            }
+            circleColorView.setColors(colors);
+            circleColorView.show();
+
+            circleColorView.setOnColorClickListener(new CircleColorView.OnColorClickListener() {
+                @Override
+                public void onColorClicked(int colorIndex) {
+                    FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
+                    mSelectedColor = colors[colorIndex];
+                    colorFab.setBackgroundTintList(ColorStateList.valueOf(mSelectedColor));
+                    colorFab.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+    }
+
+    private void showMenu() {
+        findViewById(R.id.edit_menu).setVisibility(View.VISIBLE);
+    }
+
+    private void hideMenu() {
+        findViewById(R.id.edit_menu).setVisibility(View.GONE);
     }
 }
