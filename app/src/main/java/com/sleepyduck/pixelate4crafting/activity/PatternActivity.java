@@ -1,5 +1,6 @@
 package com.sleepyduck.pixelate4crafting.activity;
 
+import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -48,10 +49,15 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private int mLoaderId;
     private int mSelectedColor;
 
+    private int mMenuEditFlag = MENU_EDIT_DONE;
+    private static final int MENU_EDIT_DONE = 0x00;
+    private static final int MENU_EDIT_NAME = 0x01;
+    private static final int MENU_EDIT_PIXELS = 0x02;
+
     private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
-            FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
+            View colorFab = findViewById(R.id.color_fab);
             if (colorFab.getVisibility() == View.VISIBLE) {
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
@@ -60,37 +66,6 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         .changePixelAt(patternX, patternY, mSelectedColor)
                         .apply(false);
             }
-            /*
-
-            CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
-            if (circleColorView.getVisibility() != View.VISIBLE) {
-                if (x > 0 && y > 0 && x < bitmap.getWidth() && y < bitmap.getHeight()) {
-                    final Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
-                    Set<Integer> colorSet = pattern.getColors().keySet();
-                    final int[] colors = new int[colorSet.size()];
-                    int i = 0;
-                    for (int color : colorSet) {
-                        colors[i++] = color;
-                    }
-                    circleColorView.setColors(colors);
-                    //circleColorView.setRawPos(posX, posY);
-                    circleColorView.show();
-
-                    circleColorView.setOnColorClickListener(new CircleColorView.OnColorClickListener() {
-                        @Override
-                        public void onColorClicked(int colorIndex) {
-                            BetterLog.d(this, "Color clicked: %d", colorIndex);
-                            int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
-                            int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
-                            pattern.edit()
-                                    .changePixelAt(patternX, patternY, colors[colorIndex])
-                                    .apply();
-                        }
-                    });
-                }
-            } else {
-                circleColorView.hide();
-            }*/
         }
     };
 
@@ -141,7 +116,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                     if (findViewById(R.id.color_fab).getVisibility() == View.VISIBLE) {
                         hideSoftKeyboard(mTitle);
                     } else {
-                        onOpenEditMenuClicked(null);
+                        onDoneClicked(MENU_EDIT_NAME);
                     }
                     BetterLog.d(this, "Return typed");
                 }
@@ -242,32 +217,46 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     }
 
-    public void onOpenEditMenuClicked(View view) {
-        boolean openMenu = true;
+    private void addMenuEditFlag(int flag) {
+        mMenuEditFlag |= flag;
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setImageResource(R.drawable.ic_editor_mode_edit);
+    private void removeMenuEditFlag(int flag) {
+        mMenuEditFlag &= ~flag;
+    }
 
-        if (mTitle.hasFocus()) {
-            openMenu = false;
+    private void setMenuEditDone() {
+        mMenuEditFlag = MENU_EDIT_DONE;
+    }
+
+    private void onDoneClicked(int flag) {
+        if ((flag & MENU_EDIT_NAME) != 0) {
             hideSoftKeyboard(mTitle);
+            removeMenuEditFlag(MENU_EDIT_NAME);
         }
 
-        FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
-        if (colorFab.getVisibility() == View.VISIBLE) {
+        if ((flag & MENU_EDIT_PIXELS) != 0) {
+            View colorFab = findViewById(R.id.color_fab);
             colorFab.setVisibility(View.GONE);
-            openMenu = false;
+            CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
+            if (circleColorView.getVisibility() == View.VISIBLE) {
+                circleColorView.hide();
+            }
+            removeMenuEditFlag(MENU_EDIT_PIXELS);
         }
 
-        CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
-        if (circleColorView.getVisibility() == View.VISIBLE) {
-            circleColorView.hide();
-            openMenu = false;
+        if (mMenuEditFlag == MENU_EDIT_DONE) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+            fab.setImageResource(R.drawable.ic_editor_mode_edit);
+            setMenuEditDone();
         }
+    }
 
-        if (openMenu) {
-            View editMenu = findViewById(R.id.edit_menu);
-            if (editMenu.getVisibility() == View.VISIBLE) {
+    public void onOpenEditMenuClicked(View view) {
+        if (mMenuEditFlag != MENU_EDIT_DONE) {
+            onDoneClicked(mMenuEditFlag);
+        } else {
+            if (isMenuVisible) {
                 hideMenu();
             } else {
                 showMenu();
@@ -276,6 +265,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     }
 
     public void onEditNameClicked(View view) {
+        addMenuEditFlag(MENU_EDIT_NAME);
         mTitle.setSelection(mTitle.getText().toString().length());
         mTitle.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -294,6 +284,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     }
 
     public void onEditPixelsClicked(View view) {
+        addMenuEditFlag(MENU_EDIT_PIXELS);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setImageResource(R.drawable.ic_action_done);
         hideMenu();
@@ -318,15 +309,44 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                     colorFab.setBackgroundTintList(ColorStateList.valueOf(mSelectedColor));
                     colorFab.setVisibility(View.VISIBLE);
                 }
+
+                @Override
+                public void onCancel() {
+                    View colorFab = findViewById(R.id.color_fab);
+                    if (colorFab.getVisibility() != View.VISIBLE) {
+                        onDoneClicked(MENU_EDIT_PIXELS);
+                    }
+                }
             });
         }
     }
 
+    ObjectAnimator menuAnimation;
+    boolean isMenuVisible;
+
+    private void animateMenu(boolean show) {
+        final View menu = findViewById(R.id.edit_menu);
+
+        if (menuAnimation == null) {
+            final int menuHeight = menu.getHeight();
+            menu.setTranslationY(-menuHeight);
+            menu.setVisibility(View.VISIBLE);
+        } else {
+            menuAnimation.cancel();
+        }
+
+        isMenuVisible = show;
+
+        final int to = show ? 0 : -menu.getHeight();
+        menuAnimation = ObjectAnimator.ofFloat(menu, View.TRANSLATION_Y, menu.getTranslationY(), to);
+        menuAnimation.start();
+    }
+
     private void showMenu() {
-        findViewById(R.id.edit_menu).setVisibility(View.VISIBLE);
+        animateMenu(true);
     }
 
     private void hideMenu() {
-        findViewById(R.id.edit_menu).setVisibility(View.GONE);
+        animateMenu(false);
     }
 }

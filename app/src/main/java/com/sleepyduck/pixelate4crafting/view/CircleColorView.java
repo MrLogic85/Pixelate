@@ -32,7 +32,7 @@ public class CircleColorView extends View {
     private final ObjectAnimator showAnimator = ObjectAnimator.ofFloat(this, "scaleAnim", 0f, 1f);
     private final ObjectAnimator hideAnimator = ObjectAnimator.ofFloat(this, "scaleAnim", 1f, 0f);
     private float scaleAnim = 1;
-    private int selectColor = -1;
+    private Integer selectColor = null;
 
     public CircleColorView(Context context) {
         this(context, null);
@@ -185,10 +185,10 @@ public class CircleColorView extends View {
             float x;
             float y;
             if (scaleAnim < 1f) {
-                if (selectColor == i) {
+                if (selectColor != null && selectColor == i) {
                     x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
                     y = (getMeasuredHeight() / 2f - colorPos[i][1]) * scaleAnim;
-                } else if (selectColor == -1) {
+                } else if (selectColor == null) {
                     x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
                     y = getMeasuredHeight() / 2f - colorPos[i][1] * scaleAnim;
                     paint.setAlpha(0xFF);
@@ -237,9 +237,13 @@ public class CircleColorView extends View {
             public void onAnimationEnd(Animator animation) {
                 setVisibility(INVISIBLE);
                 if (listener != null) {
-                    listener.onColorClicked(selectColor);
+                    if (selectColor != null) {
+                        listener.onColorClicked(selectColor);
+                    } else {
+                        listener.onCancel();
+                    }
                 }
-                selectColor = -1;
+                selectColor = null;
                 hideAnimator.removeListener(this);
             }
         });
@@ -247,6 +251,7 @@ public class CircleColorView extends View {
     }
 
     public void setOnColorClickListener(final OnColorClickListener listener) {
+        OnColorClickListener listener1 = listener;
         final float[] touchPos = new float[2];
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -255,7 +260,7 @@ public class CircleColorView extends View {
                 touchPos[1] = motionEvent.getY();
                 if (getDistanceToNearestColor(touchPos) > colorRadius) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
-                        hide();
+                        hide(listener);
                     }
                     return true;
                 }
@@ -302,5 +307,6 @@ public class CircleColorView extends View {
 
     public interface OnColorClickListener {
         void onColorClicked(int colorIndex);
+        void onCancel();
     }
 }

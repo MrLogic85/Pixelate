@@ -50,7 +50,7 @@
         android:paddingEnd="@dimen/padding_small"
         android:paddingStart="@dimen/padding_small"
         android:paddingTop="@dimen/padding_large"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:visibility="visible">
 
