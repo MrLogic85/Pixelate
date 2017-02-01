@@ -101,7 +101,6 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
             @Override
             public void onClick(View view) {
                 onBackPressed();
-                toolbar.setNavigationOnClickListener(null);
             }
         });
 
@@ -192,6 +191,15 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     protected void onDestroy() {
         getLoaderManager().destroyLoader(mLoaderId);
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mMenuEditFlag == MENU_EDIT_DONE) {
+            super.onBackPressed();
+        } else {
+            onDoneClicked(mMenuEditFlag);
+        }
     }
 
     /**
