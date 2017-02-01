@@ -13,10 +13,4 @@
         android:title="@string/redo"
         android:orderInCategory="2"
         app:showAsAction="ifRoom"/>
-    <item
-        android:id="@+id/menu_item_change_width"
-        android:icon="@drawable/ic_content_resize"
-        android:title="@string/change_width"
-        android:orderInCategory="3"
-        app:showAsAction="ifRoom|withText|collapseActionView"/>
 </menu>

@@ -4,14 +4,15 @@ import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.Toolbar;
@@ -26,7 +27,9 @@ import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -44,6 +47,8 @@ import java.util.Random;
 import java.util.Set;
 
 public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int REQUEST_CHANGE_WIDTH = 1;
+
     private int mPatternId;
     private PatternImageView mCanvas;
     private EditText mTitle;
@@ -60,7 +65,11 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
-            if (mColorEditListView.getVisibility() == View.VISIBLE) {
+            if (isEditMenuVisible
+                    && x > PixelBitmapTask.PIXEL_SIZE
+                    && y > PixelBitmapTask.PIXEL_SIZE
+                    && x < bitmap.getWidth()
+                    && y < bitmap.getWidth()) {
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
@@ -202,6 +211,20 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CHANGE_WIDTH) {
+                int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
+                        , Constants.DEFAULT_WIDTH);
+                Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
+                pattern.edit()
+                        .setWidth(newWidth)
+                        .apply(false);
+            }
+        }
+    }
+
     /**
      * Hide keyboard while focus is moved
      */
@@ -284,7 +307,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 editPattern.apply(false);
                 editPattern = null;
             }
-            mColorEditListView.setVisibility(View.GONE);
+            hideEditPixelsMenu();
             CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
             if (circleColorView.getVisibility() == View.VISIBLE) {
                 circleColorView.hide();
@@ -346,8 +369,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 colors[i++] = color;
             }
             circleColorView.setColors(colors);
-            if (mColorEditListView.getVisibility() == View.VISIBLE
-                    || mColorEditListView.getChildCount() <= 2) {
+            if (isEditMenuVisible || mColorEditListView.getChildCount() <= 2) {
                 circleColorView.show();
             }
 
@@ -368,17 +390,49 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
             });
         }
 
-        mColorEditListView.setVisibility(View.VISIBLE);
+        showEditPixelsMenu();
+    }
+
+    public void onEditWidthClicked(View view) {
+        hideMenu();
+        Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
+        if (pattern.hasChangedPixels()) {
+            new AlertDialog.Builder(this)
+                    .setTitle(R.string.warning)
+                    .setMessage(R.string.warning_remove_custom_pixels)
+                    .setCancelable(true)
+                    .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            editWidth();
+                        }
+                    }).show();
+        } else {
+            editWidth();
+        }
+    }
+
+    private void editWidth() {
+        Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
+        Intent intent = new Intent(PatternActivity.this, ConfigurationWidthActivity.class);
+        intent.putExtra(ConfigurationWidthActivity.EXTRA_WIDTH, pattern.getPixelWidth());
+        startActivityForResult(intent, REQUEST_CHANGE_WIDTH);
     }
 
     ObjectAnimator menuAnimation;
     boolean isMenuVisible;
 
     private void animateMenu(boolean show) {
-        final View menu = findViewById(R.id.edit_menu);
+        final View menu = findViewById(R.id.edit_menu_card);
 
+        final int menuHeight = menu.getHeight();
         if (menuAnimation == null) {
-            final int menuHeight = menu.getHeight();
             menu.setTranslationY(-menuHeight);
             menu.setVisibility(View.VISIBLE);
         } else {
@@ -387,7 +441,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
         isMenuVisible = show;
 
-        final int to = show ? 0 : -menu.getHeight();
+        final int to = show ? (int) -getResources().getDimension(R.dimen.padding_tiny) : -menuHeight;
         menuAnimation = ObjectAnimator.ofFloat(menu, View.TRANSLATION_Y, menu.getTranslationY(), to);
         menuAnimation.start();
     }
@@ -398,5 +452,34 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     private void hideMenu() {
         animateMenu(false);
+    }
+
+    ObjectAnimator editMenuAnimation;
+    boolean isEditMenuVisible;
+
+    private void animateEditMenu(boolean show) {
+        final View colorEdit = findViewById(R.id.color_edit_list_view_card);
+
+        final int height = colorEdit.getHeight();
+        if (editMenuAnimation == null) {
+            colorEdit.setTranslationY(-height);
+            colorEdit.setVisibility(View.VISIBLE);
+        } else {
+            editMenuAnimation.cancel();
+        }
+
+        isEditMenuVisible = show;
+
+        final int to = show ? (int) -getResources().getDimension(R.dimen.padding_tiny) : -height;
+        editMenuAnimation = ObjectAnimator.ofFloat(colorEdit, View.TRANSLATION_Y, colorEdit.getTranslationY(), to);
+        editMenuAnimation.start();
+    }
+
+    private void showEditPixelsMenu() {
+        animateEditMenu(true);
+    }
+
+    private void hideEditPixelsMenu() {
+        animateEditMenu(false);
     }
 }

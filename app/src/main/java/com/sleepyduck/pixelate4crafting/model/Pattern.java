@@ -194,8 +194,24 @@ public class Pattern implements Comparable<Pattern> {
         return mChangedPixels.containsKey(x) && mChangedPixels.get(x).containsKey(y);
     }
 
+    public boolean hasChangedPixels() {
+        if (mChangedPixels == null || mChangedPixels.size() == 0) {
+            return false;
+        }
+        for (Map<Integer, Integer> changesY : mChangedPixels.values()) {
+            if (changesY.size() > 0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public int getChangedPixelAt(int x, int y) {
         return mChangedPixels.containsKey(x) ? mChangedPixels.get(x).get(y) : 0;
+    }
+
+    public Map<Integer, Map<Integer, Integer>> getChangedPixels() {
+        return mChangedPixels;
     }
 
     public int getFlag() {
@@ -304,6 +320,9 @@ public class Pattern implements Comparable<Pattern> {
             set(PatternColumns.WIDTH, width, mPattern.mPixelWidth);
             if (mChanges.containsKey(PatternColumns.WIDTH)) {
                 setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
+                if (mPattern.hasChangedPixels()) {
+                    mChanges.put(PatternColumns.CHANGED_PIXELS, new HashMap<Integer, Map<Integer, Integer>>());
+                }
             }
             Rect rect = new Rect();
             BitmapHandler.getSize(mPattern.mContext, getString(PatternColumns.FILE), rect);

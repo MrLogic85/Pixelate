@@ -22,10 +22,8 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import com.sleepyduck.pixelate4crafting.R;
-import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
-import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -34,7 +32,6 @@ import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.util.MMCQ;
 import com.sleepyduck.pixelate4crafting.util.history.AddColor;
-import com.sleepyduck.pixelate4crafting.util.history.ChangeWidth;
 import com.sleepyduck.pixelate4crafting.util.history.History;
 import com.sleepyduck.pixelate4crafting.util.history.OnHistoryDo;
 import com.sleepyduck.pixelate4crafting.util.history.RemoveColor;
@@ -44,6 +41,7 @@ import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
@@ -59,7 +57,6 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private static final int STATE_FOCUSED_OFF = 0;
     private static final int STATE_FOCUSED_PALETTE = 1;
 
-    private static final int REQUEST_CHANGE_WIDTH = 1;
     private static final int REQUEST_CHOOSE_COLOR = 2;
 
     private int mPatternId;
@@ -125,13 +122,6 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 finish();
                 return true;
             }
-            case R.id.menu_item_change_width: {
-                Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
-                Intent intent = new Intent(this, ConfigurationWidthActivity.class);
-                intent.putExtra(ConfigurationWidthActivity.EXTRA_WIDTH, pattern.getPixelWidth());
-                startActivityForResult(intent, REQUEST_CHANGE_WIDTH);
-                return super.onOptionsItemSelected(menuItem);
-            }
             case R.id.menu_item_undo: {
                 undoHistory();
                 return true;
@@ -149,8 +139,16 @@ public class ChangeParametersActivity extends AppCompatActivity {
         super.onDestroy();
         Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
         if (mHistory.size() > 0 || mOrigFlag != FLAG_COMPLETE) {
-            pattern.edit()
-                    .setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
+            Pattern.Edit edit = pattern.edit();
+            List<Integer> palette = new ArrayList<>(pattern.getColors().keySet());
+            for (Map.Entry<Integer, Map<Integer, Integer>> entryX : pattern.getChangedPixels().entrySet()) {
+                for (Map.Entry<Integer, Integer> entryY : entryX.getValue().entrySet()) {
+                    if (!palette.contains(entryY.getValue())) {
+                        edit.eraseChangedPixelAt(entryX.getKey(), entryY.getKey());
+                    }
+                }
+            }
+            edit.setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
                     .apply(false);
         } else {
             pattern.edit()
@@ -235,18 +233,6 @@ public class ChangeParametersActivity extends AppCompatActivity {
             mGridAdapter.notifyDataSetChanged();
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             mPatternApproxImage.setPattern(pattern, Simple);
-        }
-
-        @Override
-        public void setWidth(int width) {
-            Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-            pattern.edit()
-                    .setWidth(width)
-                    .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                    .apply(false);
-            pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-            mPatternApproxImage.setPattern(pattern, Simple);
-            mPatternApproxImage.scaleToFit();
         }
     };
 
@@ -355,18 +341,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-            if (requestCode == REQUEST_CHANGE_WIDTH) {
-                int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
-                        , Constants.DEFAULT_WIDTH);
-                addHistory(new ChangeWidth(pattern.getPixelWidth(), newWidth));
-                pattern.edit()
-                        .setWidth(newWidth)
-                        .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
-                        .apply(false);
-                pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-                mPatternApproxImage.setPattern(pattern, Simple);
-                mPatternApproxImage.scaleToFit();
-            } else if (requestCode == REQUEST_CHOOSE_COLOR) {
+            if (requestCode == REQUEST_CHOOSE_COLOR) {
                 int pixel = data.getIntExtra("pixel", 0);
                 pattern.edit()
                         .addColor(pixel)

@@ -27,4 +27,6 @@
     <string name="pattern_banner_ad_unit_id">ca-app-pub-1586949106208904/7212607675</string>
 
     <string name="transitionImage">transitionImage</string>
+    <string name="warning_remove_custom_pixels">Changing the width of a pattern will reset all changes to pixel colors.</string>
+    <string name="warning">WARNING</string>
 </resources>

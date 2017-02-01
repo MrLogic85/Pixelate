@@ -6,5 +6,4 @@ package com.sleepyduck.pixelate4crafting.util.history;
 public interface OnHistoryDo {
     void removeColor(int color);
     void addColor(int color);
-    void setWidth(int width);
 }

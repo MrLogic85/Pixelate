@@ -3,7 +3,7 @@
 
     <dimen name="padding">24dp</dimen>
     <dimen name="padding_small">8dp</dimen>
-    <dimen name="padding_large">32dp</dimen>
+    <dimen name="padding_large">36dp</dimen>
 
     <dimen name="divider">1dp</dimen>
 

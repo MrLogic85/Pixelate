@@ -88,12 +88,13 @@ public class ColorEditList extends LinearLayout {
         selectView.setOnClickListener(addClickListener);
 
         selectView = (CardView) getChildAt(1).findViewById(R.id.color_item_select);
-        selectView.setCardBackgroundColor(Color.WHITE);
+        selectView.setCardBackgroundColor(getResources().getColor(R.color.accent_a200));
         colorView = (CardView) getChildAt(1).findViewById(R.id.color_item_color);
         colorView.setCardBackgroundColor(Color.WHITE);
         iconView = (ImageView) getChildAt(1).findViewById(R.id.color_item_icon);
         iconView.setImageResource(R.drawable.double_sided_eraser);
         selectView.setOnClickListener(eraseClickListener);
+        state = EditState.ERASE;
     }
 
     public float[] prepareAddColor(int color) {
