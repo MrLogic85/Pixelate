@@ -24,7 +24,9 @@ public class BitmapHandler {
 
 	public static Bitmap getFromFileName(Context context, String fileName) {
 		try (InputStream is = context.openFileInput(fileName)) {
-			return BitmapFactory.decodeStream(is);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inMutable = true;
+			return BitmapFactory.decodeStream(is, null, options);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

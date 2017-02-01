@@ -18,7 +18,7 @@ import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class InteractiveImageView extends ImageView implements View.OnTouchListener {
     private Matrix mMatrix;
-    private Bitmap mImageBitmap;
+    protected Bitmap mImageBitmap;
     private OnImageClickListener mImageListener;
 
     private GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {

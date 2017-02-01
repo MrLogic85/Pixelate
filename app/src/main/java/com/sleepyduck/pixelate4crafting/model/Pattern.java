@@ -350,9 +350,11 @@ public class Pattern implements Comparable<Pattern> {
             if (!changePixels.containsKey(x)) {
                 changePixels.put(x, new HashMap<Integer, Integer>());
             }
-            changePixels.get(x).put(y, color);
-            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
-            mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            Integer replaced = changePixels.get(x).put(y, color);
+            if (replaced == null || replaced.intValue() != color) {
+                setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+                mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            }
             return this;
         }
 
@@ -360,11 +362,14 @@ public class Pattern implements Comparable<Pattern> {
             @SuppressWarnings("unchecked")
             Map<Integer, Map<Integer, Integer>> changePixels =
                     (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
+            Integer removed = null;
             if (changePixels.containsKey(x)) {
-                changePixels.remove(x);
+                removed = changePixels.get(x).remove(y);
             }
-            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
-            mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            if (removed != null) {
+                setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+                mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            }
             return this;
         }
 

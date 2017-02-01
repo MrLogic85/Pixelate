@@ -10,14 +10,17 @@ import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
+import java.util.Arrays;
+
 import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
+import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
 
 public class PatternImageView extends InteractiveImageView {
-    private Bitmap mImageBitmap;
     private AsyncTask<Object, Object, Bitmap> mBitmapAsyncTask;
-	private Pattern mPattern;
+    private Pattern mPattern;
     private Bitmap mOrigBitmap;
     private Style mStyle;
     private boolean mScaleToFitNewImage = false;
@@ -28,19 +31,19 @@ public class PatternImageView extends InteractiveImageView {
     }
 
     public PatternImageView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-	}
+        super(context, attrs, defStyle);
+    }
 
-	public PatternImageView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
+    public PatternImageView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
 
-	public PatternImageView(Context context) {
-		super(context);
-	}
+    public PatternImageView(Context context) {
+        super(context);
+    }
 
-	@Override
-	protected void onDetachedFromWindow() {
+    @Override
+    protected void onDetachedFromWindow() {
         if (mBitmapAsyncTask != null) {
             mBitmapAsyncTask.cancel(true);
         }
@@ -50,10 +53,10 @@ public class PatternImageView extends InteractiveImageView {
         if (mImageBitmap != null) {
             mImageBitmap.recycle();
         }
-		super.onDetachedFromWindow();
-	}
+        super.onDetachedFromWindow();
+    }
 
-	public void executeRedraw(Style style) {
+    public void executeRedraw(Style style) {
         mStyle = style;
 
         if (style == Full
@@ -62,7 +65,7 @@ public class PatternImageView extends InteractiveImageView {
             if (mImageBitmap != null) {
                 mImageBitmap.recycle();
             }
-            Bitmap bitmap =  BitmapHandler.getFromFileName(getContext(), mPattern.getPatternFileName());
+            Bitmap bitmap = BitmapHandler.getFromFileName(getContext(), mPattern.getPatternFileName());
             setImageBitmap(bitmap);
             return;
         }
@@ -71,21 +74,17 @@ public class PatternImageView extends InteractiveImageView {
             mBitmapAsyncTask.cancel(true);
             mBitmapAsyncTask = null;
         }
-        switch (style) {
-            case Simple:
-                mBitmapAsyncTask = new BitmapAsyncTaskSimple();
-                break;
-            case Full:
-                mBitmapAsyncTask = new BitmapAsyncTask();
-                break;
-        }
-        mBitmapAsyncTask.execute();
-        setImageAlpha(0xff / 2);
-	}
 
-	public void setPattern(Pattern pattern) {
+        if (style == Simple) {
+            mBitmapAsyncTask = new BitmapAsyncTaskSimple();
+            mBitmapAsyncTask.execute();
+            setImageAlpha(0xff / 2);
+        }
+    }
+
+    public void setPattern(Pattern pattern) {
         setPattern(pattern, Full);
-	}
+    }
 
     public void setPattern(Pattern pattern, Style style) {
         mPattern = pattern;
@@ -94,6 +93,18 @@ public class PatternImageView extends InteractiveImageView {
             executeRedraw(style);
         } else {
             Toast.makeText(getContext(), "Failed to retrieve original image, pattern may be broken", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    public void setPixel(int x, int y, int color) {
+        if (mImageBitmap != null) {
+            x++;
+            y++;
+            int pixelSize = PixelBitmapTask.PIXEL_SIZE - 1;
+            int[] colorSquare = new int[pixelSize * pixelSize];
+            Arrays.fill(colorSquare, color);
+            mImageBitmap.setPixels(colorSquare, 0, pixelSize, x * PixelBitmapTask.PIXEL_SIZE, y * PixelBitmapTask.PIXEL_SIZE, pixelSize, pixelSize);
+            invalidate();
         }
     }
 
@@ -135,12 +146,12 @@ public class PatternImageView extends InteractiveImageView {
                     mColors[i] = (int) pixelObjects[i];
                 }
             } else {
-                mColors = new int[] { Color.WHITE, Color.BLACK };
+                mColors = new int[]{Color.WHITE, Color.BLACK};
             }
-            float dRes = (float)mOrigBitmap.getWidth() / (float) pixelsWidth;
-            int pixelSize = Math.max(1, Math.min(PIXEL_SIZE_MAX, 300/pixelsWidth));
+            float dRes = (float) mOrigBitmap.getWidth() / (float) pixelsWidth;
+            int pixelSize = Math.max(1, Math.min(PIXEL_SIZE_MAX, 300 / pixelsWidth));
 
-            pixelBitmap = Bitmap.createBitmap(pixelsWidth*pixelSize, pixelsHeight*pixelSize, Config.ARGB_8888);
+            pixelBitmap = Bitmap.createBitmap(pixelsWidth * pixelSize, pixelsHeight * pixelSize, Config.ARGB_8888);
             // Draw colors
             for (int x = 0; x < pixelsWidth; ++x) {
                 for (int y = 0; y < pixelsHeight; ++y) {
@@ -174,96 +185,4 @@ public class PatternImageView extends InteractiveImageView {
             }
         }
     }
-
-    private final class BitmapAsyncTask extends AsyncTask<Object, Object, Bitmap> {
-		int pixelSize;
-		private int[][] pixels;
-		private Bitmap pixelBitmap;
-		int pixelsWidth, pixelsHeight;
-
-		@Override
-		protected Bitmap doInBackground(Object... params) {
-			pixelsWidth = mPattern.getPixelWidth();
-			pixelsHeight = mPattern.getPixelHeight();
-			pixels = mPattern.getPixels();
-
-			pixelSize = 11; // 10 per pixel plus 1 for grid
-			int resultWidth = (pixelsWidth + 1) * pixelSize;
-			int resultHeight = (pixelsHeight + 1) * pixelSize;
-
-			pixelBitmap = Bitmap.createBitmap(resultWidth, resultHeight, Config.ARGB_8888);
-			// Draw colors
-			for (int y = 0; y < pixelsHeight; ++y) {
-				for (int x = 0; x < pixelsWidth; ++x) {
-					setColor(pixelBitmap, pixels[x][y], x, y);
-				}
-				if (isCancelled()) {
-					return null;
-				}
-			}
-			// Draw grid
-			for (int y = 0; y <= pixelsHeight; ++y) {
-				for (int x = 0; x <= pixelsWidth; ++x) {
-					drawGrid(pixelBitmap, x, y);
-				}
-				if (isCancelled()) {
-					return null;
-				}
-			}
-
-			return pixelBitmap;
-		}
-
-		private void drawGrid(Bitmap bitmap, int x, int y) {
-			boolean isTenthY = (y % 10 == 0);
-			boolean isTenthX = (x % 10 == 0);
-			for (int Y = y * pixelSize; Y < (y + 1) * pixelSize; ++Y) {
-				int X = (x + 1) * pixelSize - 1;
-				if (isTenthX || y > 0) {
-					bitmap.setPixel(X, Y, Color.BLACK);
-				}
-				if (isTenthX) {
-					bitmap.setPixel(X - 1, Y, Color.BLACK);
-				}
-			}
-			for (int X = x * pixelSize; X < (x + 1) * pixelSize; ++X) {
-				int Y = (y + 1) * pixelSize - 1;
-				if (isTenthY || x > 0) {
-					bitmap.setPixel(X, Y, Color.BLACK);
-				}
-				if (isTenthY) {
-					bitmap.setPixel(X, Y - 1, Color.BLACK);
-				}
-			}
-		}
-
-		private void setColor(Bitmap bitmap, int color, int x, int y) {
-			// Add one to x and y due to extended grid
-			x++;
-			y++;
-			for (int Y = y * pixelSize; Y < (y + 1) * pixelSize; ++Y) {
-				for (int X = x * pixelSize; X < (x + 1) * pixelSize; ++X) {
-					bitmap.setPixel(X, Y, color);
-				}
-			}
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			if (bitmap != null) {
-                if (mImageBitmap != null) {
-                    mImageBitmap.recycle();
-                }
-                mImageBitmap = bitmap;
-                if (mStyle == Full) {
-                    String patternName = BitmapHandler.storePattern(getContext(), mImageBitmap, mPattern.getFileName());
-                    mPattern.edit()
-                            .setFilePattern(patternName)
-                            .apply(false);
-                }
-                mScaleToFitNewImage = true;
-				setImageBitmap(bitmap);
-            }
-		}
-	}
 }

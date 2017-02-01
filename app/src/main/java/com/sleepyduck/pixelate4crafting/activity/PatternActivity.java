@@ -48,13 +48,14 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private PatternImageView mCanvas;
     private EditText mTitle;
     private int mLoaderId;
-    private int mSelectedColor;
     private ColorEditList mColorEditListView;
 
     private int mMenuEditFlag = MENU_EDIT_DONE;
     private static final int MENU_EDIT_DONE = 0x00;
     private static final int MENU_EDIT_NAME = 0x01;
     private static final int MENU_EDIT_PIXELS = 0x02;
+
+    Pattern.Edit editPattern;
 
     private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
@@ -65,14 +66,19 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
                 switch (mColorEditListView.getState()) {
                     case COLOR:
-                        pattern.edit()
-                                .changePixelAt(patternX, patternY, mColorEditListView.getColor())
-                                .apply(false);
+                        mCanvas.setPixel(patternX, patternY, mColorEditListView.getColor());
+                        if (editPattern == null) {
+                            editPattern = pattern.edit();
+                        }
+                        editPattern.changePixelAt(patternX, patternY, mColorEditListView.getColor());
                         break;
                     case ERASE:
-                        pattern.edit()
-                                .eraseChangedPixelAt(patternX, patternY)
-                                .apply(false);
+                        int origColor = pattern.getPixels()[patternX][patternY];
+                        mCanvas.setPixel(patternX, patternY, origColor);
+                        if (editPattern == null) {
+                            editPattern = pattern.edit();
+                        }
+                        editPattern.eraseChangedPixelAt(patternX, patternY);
                         break;
                 }
             }
@@ -266,6 +272,10 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         }
 
         if ((flag & MENU_EDIT_PIXELS) != 0) {
+            if (editPattern != null) {
+                editPattern.apply(false);
+                editPattern = null;
+            }
             mColorEditListView.setVisibility(View.GONE);
             CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
             if (circleColorView.getVisibility() == View.VISIBLE) {
