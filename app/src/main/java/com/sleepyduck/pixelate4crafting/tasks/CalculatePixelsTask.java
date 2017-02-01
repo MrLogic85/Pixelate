@@ -105,15 +105,19 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
         long countStart = SystemClock.currentThreadTimeMillis();
         for (int i = 0; i < width; i += 1) {
             for (int j = 0; j < height; j += 1) {
-                long getPixelStart = SystemClock.currentThreadTimeMillis();
-                int pixel = mBitmap.getPixel(i+x, j+y);
-                getPixelTime += SystemClock.currentThreadTimeMillis() - getPixelStart;
-                if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
-                    continue;
+                if (i+x < mBitmap.getWidth() && j+y < mBitmap.getHeight()) {
+                    long getPixelStart = SystemClock.currentThreadTimeMillis();
+                    int pixel = mBitmap.getPixel(i + x, j + y);
+                    getPixelTime += SystemClock.currentThreadTimeMillis() - getPixelStart;
+                    if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                        continue;
+                    }
+                    Integer color = ColorUtil.getBestColorFor(pixel, colors);
+                    Float weight = countPixelColors.get(color, 0f);
+                    countPixelColors.put(color, weight + resInv);
+                } else {
+                    break;
                 }
-                Integer color = ColorUtil.getBestColorFor(pixel, colors);
-                Float weight = countPixelColors.get(color, 0f);
-                countPixelColors.put(color, weight + resInv);
             }
         }
         countTime += SystemClock.currentThreadTimeMillis() - countStart;

@@ -11,7 +11,7 @@
 
     <string name="choose_image_description">Pick an image to create your pattern</string>
 
-    <string name="choose_width_description">How wide do you want the pattern?</string>
+    <string name="choose_width_description">How many pixels wide do you want the pattern?</string>
     <string name="analyzing_image">Analyzing colors!</string>
     <string name="choose_color_count">About how many colors would you like to use?</string>
     <string name="prepare_pattern">Preparing pattern</string>

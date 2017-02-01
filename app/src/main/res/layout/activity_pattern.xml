@@ -116,7 +116,7 @@
                     android:background="@drawable/button_accent"
                     android:minHeight="@dimen/button_min_height"
                     android:onClick="onEditWidthClicked"
-                    android:text="WIDTH"
+                    android:text="SIZE"
                     android:theme="@style/ButtonStyleAccent" />
             </android.support.v7.widget.CardView>
         </LinearLayout>
