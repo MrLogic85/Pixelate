@@ -61,10 +61,10 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
         mOnLeftButtonClickListener = l;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
         SwipeCard mItemView;
 
-        public ViewHolder(SwipeCard itemView) {
+        ViewHolder(SwipeCard itemView) {
             super(itemView);
             mItemView = itemView;
         }
@@ -87,7 +87,8 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
             title.setText(pattern.getTitle());
 
             RecyclerView recyclerView = (RecyclerView) mItemView.findViewById(R.id.color_recycler);
-            recyclerView.setAdapter(new ColorsAdapter(pattern.getColors()));
+            recyclerView.setAdapter(new ColorsAdapter(
+                    pattern.getColors(new int[pattern.getColorCount()])));
 
             LineProgressBar lineProgressBar = (LineProgressBar) mItemView.findViewById(R.id.progress_bar);
             int flag = pattern.getFlag();

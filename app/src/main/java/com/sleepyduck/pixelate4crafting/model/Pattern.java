@@ -1,48 +1,42 @@
 package com.sleepyduck.pixelate4crafting.model;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
-import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class Pattern implements Comparable<Pattern> {
-    private static final String PREF_ID = "ID";
-    private static final String PREF_TITLE = "TITLE";
-    private static final String PREF_STATE = "STATE";
-    private static final String PREF_FILE = "FILE";
-    private static final String PREF_FILE_THUMB = "FILE_THUMB";
-    private static final String PREF_FILE_PATTERN = "FILE_PATTERN";
-    private static final String PREF_PIXEL_WIDTH = "PIXEL_WIDTH";
-    private static final String PREF_PIXEL_HEIGHT = "PIXEL_HEIGHT";
-    private static final String PREF_WEIGHT = "WEIGHT";
+    public static final String INTENT_EXTRA_ID = "EXTRA_ID";
 
     public final int Id;
-    private final Context mContext;
-    private String mTitle = "";
-    private int mState = PatternColumns.STATE_ACTIVE;
-    private String mFileName = "";
-    private String mFileNameThumb = "";
-    private String mFileNamePattern = "";
-    private int mFlag = PatternColumns.FLAG_UNKNOWN;
-    private int mPixelWidth = 0;
-    private int mPixelHeight = 0;
-    private long mWeight = 0;
-    private Map<Integer, Float> mColors;
-    private int[][] mPixels;
-    private Map<Integer, Map<Integer, Integer>> mChangedPixels = new HashMap<>();
-    private int mProgress = 0;
+    protected final Context mContext;
+    protected final String mTitle;
+    protected final String mFileName;
+    protected final String mFileNameThumb;
+    protected final String mFileNamePattern;
+    protected final int mState;
+    protected final int mFlag;
+    protected final int mPixelWidth;
+    protected final int mPixelHeight;
+    protected final int mProgress;
+    protected final long mWeight;
+
+    protected final int[][] mPixels;
+    protected final Map<Integer, Float> mColors = new HashMap<>();
+    protected final Map<Integer, Map<Integer, Integer>> mChangedPixels = new HashMap<>();
 
     public Pattern(Context context, Cursor cursor) {
         mContext = context;
@@ -57,14 +51,12 @@ public class Pattern implements Comparable<Pattern> {
         mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
         mFlag = cursor.getInt(cursor.getColumnIndex(PatternColumns.FLAG));
         mProgress = cursor.getInt(cursor.getColumnIndex(PatternColumns.PROGRESS));
+
         String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
-        if (colors == null || colors.isEmpty()) {
-            mColors = new HashMap<>();
-        } else {
+        if (colors != null && !colors.isEmpty()) {
             try {
                 JSONObject json = new JSONObject(colors);
                 int size = json.getInt("size");
-                mColors = new HashMap<>(size);
                 for (int i = 0; i < size; ++i) {
                     mColors.put(json.getInt("color" + i), (float) json.getDouble("weight" + i));
                 }
@@ -72,24 +64,33 @@ public class Pattern implements Comparable<Pattern> {
                 e.printStackTrace();
             }
         }
+
         String pixels = cursor.getString(cursor.getColumnIndex(PatternColumns.PIXELS));
-        if (pixels == null || pixels.isEmpty()) {
-            mPixels = null;
-        } else {
+        if (pixels != null && !pixels.isEmpty()) {
+            JSONObject json = null;
+            int width = 0;
+            int height = 0;
             try {
-                JSONObject json = new JSONObject(pixels);
-                int width = json.getInt("width");
-                int height = json.getInt("height");
-                mPixels = new int[width][height];
+                json = new JSONObject(pixels);
+                width = json.getInt("width");
+                height = json.getInt("height");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            mPixels = new int[width][height];
+            try {
                 for (int w = 0; w < width; ++w) {
-                    for (int h = 0; h  < height; ++h) {
+                    for (int h = 0; h < height; ++h) {
                         mPixels[w][h] = json.getInt("" + w + "," + h);
                     }
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+        } else {
+            mPixels = new int[0][0];
         }
+
         String changedPixels = cursor.getString(cursor.getColumnIndex(PatternColumns.CHANGED_PIXELS));
         if (changedPixels != null && changedPixels.length() > 0) {
             try {
@@ -113,9 +114,56 @@ public class Pattern implements Comparable<Pattern> {
     private Pattern(Context context) {
         mContext = context;
         Id = -1;
+        mTitle = "";
+        mFileName = "";
+        mFileNameThumb = "";
+        mFileNamePattern = "";
+        mState = PatternColumns.STATE_ACTIVE;
+        mFlag = PatternColumns.FLAG_STORING_IMAGE;
+        mPixelWidth = 2;
+        mPixelHeight = 2;
+        mProgress = 0;
+        mWeight = SystemClock.elapsedRealtime();
+        mPixels = new int[0][0];
     }
 
-    public void destroy(Context context) {
+    private Pattern(Pattern other) {
+        mContext = other.mContext;
+        Id = other.Id;
+        mTitle = "" + other.mTitle;
+        mFileName = "" + other.mFileName;
+        mFileNameThumb = "" + other.mFileNameThumb;
+        mFileNamePattern = "" + other.mFileNamePattern;
+        mState = other.mState;
+        mFlag = other.mFlag;
+        mPixelWidth = other.mPixelWidth;
+        mPixelHeight = other.mPixelHeight;
+        mProgress = other.mProgress;
+        mWeight = other.mWeight;
+
+        for (Map.Entry<Integer, Float> entry : other.mColors.entrySet()) {
+            mColors.put(entry.getKey(), entry.getValue());
+        }
+
+        for (Map.Entry<Integer, Map<Integer, Integer>> entryX : other.mChangedPixels.entrySet()) {
+            Map<Integer, Integer> mapX = new HashMap<>();
+            mChangedPixels.put(entryX.getKey(), mapX);
+            for (Map.Entry<Integer, Integer> entryY : entryX.getValue().entrySet()) {
+                mapX.put(entryY.getKey(), entryY.getValue());
+            }
+        }
+
+        if (other.mPixels.length > 0) {
+            mPixels = new int[other.mPixels.length][other.mPixels[0].length];
+            for (int x = 0; x < other.mPixels.length; ++x) {
+                mPixels[x] = Arrays.copyOf(other.mPixels[x], other.mPixels[x].length);
+            }
+        } else {
+            mPixels = new int[0][0];
+        }
+    }
+
+    private void destroy(Context context) {
         if (mFileName != null && mFileName.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileName);
         }
@@ -125,33 +173,11 @@ public class Pattern implements Comparable<Pattern> {
         if (mFileNamePattern != null && mFileNamePattern.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileNamePattern);
         }
-        if (mColors != null) {
-            DataManager.DestroyColors(context, Id);
-        }
-        if (mPixels != null) {
-            DataManager.DestroyPixels(context, Id);
-        }
-    }
-
-    public Pattern(Context context, int prefCounter, SharedPreferences pref) {
-        mContext = context;
-        Id = pref.getInt("" + prefCounter + PREF_ID, -1);
-        mTitle = pref.getString("" + prefCounter + PREF_TITLE, mTitle);
-        mState = pref.getInt("" + prefCounter + PREF_STATE, PatternColumns.STATE_ACTIVE);
-        mFileName = pref.getString("" + prefCounter + PREF_FILE, mFileName);
-        mFileNameThumb = pref.getString("" + prefCounter + PREF_FILE_THUMB, mFileNameThumb);
-        mFileNamePattern = pref.getString("" + prefCounter + PREF_FILE_PATTERN, mFileNameThumb);
-        mFlag = PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
-        mPixelWidth = pref.getInt("" + prefCounter + PREF_PIXEL_WIDTH, mPixelWidth);
-        mPixelHeight = pref.getInt("" + prefCounter + PREF_PIXEL_HEIGHT, mPixelHeight);
-        mWeight = pref.getInt("" + prefCounter + PREF_WEIGHT, (int) mWeight);
-        mColors = DataManager.LoadColors(context, Id);
-        mPixels = DataManager.LoadPixels(context, Id);
     }
 
     @Override
-    public int compareTo(Pattern another) {
-        return this.mTitle.compareTo(another.mTitle);
+    public int compareTo(@NonNull Pattern other) {
+        return mTitle.compareTo(other.mTitle);
     }
 
     public String getFileName() {
@@ -178,40 +204,90 @@ public class Pattern implements Comparable<Pattern> {
         return mPixelHeight;
     }
 
-    public Map<Integer, Float> getColors() {
-        return mColors;
+    public int getColorCount() {
+        synchronized (mColors) {
+            return mColors.size();
+        }
+    }
+
+    public int[] getColors(int[] outColors) {
+        synchronized (mColors) {
+            int i = 0;
+            for (Integer color : mColors.keySet()) {
+                outColors[i++] = color;
+            }
+        }
+        return outColors;
+    }
+
+    public float getColorWeight(int color) {
+        synchronized (mColors) {
+            if (mColors.containsKey(color)) {
+                mColors.get(color);
+            }
+            return 0;
+        }
     }
 
     public boolean hasColors() {
-        return getColors() != null && getColors().size() > 0;
+        synchronized (mColors) {
+            return mColors.size() > 0;
+        }
     }
 
-    public int[][] getPixels() {
-        return mPixels;
+    public int[][] getPixels(int[][] outPixels) {
+        synchronized (mPixels) {
+            for (int x = 0; x < mPixels.length; ++x) {
+                outPixels[x] = Arrays.copyOf(mPixels[x], mPixels[x].length);
+            }
+        }
+        return outPixels;
+    }
+
+    public int getPixel(int x, int y) {
+        synchronized (mPixels) {
+            return mPixels[x][y];
+        }
     }
 
     public boolean hasChangedPixelAt(int x, int y) {
-        return mChangedPixels.containsKey(x) && mChangedPixels.get(x).containsKey(y);
+        synchronized (mChangedPixels) {
+            return mChangedPixels.containsKey(x) && mChangedPixels.get(x).containsKey(y);
+        }
     }
 
     public boolean hasChangedPixels() {
-        if (mChangedPixels == null || mChangedPixels.size() == 0) {
+        synchronized (mChangedPixels) {
+            if (mChangedPixels.size() == 0) {
+                return false;
+            }
+            for (Map<Integer, Integer> changesY : mChangedPixels.values()) {
+                if (changesY.size() > 0) {
+                    return true;
+                }
+            }
             return false;
         }
-        for (Map<Integer, Integer> changesY : mChangedPixels.values()) {
-            if (changesY.size() > 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public int getChangedPixelAt(int x, int y) {
-        return mChangedPixels.containsKey(x) ? mChangedPixels.get(x).get(y) : 0;
+        synchronized (mChangedPixels) {
+            return mChangedPixels.containsKey(x) ? mChangedPixels.get(x).get(y) : 0;
+        }
     }
 
-    public Map<Integer, Map<Integer, Integer>> getChangedPixels() {
-        return mChangedPixels;
+    public void foreachChangedPixel(PixelCallback pixelCallback) {
+        synchronized (mChangedPixels) {
+            for (Map.Entry<Integer, Map<Integer, Integer>> entryX : mChangedPixels.entrySet()) {
+                for (Map.Entry<Integer, Integer> entryY : entryX.getValue().entrySet()) {
+                    pixelCallback.execute(entryX.getKey(), entryY.getKey(), entryY.getValue());
+                }
+            }
+        }
+    }
+
+    public interface PixelCallback {
+        void execute(int x, int y, int color);
     }
 
     public int getFlag() {
@@ -255,85 +331,77 @@ public class Pattern implements Comparable<Pattern> {
         }
     }
 
-    public static class Edit {
+    public static class Edit extends Pattern {
         private final Map<String, Object> mChanges = new HashMap<>();
-        protected final Pattern mPattern;
 
-        public Edit(Pattern pattern) {
-            this.mPattern = pattern;
+        Edit(Pattern pattern) {
+            super(pattern);
         }
 
-        public Edit set(Pattern copyOf) {
-            setTitle(copyOf.mTitle);
-            setState(copyOf.mState);
-            setFile(copyOf.mFileName);
-            setFileThumb(copyOf.mFileNameThumb);
-            setFilePattern(copyOf.mFileNamePattern);
-            setWidth(copyOf.mPixelWidth);
-            setTime(copyOf.mWeight);
-            setColors(copyOf.mColors);
-            setPixels(copyOf.mPixels);
-            setFlag(copyOf.mFlag);
-            setProgress(copyOf.mProgress);
-            return this;
-        }
-
-        public Set<String> getChangeKeys() {
+        Set<String> getChangeKeys() {
             return mChanges.keySet();
         }
 
         private <T> void set(String key, T value, Comparable<T> originalValue) {
-            if (originalValue == null || originalValue.compareTo(value) != 0) {
-                mChanges.put(key, value);
-            } else {
-                mChanges.remove(key);
+            synchronized (mChanges) {
+                if (originalValue == null || originalValue.compareTo(value) != 0) {
+                    mChanges.put(key, value);
+                } else {
+                    mChanges.remove(key);
+                }
+            }
+        }
+
+        private boolean hasChange(String key) {
+            synchronized (mChanges) {
+                return mChanges.containsKey(key);
             }
         }
 
         public Edit setTitle(String title) {
-            set(PatternColumns.TITLE, title, mPattern.mTitle);
+            set(PatternColumns.TITLE, title, mTitle);
             return this;
         }
 
         public Edit setState(int state) {
-            set(PatternColumns.STATE, state, mPattern.mState);
+            set(PatternColumns.STATE, state, mState);
             return this;
         }
 
         public Edit setFile(String file) {
-            set(PatternColumns.FILE, file, mPattern.mFileName);
+            set(PatternColumns.FILE, file, mFileName);
             return this;
         }
 
         public Edit setFileThumb(String file) {
-            set(PatternColumns.FILE_THUMB, file, mPattern.mFileNameThumb);
+            set(PatternColumns.FILE_THUMB, file, mFileNameThumb);
             return this;
         }
 
         public Edit setFilePattern(String file) {
-            set(PatternColumns.FILE_PATTERN, file, mPattern.mFileNamePattern);
+            set(PatternColumns.FILE_PATTERN, file, mFileNamePattern);
             setFlag(PatternColumns.FLAG_COMPLETE);
             return this;
         }
 
         public Edit setWidth(int width) {
-            set(PatternColumns.WIDTH, width, mPattern.mPixelWidth);
-            if (mChanges.containsKey(PatternColumns.WIDTH)) {
+            set(PatternColumns.WIDTH, width, mPixelWidth);
+            if (hasChange(PatternColumns.WIDTH)) {
                 setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
-                if (mPattern.hasChangedPixels()) {
-                    mChanges.put(PatternColumns.CHANGED_PIXELS, new HashMap<Integer, Map<Integer, Integer>>());
+                if (hasChangedPixels()) {
+                    set(PatternColumns.CHANGED_PIXELS, new HashMap<Integer, Map<Integer, Integer>>(), null);
                 }
             }
             Rect rect = new Rect();
-            BitmapHandler.getSize(mPattern.mContext, getString(PatternColumns.FILE), rect);
+            BitmapHandler.getSize(mContext, getString(PatternColumns.FILE), rect);
             float pixelSize = (float) rect.width() / (float) width;
-            int height = (int) (rect.height() / pixelSize);
-            set(PatternColumns.HEIGHT, height, mPattern.mPixelHeight);
+            int height = Math.round(rect.height() / pixelSize);
+            set(PatternColumns.HEIGHT, height, mPixelHeight);
             return this;
         }
 
         public Edit setTime(long time) {
-            set(PatternColumns.TIME, time, mPattern.mWeight);
+            set(PatternColumns.TIME, time, mWeight);
             return this;
         }
 
@@ -344,50 +412,58 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         public Edit removeColor(int color) {
-            @SuppressWarnings("unchecked")
-            Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
-            if (colors.remove(color) != null) {
+            synchronized (mColors) {
+                @SuppressWarnings("unchecked")
+                Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
+                if (colors.remove(color) != null) {
+                    setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
+                    mChanges.put(PatternColumns.COLORS, colors);
+                }
+            }
+            return this;
+        }
+
+        public Edit addColor(int color) {
+            synchronized (mColors) {
+                @SuppressWarnings("unchecked")
+                Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
+                colors.put(color, 0f);
                 setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
                 mChanges.put(PatternColumns.COLORS, colors);
             }
             return this;
         }
 
-        public Edit addColor(int color) {
-            @SuppressWarnings("unchecked")
-            Map<Integer, Float> colors = (Map<Integer, Float>) get(PatternColumns.COLORS);
-            colors.put(color, 0f);
-            setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED);
-            mChanges.put(PatternColumns.COLORS, colors);
-            return this;
-        }
-
         public Edit changePixelAt(int x, int y, int color) {
-            @SuppressWarnings("unchecked")
-            Map<Integer, Map<Integer, Integer>> changePixels =
-                    (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
-            if (!changePixels.containsKey(x)) {
-                changePixels.put(x, new HashMap<Integer, Integer>());
-            }
-            Integer replaced = changePixels.get(x).put(y, color);
-            if (replaced == null || replaced.intValue() != color) {
-                setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
-                mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            synchronized (mChangedPixels) {
+                @SuppressWarnings("unchecked")
+                Map<Integer, Map<Integer, Integer>> changePixels =
+                        (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
+                if (!changePixels.containsKey(x)) {
+                    changePixels.put(x, new HashMap<Integer, Integer>());
+                }
+                Integer replaced = changePixels.get(x).put(y, color);
+                if (replaced == null || replaced != color) {
+                    setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+                    mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+                }
             }
             return this;
         }
 
         public Edit eraseChangedPixelAt(int x, int y) {
-            @SuppressWarnings("unchecked")
-            Map<Integer, Map<Integer, Integer>> changePixels =
-                    (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
-            Integer removed = null;
-            if (changePixels.containsKey(x)) {
-                removed = changePixels.get(x).remove(y);
-            }
-            if (removed != null) {
-                setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
-                mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            synchronized (mChangedPixels) {
+                @SuppressWarnings("unchecked")
+                Map<Integer, Map<Integer, Integer>> changePixels =
+                        (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
+                Integer removed = null;
+                if (changePixels.containsKey(x)) {
+                    removed = changePixels.get(x).remove(y);
+                }
+                if (removed != null) {
+                    setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+                    mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+                }
             }
             return this;
         }
@@ -399,94 +475,94 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         public Edit setFlag(int flag) {
-            set(PatternColumns.FLAG, flag, mPattern.mFlag);
+            set(PatternColumns.FLAG, flag, mFlag);
             return this;
         }
 
         public Edit setProgress(int progress) {
-            set(PatternColumns.PROGRESS, progress, mPattern.mProgress);
+            set(PatternColumns.PROGRESS, progress, mProgress);
             return this;
         }
 
-        public String getString(String key) {
-            if (mChanges.containsKey(key)) {
+        String getString(String key) {
+            if (hasChange(key)) {
                 return (String) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.TITLE:
-                        return mPattern.mTitle;
+                        return mTitle;
                     case PatternColumns.FILE:
-                        return mPattern.mFileName;
+                        return mFileName;
                     case PatternColumns.FILE_THUMB:
-                        return mPattern.mFileNameThumb;
+                        return mFileNameThumb;
                     case PatternColumns.FILE_PATTERN:
-                        return mPattern.mFileNamePattern;
+                        return mFileNamePattern;
                 }
             }
             return null;
         }
 
-        public long getLong(String key) {
-            if (mChanges.containsKey(key)) {
+        long getLong(String key) {
+            if (hasChange(key)) {
                 return (long) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.TIME:
-                        return mPattern.mWeight;
+                        return mWeight;
                 }
             }
             return 0;
         }
 
-        public int getInt(String key) {
-            if (mChanges.containsKey(key)) {
+        int getInt(String key) {
+            if (hasChange(key)) {
                 return (int) mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns._ID:
-                        return mPattern.Id;
+                        return Id;
                     case PatternColumns.WIDTH:
-                        return mPattern.mPixelWidth;
+                        return mPixelWidth;
                     case PatternColumns.HEIGHT:
-                        return mPattern.mPixelHeight;
+                        return mPixelHeight;
                     case PatternColumns.FLAG:
-                        return mPattern.mFlag;
+                        return mFlag;
                 }
             }
             return 0;
         }
 
         public Object get(String key) {
-            if (mChanges.containsKey(key)) {
+            if (hasChange(key)) {
                 return mChanges.get(key);
             } else {
                 switch (key) {
                     case PatternColumns.COLORS:
-                        return mPattern.mColors;
+                        return mColors;
                     case PatternColumns.PIXELS:
-                        return mPattern.mPixels;
+                        return mPixels;
                     case PatternColumns.CHANGED_PIXELS:
-                        return mPattern.mChangedPixels;
+                        return mChangedPixels;
                 }
             }
             return null;
         }
 
         public int apply(boolean createIfEmpty) {
-            return DatabaseManager.update(mPattern.mContext.getContentResolver(), this);
+            return DatabaseManager.update(mContext.getContentResolver(), this);
         }
     }
 
-    public static class EmptyEdit extends Edit {
+    static class EmptyEdit extends Edit {
 
-        public EmptyEdit(Pattern pattern) {
+        EmptyEdit(Pattern pattern) {
             super(pattern);
         }
 
         @Override
         public int apply(boolean createIfEmpty) {
             if (createIfEmpty) {
-                return DatabaseManager.create(mPattern.mContext.getContentResolver(), this);
+                return DatabaseManager.create(mContext.getContentResolver(), this);
             }
             return 0;
         }

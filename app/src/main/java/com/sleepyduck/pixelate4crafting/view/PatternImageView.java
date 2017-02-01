@@ -15,20 +15,11 @@ import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
 import java.util.Arrays;
 
-import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Full;
-import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
-
 public class PatternImageView extends InteractiveImageView {
     private AsyncTask<Object, Object, Bitmap> mBitmapAsyncTask;
     private Pattern mPattern;
     private Bitmap mOrigBitmap;
-    private Style mStyle;
     private boolean mScaleToFitNewImage = false;
-
-    public enum Style {
-        Simple,
-        Full
-    }
 
     public PatternImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -56,41 +47,22 @@ public class PatternImageView extends InteractiveImageView {
         super.onDetachedFromWindow();
     }
 
-    public void executeRedraw(Style style) {
-        mStyle = style;
-
-        if (style == Full
-                && mPattern.getPatternFileName() != null
-                && mPattern.getPatternFileName().length() > 0) {
-            if (mImageBitmap != null) {
-                mImageBitmap.recycle();
-            }
-            Bitmap bitmap = BitmapHandler.getFromFileName(getContext(), mPattern.getPatternFileName());
-            setImageBitmap(bitmap);
-            return;
-        }
-
+    public void executeRedraw() {
         if (mBitmapAsyncTask != null) {
             mBitmapAsyncTask.cancel(true);
             mBitmapAsyncTask = null;
         }
 
-        if (style == Simple) {
-            mBitmapAsyncTask = new BitmapAsyncTaskSimple();
-            mBitmapAsyncTask.execute();
-            setImageAlpha(0xff / 2);
-        }
+        mBitmapAsyncTask = new BitmapAsyncTaskSimple();
+        mBitmapAsyncTask.execute();
+        setImageAlpha(0xff / 2);
     }
 
     public void setPattern(Pattern pattern) {
-        setPattern(pattern, Full);
-    }
-
-    public void setPattern(Pattern pattern, Style style) {
         mPattern = pattern;
         mOrigBitmap = BitmapHandler.getFromFileName(getContext(), mPattern.getFileName());
         if (mOrigBitmap != null) {
-            executeRedraw(style);
+            executeRedraw();
         } else {
             Toast.makeText(getContext(), "Failed to retrieve original image, pattern may be broken", Toast.LENGTH_LONG).show();
         }
@@ -140,11 +112,7 @@ public class PatternImageView extends InteractiveImageView {
             pixelsWidth = mPattern.getPixelWidth();
             pixelsHeight = mPattern.getPixelHeight();
             if (mPattern.hasColors()) {
-                mColors = new int[mPattern.getColors().size()];
-                final Object[] pixelObjects = mPattern.getColors().keySet().toArray();
-                for (int i = 0; i < mColors.length; ++i) {
-                    mColors[i] = (int) pixelObjects[i];
-                }
+                mColors = mPattern.getColors(new int[mPattern.getColorCount()]);
             } else {
                 mColors = new int[]{Color.WHITE, Color.BLACK};
             }

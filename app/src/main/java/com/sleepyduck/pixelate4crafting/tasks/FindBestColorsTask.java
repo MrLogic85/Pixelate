@@ -25,16 +25,8 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Map<Integer, 
             int numColors = (int) params[2];
             Bitmap mBitmap = BitmapHandler.getFromFileName(context, fileName);
 
-            // MMCQ2
-            /*int[][] colors = ColorThief.getPalette(mBitmap, mNumColors);
-            for (int i = 0; i < colors.length; ++i) {
-                colorsCounted.put(Color.rgb(colors[i][0], colors[i][1], colors[i][2]), 1f);
-            }
-            mPattern.setColors(colorsCounted);*/
-
             Map<Integer, Float> colorsCounted = new HashMap<>();
 
-            // MMCQ
             try {
                 MMCQ.CMap colors = MMCQ.computeMap(mBitmap, numColors);
                 for (int[] color : colors.palette()) {

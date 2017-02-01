@@ -31,15 +31,16 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
             Context context = (Context) params[0];
             Pattern pattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
-            mColors = pattern.getColors();
+            mColors = new HashMap<>();
+            for (int color : pattern.getColors(new int[pattern.getColorCount()])) {
+                mColors.put(color, pattern.getColorWeight(color));
+            }
             mWidth = pattern.getPixelWidth();
             mHeight = pattern.getPixelHeight();
 
-            Map<Integer, Float> colors = pattern.getColors();
-            if (colors == null || colors.size() == 0) {
-                colors = new HashMap<>();
-                colors.put(Color.BLACK, 1f);
-                colors.put(Color.WHITE, 1f);
+            if (mColors.size() == 0) {
+                mColors.put(Color.BLACK, 1f);
+                mColors.put(Color.WHITE, 1f);
             }
 
             return calculatePixels();
@@ -77,21 +78,17 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
         return pixels;
     }
 
-    long initializeStart, initializeTime = 0;
-    long countStart, countTime = 0;
-    long findBestStart, findBestTime = 0;
-    long getPixelStart, getPixelTime = 0;
+    private long initializeTime = 0;
+    private long countTime = 0;
+    private long findBestTime = 0;
+    private long getPixelTime = 0;
 
     /**
      * Find the dominant color in the pixel, comparing the color weight in the pixel compared to
      * the entire image
-     * @param dx
-     * @param dy
-     * @param pixelSize
-     * @return
      */
     private int findColorForPixel(float dx, float dy, float pixelSize) {
-        initializeStart = SystemClock.currentThreadTimeMillis();
+        long initializeStart = SystemClock.currentThreadTimeMillis();
         int x = Math.round(dx);
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
@@ -105,12 +102,12 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
         SparseArray<Float> countPixelColors = new SparseArray<>();
         float resInv = 1f / (float)(width*height);
         initializeTime += SystemClock.currentThreadTimeMillis() - initializeStart;
-        countStart = SystemClock.currentThreadTimeMillis();
+        long countStart = SystemClock.currentThreadTimeMillis();
         for (int i = 0; i < width; i += 1) {
             for (int j = 0; j < height; j += 1) {
-                getPixelStart = SystemClock.currentThreadTimeMillis();
+                long getPixelStart = SystemClock.currentThreadTimeMillis();
                 int pixel = mBitmap.getPixel(i+x, j+y);
-                getPixelTime += SystemClock.currentThreadTimeMillis() - countStart;
+                getPixelTime += SystemClock.currentThreadTimeMillis() - getPixelStart;
                 if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                     continue;
                 }
@@ -120,7 +117,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
             }
         }
         countTime += SystemClock.currentThreadTimeMillis() - countStart;
-        findBestStart = SystemClock.currentThreadTimeMillis();
+        long findBestStart = SystemClock.currentThreadTimeMillis();
         Map<Integer, Float> colorMap = mColors;
         if (countPixelColors.size() > 0) {
             int bestColor = Color.TRANSPARENT;

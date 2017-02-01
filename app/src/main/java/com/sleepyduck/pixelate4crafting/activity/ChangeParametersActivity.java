@@ -27,7 +27,6 @@ import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 import com.sleepyduck.pixelate4crafting.util.MMCQ;
@@ -41,13 +40,11 @@ import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED;
-import static com.sleepyduck.pixelate4crafting.view.PatternImageView.Style.Simple;
 
 public class ChangeParametersActivity extends AppCompatActivity {
     private static final int CHECK_SQUARE_SIZE = 5;
@@ -77,13 +74,15 @@ public class ChangeParametersActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         ActionBar ab = getSupportActionBar();
-        ab.setDisplayHomeAsUpEnabled(true);
+        if (ab != null) {
+            ab.setDisplayHomeAsUpEnabled(true);
+        }
 
         ViewGroup group = (ViewGroup) findViewById(R.id.view_group);
         LayoutTransition layoutTransition = group.getLayoutTransition();
         layoutTransition.enableTransitionType(LayoutTransition.CHANGING);
 
-        mPatternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
+        mPatternId = getIntent().getIntExtra(Pattern.INTENT_EXTRA_ID, 0);
         Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
         mOrigFlag = pattern.getFlag();
         pattern.edit()
@@ -91,7 +90,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 .apply(false);
 
         mPatternApproxImage = (PatternImageView) findViewById(R.id.image_approximated);
-        mPatternApproxImage.setPattern(pattern, Simple);
+        mPatternApproxImage.setPattern(pattern);
 
         InteractiveImageView originalImage = (InteractiveImageView) findViewById(R.id.image_original);
         originalImage.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getFileName()));
@@ -117,7 +116,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         switch (menuItem.getItemId()) {
             case android.R.id.home: {
                 Intent intent = new Intent();
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
+                intent.putExtra(Pattern.INTENT_EXTRA_ID, mPatternId);
                 setResult(RESULT_OK, intent);
                 finish();
                 return true;
@@ -139,15 +138,18 @@ public class ChangeParametersActivity extends AppCompatActivity {
         super.onDestroy();
         Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
         if (mHistory.size() > 0 || mOrigFlag != FLAG_COMPLETE) {
-            Pattern.Edit edit = pattern.edit();
-            List<Integer> palette = new ArrayList<>(pattern.getColors().keySet());
-            for (Map.Entry<Integer, Map<Integer, Integer>> entryX : pattern.getChangedPixels().entrySet()) {
-                for (Map.Entry<Integer, Integer> entryY : entryX.getValue().entrySet()) {
-                    if (!palette.contains(entryY.getValue())) {
-                        edit.eraseChangedPixelAt(entryX.getKey(), entryY.getKey());
+            final Pattern.Edit edit = pattern.edit();
+            final int[] palette = new int[pattern.getColorCount()];
+            pattern.getColors(palette);
+            Arrays.sort(palette);
+            pattern.foreachChangedPixel(new Pattern.PixelCallback() {
+                @Override
+                public void execute(int x, int y, int color) {
+                    if (Arrays.binarySearch(palette, color) < 0) {
+                        edit.eraseChangedPixelAt(x, y);
                     }
                 }
-            }
+            });
             edit.setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
                     .apply(false);
         } else {
@@ -163,7 +165,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             setState(STATE_FOCUSED_OFF);
         } else {
             Intent intent = new Intent();
-            intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
+            intent.putExtra(Pattern.INTENT_EXTRA_ID, mPatternId);
             setResult(RESULT_OK, intent);
             finish();
         }
@@ -219,7 +221,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-            mPatternApproxImage.setPattern(pattern, Simple);
+            mPatternApproxImage.setPattern(pattern);
         }
 
         @Override
@@ -232,7 +234,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             mGridAdapter.updateColors(pattern);
             mGridAdapter.notifyDataSetChanged();
             pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-            mPatternApproxImage.setPattern(pattern, Simple);
+            mPatternApproxImage.setPattern(pattern);
         }
     };
 
@@ -294,8 +296,8 @@ public class ChangeParametersActivity extends AppCompatActivity {
         mGridAdapter.updateColors(pattern);
         mGridAdapter.notifyDataSetChanged();
         pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-        mPatternApproxImage.setPattern(pattern, Simple);
-        mPatternApproxImage.executeRedraw(Simple);
+        mPatternApproxImage.setPattern(pattern);
+        mPatternApproxImage.executeRedraw();
     }
 
     public void onPaletteTextClicked(View view) {
@@ -349,7 +351,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                         .apply(false);
                 addHistory(new AddColor(pixel));
                 pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
-                mPatternApproxImage.setPattern(pattern, Simple);
+                mPatternApproxImage.setPattern(pattern);
                 mGridAdapter.updateColors(pattern);
                 mGridAdapter.notifyDataSetChanged();
             }
@@ -368,16 +370,9 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
 
         void updateColors(Pattern pattern) {
-            if (pattern.getColors() != null) {
-                mColors = new int[pattern.getColors().size()];
-                int count = 0;
-                for (int color : pattern.getColors().keySet()) {
-                    mColors[count++] = color;
-                }
-                Arrays.sort(mColors);
-            } else {
-                mColors = new int[0];
-            }
+            mColors = new int[pattern.getColorCount()];
+            pattern.getColors(mColors);
+            Arrays.sort(mColors);
         }
 
         @Override

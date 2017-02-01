@@ -178,7 +178,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                     }
                 };
                 addTask(pattern.Id, bitmapTask);
-                bitmapTask.execute(this, pattern);
+                bitmapTask.execute(pattern);
             }
         }
     }

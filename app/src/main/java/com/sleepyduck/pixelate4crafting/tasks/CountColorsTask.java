@@ -32,8 +32,11 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
                 return null;
             }
 
-            Map<Integer, Float> colors = pattern.getColors();
-            if (colors == null || colors.size() == 0) {
+            Map<Integer, Float> colors = new HashMap<>();
+            for (int color : pattern.getColors(new int[pattern.getColorCount()])) {
+                colors.put(color, 0f);
+            }
+            if (colors.size() == 0) {
                 colors = new HashMap<>();
                 colors.put(Color.BLACK, 0f);
                 colors.put(Color.WHITE, 0f);
@@ -44,19 +47,19 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
             }
 
             // Count the colors
-            countColors(context, bitmap, colors);
+            countColors(bitmap, colors);
 
             return colors;
         }
         return null;
     }
 
-    private void countColors(final Context context, final Bitmap mBitmap, final Map<Integer, Float> colorMap) {
+    private void countColors(final Bitmap mBitmap, final Map<Integer, Float> colorMap) {
         long timeStart = SystemClock.currentThreadTimeMillis();
         long timeGetPixel = 0, timeGetPixelStart, timeDiff = 0, timeDiffStart;
         double diff, bestDiff;
         final float resInv = 1f / (float) (mBitmap.getWidth() * mBitmap.getHeight());
-        int bestColor, i, pixel;
+        int bestColor, i;
         final int size = colorMap.size();
         final int[] colors = new int[size];
         Object[] colorObject = colorMap.keySet().toArray();

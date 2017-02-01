@@ -1,6 +1,5 @@
 package com.sleepyduck.pixelate4crafting.tasks;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -19,11 +18,10 @@ public class PixelBitmapTask extends AsyncTask<Object, Object, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Object... params) {
-        Context context = (Context) params[0];
-        Pattern pattern = (Pattern) params[1];
+        Pattern pattern = (Pattern) params[0];
         int pixelsWidth = pattern.getPixelWidth();
         int pixelsHeight = pattern.getPixelHeight();
-        int[][] pixels = pattern.getPixels();
+        int[][] pixels = pattern.getPixels(new int[pixelsWidth][pixelsHeight]);
 
         int resultWidth = (pixelsWidth + 1) * PIXEL_SIZE;
         int resultHeight = (pixelsHeight + 1) * PIXEL_SIZE;

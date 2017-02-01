@@ -17,18 +17,16 @@ import java.util.Map;
  * Created by fredrik.metcalf on 2017-01-27.
  */
 
-public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder> {
-    private static final int COMPARE_COLOR = Color.WHITE;
+class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder> {
 
-    private final ArrayList<Integer> colors;
+    private final Integer[] colors;
 
-    public ColorsAdapter(Map<Integer, Float> colorMap) {
-        if (colorMap != null) {
-            colors = new ArrayList<>(colorMap.keySet());
-            ColorUtil.Sort(colors);
-        } else {
-            colors = new ArrayList<>();
+    ColorsAdapter(int[] colors) {
+        this.colors = new Integer[colors.length];
+        for (int i = 0;i < colors.length; ++i) {
+            this.colors[i] = colors[i];
         }
+        ColorUtil.Sort(this.colors);
     }
 
     @Override
@@ -40,7 +38,7 @@ public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(ColorsAdapter.ViewHolder holder, int position) {
-        holder.cardView.setCardBackgroundColor(colors.get(holder.getAdapterPosition()));
+        holder.cardView.setCardBackgroundColor(colors[holder.getAdapterPosition()]);
     }
 
     @Override
@@ -50,14 +48,14 @@ public class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return colors.size();
+        return colors.length;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
         private final CardView cardView;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             cardView = (CardView) itemView.findViewById(R.id.card_view);
         }

@@ -9,7 +9,6 @@ import android.widget.EditText;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 
 /**
  * Created by fredrik.metcalf on 2016-04-13.
@@ -24,7 +23,7 @@ public class ConfigurationNameActivity extends Activity {
         setContentView(R.layout.activity_configure_name);
 
         mPattern = DatabaseManager.getPattern(this
-                , getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0));
+                , getIntent().getIntExtra(Pattern.INTENT_EXTRA_ID, 0));
         EditText text = (EditText) findViewById(R.id.edit_text);
         text.setText(mPattern.getTitle());
 
@@ -40,7 +39,7 @@ public class ConfigurationNameActivity extends Activity {
         }
 
         Intent result = new Intent();
-        result.putExtra(Patterns.INTENT_EXTRA_ID, mPattern.Id);
+        result.putExtra(Pattern.INTENT_EXTRA_ID, mPattern.Id);
         setResult(RESULT_OK, result);
         finish();
     }

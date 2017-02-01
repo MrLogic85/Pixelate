@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.support.v4.graphics.ColorUtils;
 import android.util.SparseArray;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -56,8 +57,8 @@ public class ColorUtil {
         return new int[] {Color.red(pixel), Color.green(pixel), Color.blue(pixel)};
     }
 
-    public static void Sort(List<Integer> colors) {
-        final int[] sortBy = {
+    public static void Sort(Integer[] colors) {
+        final Integer[] sortBy = {
                 Color.BLACK,
                 Color.WHITE,
                 Color.RED,
@@ -65,7 +66,7 @@ public class ColorUtil {
                 Color.GREEN,
                 Color.YELLOW
         };
-        Collections.sort(colors, new Comparator<Integer>() {
+        Arrays.sort(colors, new Comparator<Integer>() {
             @Override
             public int compare(Integer left, Integer right) {
                 return (int) (diff(right) - diff(left));

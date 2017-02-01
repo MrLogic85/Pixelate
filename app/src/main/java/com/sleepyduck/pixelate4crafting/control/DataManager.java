@@ -45,14 +45,6 @@ public class DataManager {
         }
     }
 
-    public static void DestroyColors(Context context, int patternId) {
-        DestroyColors(context, patternId, COLOR_FILE);
-    }
-
-    public static void DestroyPixels(Context context, int patternId) {
-        DestroyColors(context, patternId, PIXEL_FILE);
-    }
-
     private static void SaveData(Context context, int patternId, String prefix, Object data) {
         File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
         ObjectOutputStream oos = null;

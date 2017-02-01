@@ -21,7 +21,6 @@ import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
 import com.sleepyduck.pixelate4crafting.service.CalculateService;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
@@ -106,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        Patterns.Load(this);
         bindService(new Intent(this, CalculateService.class), serviceConnection, BIND_AUTO_CREATE);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler);
@@ -170,12 +168,12 @@ public class MainActivity extends AppCompatActivity {
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
+                intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
                 ActivityCompat.startActivity(this, intent, options.toBundle());
             } break;
             default: {
                 Intent intent = new Intent(this, ChangeParametersActivity.class);
-                intent.putExtra(Patterns.INTENT_EXTRA_ID, patternId);
+                intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
                 startActivity(intent);
             } break;
         }
@@ -207,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
                     startService(intent);
                     break;
                 default:
-                    launch(data.getIntExtra(Patterns.INTENT_EXTRA_ID, 0), null);
+                    launch(data.getIntExtra(Pattern.INTENT_EXTRA_ID, 0), null);
                     break;
             }
         }

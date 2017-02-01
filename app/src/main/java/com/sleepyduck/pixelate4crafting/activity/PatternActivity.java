@@ -33,7 +33,6 @@ import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.model.Patterns;
 import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
@@ -44,7 +43,6 @@ import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
 import java.util.Random;
-import java.util.Set;
 
 public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int REQUEST_CHANGE_WIDTH = 1;
@@ -82,7 +80,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         editPattern.changePixelAt(patternX, patternY, mColorEditListView.getColor());
                         break;
                     case ERASE:
-                        int origColor = pattern.getPixels()[patternX][patternY];
+                        int origColor = pattern.getPixel(patternX, patternY);
                         mCanvas.setPixel(patternX, patternY, origColor);
                         if (editPattern == null) {
                             editPattern = pattern.edit();
@@ -113,7 +111,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
             }
         });
 
-        mPatternId = getIntent().getIntExtra(Patterns.INTENT_EXTRA_ID, 0);
+        mPatternId = getIntent().getIntExtra(Pattern.INTENT_EXTRA_ID, 0);
 
         final Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
 
@@ -348,7 +346,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     public void onEditColorsClicked(View view) {
         Intent intent = new Intent(this, ChangeParametersActivity.class);
-        intent.putExtra(Patterns.INTENT_EXTRA_ID, mPatternId);
+        intent.putExtra(Pattern.INTENT_EXTRA_ID, mPatternId);
         startActivity(intent);
         hideMenu();
     }
@@ -362,12 +360,8 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
         if (circleColorView.getVisibility() != View.VISIBLE) {
             final Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
-            Set<Integer> colorSet = pattern.getColors().keySet();
-            final int[] colors = new int[colorSet.size()];
-            int i = 0;
-            for (int color : colorSet) {
-                colors[i++] = color;
-            }
+            final int[] colors = new int[pattern.getColorCount()];
+            pattern.getColors(colors);
             circleColorView.setColors(colors);
             if (isEditMenuVisible || mColorEditListView.getChildCount() <= 2) {
                 circleColorView.show();
