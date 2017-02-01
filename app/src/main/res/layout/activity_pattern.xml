@@ -35,7 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="invisible"
-        app:colorRadius="20dp"
+        app:colorRadius="@dimen/color_radius"
         app:innerCircleColorCount="8"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:testColorCount="21"
@@ -109,16 +109,15 @@
         app:layout_anchorGravity="bottom|end"
         app:useCompatPadding="true" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/color_fab"
+    <com.sleepyduck.pixelate4crafting.view.ColorEditList
+        android:id="@+id/color_edit_list_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onEditPixelsClicked"
         android:visibility="invisible"
-        app:fabSize="mini"
-        app:layout_anchor="@id/toolbar"
-        app:layout_anchorGravity="bottom|center"
-        tools:visibility="visible" />
+        tools:visibility="visible"
+        android:orientation="horizontal"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:ignore="UselessLeaf"/>
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

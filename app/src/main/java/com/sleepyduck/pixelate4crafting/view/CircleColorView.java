@@ -25,6 +25,7 @@ public class CircleColorView extends View {
 
     private final float innerRadius;
     private final Paint paint;
+    private float[] colorEndPos;
     private float colorRadius;
     private int[] colors = {};
     private float[][] colorPos;
@@ -54,6 +55,7 @@ public class CircleColorView extends View {
         int innerCircleColorCount;
         try {
             innerCircleColorCount = a.getInt(R.styleable.CircleColorView_innerCircleColorCount, 6);
+            innerCircleColorCount = Math.max(innerCircleColorCount, 2);
         } catch (Exception ignored) {
             innerCircleColorCount = 6;
         }
@@ -85,6 +87,8 @@ public class CircleColorView extends View {
         paint = new Paint();
         paint.setShadowLayer(DROP_SHADOW, 0, 0, Color.BLACK);
         setLayerType(LAYER_TYPE_SOFTWARE, paint);
+
+        colorEndPos = new float[2];
 
         a.recycle();
     }
@@ -186,8 +190,8 @@ public class CircleColorView extends View {
             float y;
             if (scaleAnim < 1f) {
                 if (selectColor != null && selectColor == i) {
-                    x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
-                    y = (getMeasuredHeight() / 2f - colorPos[i][1]) * scaleAnim;
+                    x = (getMeasuredWidth() / 2f + colorPos[i][0]) * scaleAnim + colorEndPos[0] * (1f - scaleAnim);
+                    y = (getMeasuredHeight() / 2f - colorPos[i][1]) * scaleAnim + colorEndPos[1] * (1f - scaleAnim);
                 } else if (selectColor == null) {
                     x = getMeasuredWidth() / 2f + colorPos[i][0] * scaleAnim;
                     y = getMeasuredHeight() / 2f - colorPos[i][1] * scaleAnim;
@@ -232,6 +236,9 @@ public class CircleColorView extends View {
     }
 
     private void hide(final OnColorClickListener listener) {
+        if (selectColor != null && listener != null) {
+            colorEndPos = listener.onPreColorClicked(selectColor);
+        }
         hideAnimator.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -306,6 +313,7 @@ public class CircleColorView extends View {
     }
 
     public interface OnColorClickListener {
+        float[] onPreColorClicked(int colorIndex);
         void onColorClicked(int colorIndex);
         void onCancel();
     }

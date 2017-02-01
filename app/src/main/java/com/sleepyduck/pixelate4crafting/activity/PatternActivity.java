@@ -36,6 +36,7 @@ import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
 import com.sleepyduck.pixelate4crafting.util.ListUpdateCallbackAdaptor;
 import com.sleepyduck.pixelate4crafting.view.CircleColorView;
+import com.sleepyduck.pixelate4crafting.view.ColorEditList;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
 import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
@@ -48,6 +49,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private EditText mTitle;
     private int mLoaderId;
     private int mSelectedColor;
+    private ColorEditList mColorEditListView;
 
     private int mMenuEditFlag = MENU_EDIT_DONE;
     private static final int MENU_EDIT_DONE = 0x00;
@@ -57,14 +59,22 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
-            View colorFab = findViewById(R.id.color_fab);
-            if (colorFab.getVisibility() == View.VISIBLE) {
+            if (mColorEditListView.getVisibility() == View.VISIBLE) {
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
-                pattern.edit()
-                        .changePixelAt(patternX, patternY, mSelectedColor)
-                        .apply(false);
+                switch (mColorEditListView.getState()) {
+                    case COLOR:
+                        pattern.edit()
+                                .changePixelAt(patternX, patternY, mColorEditListView.getColor())
+                                .apply(false);
+                        break;
+                    case ERASE:
+                        pattern.edit()
+                                .eraseChangedPixelAt(patternX, patternY)
+                                .apply(false);
+                        break;
+                }
             }
         }
     };
@@ -113,11 +123,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 if (name.contains("\n")) {
                     name = name.replaceAll("\n", "");
                     s.replace(0, s.length(), name);
-                    if (findViewById(R.id.color_fab).getVisibility() == View.VISIBLE) {
-                        hideSoftKeyboard(mTitle);
-                    } else {
-                        onDoneClicked(MENU_EDIT_NAME);
-                    }
+                    onDoneClicked(MENU_EDIT_NAME);
                     BetterLog.d(this, "Return typed");
                 }
                 pattern.edit().setTitle(name).apply(false);
@@ -139,6 +145,30 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         mCanvas = (PatternImageView) findViewById(R.id.canvas);
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getPatternFileName()));
         mCanvas.setOnImageClickListener(mImageClickListener);
+
+        mColorEditListView = (ColorEditList) findViewById(R.id.color_edit_list_view);
+        mColorEditListView.setOnColorEditListListener(new ColorEditList.OnColorEditListClickListener() {
+            @Override
+            public void onColorClicked(int color) {
+                CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
+                if (circleColorView.getVisibility() == View.VISIBLE) {
+                    circleColorView.hide();
+                }
+            }
+
+            @Override
+            public void onEraseClicked() {
+                CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
+                if (circleColorView.getVisibility() == View.VISIBLE) {
+                    circleColorView.hide();
+                }
+            }
+
+            @Override
+            public void onAddColorClicked() {
+                onEditPixelsClicked(null);
+            }
+        });
 
         mLoaderId = new Random().nextInt();
         getLoaderManager().initLoader(mLoaderId, null, this);
@@ -236,8 +266,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         }
 
         if ((flag & MENU_EDIT_PIXELS) != 0) {
-            View colorFab = findViewById(R.id.color_fab);
-            colorFab.setVisibility(View.GONE);
+            mColorEditListView.setVisibility(View.GONE);
             CircleColorView circleColorView = (CircleColorView) findViewById(R.id.circle_color_view);
             if (circleColorView.getVisibility() == View.VISIBLE) {
                 circleColorView.hide();
@@ -299,26 +328,29 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 colors[i++] = color;
             }
             circleColorView.setColors(colors);
-            circleColorView.show();
+            if (mColorEditListView.getVisibility() == View.VISIBLE
+                    || mColorEditListView.getChildCount() <= 2) {
+                circleColorView.show();
+            }
 
             circleColorView.setOnColorClickListener(new CircleColorView.OnColorClickListener() {
                 @Override
+                public float[] onPreColorClicked(int colorIndex) {
+                    return mColorEditListView.prepareAddColor(colors[colorIndex]);
+                }
+
+                @Override
                 public void onColorClicked(int colorIndex) {
-                    FloatingActionButton colorFab = (FloatingActionButton) findViewById(R.id.color_fab);
-                    mSelectedColor = colors[colorIndex];
-                    colorFab.setBackgroundTintList(ColorStateList.valueOf(mSelectedColor));
-                    colorFab.setVisibility(View.VISIBLE);
+                    mColorEditListView.selectColor(colors[colorIndex]);
                 }
 
                 @Override
                 public void onCancel() {
-                    View colorFab = findViewById(R.id.color_fab);
-                    if (colorFab.getVisibility() != View.VISIBLE) {
-                        onDoneClicked(MENU_EDIT_PIXELS);
-                    }
                 }
             });
         }
+
+        mColorEditListView.setVisibility(View.VISIBLE);
     }
 
     ObjectAnimator menuAnimation;

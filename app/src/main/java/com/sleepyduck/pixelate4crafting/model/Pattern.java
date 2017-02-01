@@ -356,6 +356,18 @@ public class Pattern implements Comparable<Pattern> {
             return this;
         }
 
+        public Edit eraseChangedPixelAt(int x, int y) {
+            @SuppressWarnings("unchecked")
+            Map<Integer, Map<Integer, Integer>> changePixels =
+                    (Map<Integer, Map<Integer, Integer>>) get(PatternColumns.CHANGED_PIXELS);
+            if (changePixels.containsKey(x)) {
+                changePixels.remove(x);
+            }
+            setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);
+            mChanges.put(PatternColumns.CHANGED_PIXELS, changePixels);
+            return this;
+        }
+
         public Edit setPixels(int[][] pixels) {
             set(PatternColumns.PIXELS, pixels, null);
             setFlag(PatternColumns.FLAG_PIXELS_CALCULATED);

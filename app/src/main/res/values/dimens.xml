@@ -20,5 +20,12 @@
 
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="padding_tiny">4dp</dimen>
+
+    <dimen name="color_radius">20dp</dimen>
+    <dimen name="color_card_select">40dp</dimen>
+    <dimen name="color_card_color">36dp</dimen>
+    <dimen name="color_card_select_radius">20dp</dimen>
+    <dimen name="color_card_color_radius">18dp</dimen>
+    <dimen name="color_card_icon">24dp</dimen>
 </resources>
 
