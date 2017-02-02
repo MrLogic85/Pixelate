@@ -3,7 +3,6 @@ package com.sleepyduck.pixelate4crafting.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
@@ -17,18 +16,18 @@ import java.util.Map;
 /**
  * Created by fredrik.metcalf on 2016-04-12.
  */
-public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Float>> {
+public abstract class CountColorsTask extends CancellableProcess<Object, Integer, Map<Integer, Float>> {
 
     @Override
-    protected Map<Integer, Float> doInBackground(Object... params) {
-        publishProgress(0);
+    public Map<Integer, Float> execute(Object... params) {
+        onPublishProgress(0);
         if (params.length > 0) {
             Context context = (Context) params[0];
             Pattern pattern = (Pattern) params[1];
             Bitmap bitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
 
             if (bitmap == null) {
-                cancel(true);
+                cancel();
                 return null;
             }
 
@@ -77,7 +76,7 @@ public class CountColorsTask extends AsyncTask<Object, Integer, Map<Integer, Flo
                 return;
             }
             if ((p * 100) % pixelCount == 0) {
-                publishProgress(p * 100 / pixelCount);
+                onPublishProgress(p * 100 / pixelCount);
             }
             bestColor = -1;
             if ((pixels[p] & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {

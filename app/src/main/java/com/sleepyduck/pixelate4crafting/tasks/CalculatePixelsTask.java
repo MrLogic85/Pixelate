@@ -3,7 +3,6 @@ package com.sleepyduck.pixelate4crafting.tasks;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
@@ -18,15 +17,15 @@ import java.util.Map;
 /**
  * Created by fredrik.metcalf on 2016-04-12.
  */
-public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
+public abstract class CalculatePixelsTask extends CancellableProcess<Object, Integer, int[][]> {
     private Map<Integer, Float> mColors;
     private Bitmap mBitmap;
     private int mWidth;
     private int mHeight;
 
     @Override
-    protected int[][] doInBackground(Object... params) {
-        publishProgress(0);
+    public int[][] execute(Object... params) {
+        onPublishProgress(0);
         if (params.length > 0) {
             Context context = (Context) params[0];
             Pattern pattern = (Pattern) params[1];
@@ -60,7 +59,7 @@ public class CalculatePixelsTask extends AsyncTask<Object, Integer, int[][]> {
             if (isCancelled()) {
                 return null;
             }
-            publishProgress(x * 100 / width);
+            onPublishProgress(x * 100 / width);
             for (int y = 0; y < height; ++y) {
                 dx = pixelSize * (float) x;
                 dy = pixelSize * (float) y;

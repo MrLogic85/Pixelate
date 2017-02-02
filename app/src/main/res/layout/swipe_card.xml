@@ -8,13 +8,6 @@
     android:layout_marginBottom="2dp"
     app:cardCornerRadius="0dp">
 
-    <TextView
-        android:id="@+id/header"
-        style="@style/TextViewHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/padding_small"/>
-
     <RelativeLayout
         android:id="@+id/card"
         android:layout_width="match_parent"

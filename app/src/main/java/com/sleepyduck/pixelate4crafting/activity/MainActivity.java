@@ -207,9 +207,11 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case REQUEST_NEW_PATTERN:
-                    Intent intent = new Intent(this, AddNewPatternService.class);
-                    intent.setData(data.getData());
-                    startService(intent);
+                    if (data != null && data.getData() != null) {
+                        Intent intent = new Intent(this, AddNewPatternService.class);
+                        intent.setData(data.getData());
+                        startService(intent);
+                    }
                     break;
                 default:
                     launch(data.getIntExtra(Pattern.INTENT_EXTRA_ID, 0), null);

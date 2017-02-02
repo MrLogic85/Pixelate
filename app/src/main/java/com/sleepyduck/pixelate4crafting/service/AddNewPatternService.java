@@ -16,6 +16,7 @@ import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
+import java.io.File;
 import java.util.Map;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
@@ -46,47 +47,46 @@ public class AddNewPatternService extends IntentService {
         } catch (Exception ignored) {
         }
 
-        if ("content".equals(imageUri.getScheme())) {
-            final String fileName = BitmapHandler.getFileName(this, imageUri);
-            final String title = Pattern.createTitleFromFileName(fileName);
+        final String fileName = BitmapHandler.getFileName(this, imageUri);
+        final String title = Pattern.createTitleFromFileName(fileName);
 
-            final int id = new Pattern.Empty(this)
-                    .edit()
-                    .setTitle(title)
-                    .setTime(System.currentTimeMillis())
-                    .setFlag(FLAG_STORING_IMAGE)
-                    .apply(true);
+        final int id = new Pattern.Empty(this)
+                .edit()
+                .setTitle(title)
+                .setTime(System.currentTimeMillis())
+                .setFlag(FLAG_STORING_IMAGE)
+                .apply(true);
 
-            if (MainActivity.FirebaseLogger != null) {
-                MainActivity.FirebaseLogger.patternCreated();
-            }
-
-            handler.post(new Runnable() {
-                public void run() {
-                    BitmapHandler.storeLocally(AddNewPatternService.this, imageUri, fileName, new BitmapHandler.OnFileStoredListener() {
-                        @Override
-                        public void onFileStored(String file, String thumbnail) {
-                            DatabaseManager.getPattern(AddNewPatternService.this, id)
-                                    .edit()
-                                    .setFile(file)
-                                    .setFileThumb(thumbnail)
-                                    .setWidth(Constants.DEFAULT_WIDTH)
-                                    .setFlag(FLAG_IMAGE_STORED)
-                                    .apply(false);
-
-                            new FindBestColorsTask() {
-                                @Override
-                                protected void onPostExecute(Map<Integer, Float> colors) {
-                                    DatabaseManager.getPattern(AddNewPatternService.this, id)
-                                            .edit()
-                                            .setColors(colors)
-                                            .apply(false);
-                                }
-                            }.execute(AddNewPatternService.this, file, Constants.DEFAULT_NUM_COLORS);
-                        }
-                    });
-                }
-            });
+        if (MainActivity.FirebaseLogger != null) {
+            MainActivity.FirebaseLogger.patternCreated();
         }
+
+        handler.post(new Runnable() {
+            public void run() {
+                BitmapHandler.storeLocally(AddNewPatternService.this, imageUri, fileName, new BitmapHandler.OnFileStoredListener() {
+                    @Override
+                    public void onFileStored(String file, String thumbnail) {
+                        DatabaseManager.getPattern(AddNewPatternService.this, id)
+                                .edit()
+                                .setFile(file)
+                                .setFileThumb(thumbnail)
+                                .setWidth(Constants.DEFAULT_WIDTH)
+                                .setFlag(FLAG_IMAGE_STORED)
+                                .apply(false);
+
+                        Map<Integer, Float> colors = new FindBestColorsTask() {
+                            @Override
+                            public void onPublishProgress(Integer progress) {
+                            }
+                        }.execute(AddNewPatternService.this, file, Constants.DEFAULT_NUM_COLORS);
+
+                        DatabaseManager.getPattern(AddNewPatternService.this, id)
+                                .edit()
+                                .setColors(colors)
+                                .apply(false);
+                    }
+                });
+            }
+        });
     }
 }

@@ -16,6 +16,7 @@ import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,13 +55,17 @@ public class BitmapHandler {
 	}
 
 	public static String getFileName(Context context, Uri uri) {
-		try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null)) {
-			if (cursor != null && cursor.moveToFirst()) {
-				String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-				if (displayName != null && displayName.length() > 0) {
-					return displayName;
+		if ("content".equals(uri.getScheme())) {
+			try (Cursor cursor = context.getContentResolver().query(uri, null, null, null, null, null)) {
+				if (cursor != null && cursor.moveToFirst()) {
+					String displayName = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+					if (displayName != null && displayName.length() > 0) {
+						return displayName;
+					}
 				}
 			}
+		} else {
+			return new File(uri.getPath()).getName();
 		}
 		return null;
 	}
@@ -84,7 +89,7 @@ public class BitmapHandler {
 			options.inDensity = context.getResources().getDisplayMetrics().densityDpi;
 			options.inSampleSize = 1;
             //--- Calculate sample size ---
-			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+			try (InputStream is = openStream(context, uri)) {
 				options.inJustDecodeBounds = true;
 				BitmapFactory.decodeStream(is, null, options);
 				int pixels = options.outHeight * options.outHeight;
@@ -95,7 +100,7 @@ public class BitmapHandler {
 				}
 			}
 			//--- Store image ---
-			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+			try (InputStream is = openStream(context, uri)) {
 				options.inJustDecodeBounds = false;
 				Bitmap orig = BitmapFactory.decodeStream(is, null, options);
 				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName))) {
@@ -105,7 +110,7 @@ public class BitmapHandler {
 			}
 
 			//--- Store thumbnail ---
-			try (InputStream is = context.getContentResolver().openInputStream(uri)) {
+			try (InputStream is = openStream(context, uri)) {
 				int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
 				Bitmap thumb = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(is), thumbSize, thumbSize);
 				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL))) {
@@ -124,6 +129,14 @@ public class BitmapHandler {
 		BetterLog.d(BitmapHandler.class, "Removing file %s", fileName);
 		File file = new File(context.getFilesDir(), fileName);
 		return file.exists() && file.delete();
+	}
+
+	private static InputStream openStream(Context context, Uri uri) throws IOException {
+		if ("content".equals(uri.getScheme()) || "file".equals(uri.getScheme())) {
+			return context.getContentResolver().openInputStream(uri);
+		} else {
+			return context.getAssets().open(uri.getPath());
+		}
 	}
 
 	public interface OnFileStoredListener {

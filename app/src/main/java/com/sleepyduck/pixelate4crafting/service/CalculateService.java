@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -19,6 +18,7 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.CalculatePixelsTask;
+import com.sleepyduck.pixelate4crafting.tasks.CancellableProcess;
 import com.sleepyduck.pixelate4crafting.tasks.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
@@ -40,8 +40,9 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     private CursorLoader loader;
     Handler handler;
 
-    final Map<Integer, AsyncTask> runningTasks = new HashMap<>();
+    private final Map<Integer, CancellableProcess<?, ?, ?>> currentProcess = new HashMap<>();
     private Cursor mCursor;
+    private boolean mIsBound;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -76,8 +77,6 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     private void processPattern(final Pattern pattern) {
         BetterLog.d(this, "Processing %d", pattern.Id);
 
-        cancelTask(pattern.Id);
-
         switch (pattern.getFlag()) {
             case FLAG_SIZE_OR_COLOR_CHANGED: {
                 BetterLog.d(this, "Start counting colors: %d", pattern.Id);
@@ -87,39 +86,34 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                         .apply(false);
                 final CountColorsTask colorsTask = new CountColorsTask() {
                     @Override
-                    protected void onProgressUpdate(Integer... values) {
+                    public void onPublishProgress(Integer progress) {
                         pattern.edit()
-                                .setProgress(values[0] / 2)
+                                .setProgress(progress / 2)
                                 .apply(false);
                     }
-
-                    @Override
-                    protected void onPostExecute(Map<Integer, Float> colors) {
-                        BetterLog.d(this, "CountColors finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
-                        if (colors != null) {
-                            pattern.edit()
-                                    .setColors(colors)
-                                    .setFlag(FLAG_COLORS_CALCULATED)
-                                    .apply(false);
-                        }
-                    }
-
-                    @Override
-                    protected void onCancelled() {
-                        BetterLog.d(this, "CountColors cancelled: %d", pattern.Id);
-                        removeTask(pattern.Id);
-                    }
                 };
-                addTask(pattern.Id, colorsTask);
-                synchronized (this) {
-                    try {
-                        wait(50);
-                    } catch (InterruptedException ignored) {
-                    }
+                synchronized (currentProcess) {
+                    currentProcess.put(pattern.Id, colorsTask);
                 }
-                colorsTask.execute(this, pattern);
-            } break;
+                Map<Integer, Float> colors = colorsTask.execute(this, pattern);
+                synchronized (currentProcess) {
+                    currentProcess.remove(pattern.Id);
+                }
+
+                if (colorsTask.isCancelled()) {
+                    BetterLog.d(this, "CountColors cancelled: %d", pattern.Id);
+                    return;
+                }
+
+                BetterLog.d(this, "CountColors finished: %d", pattern.Id);
+                if (colors != null) {
+                    pattern.edit()
+                            .setColors(colors)
+                            .setFlag(FLAG_COLORS_CALCULATED)
+                            .apply(false);
+                }
+            }
+            break;
             case FLAG_COLORS_CALCULATED: {
                 BetterLog.d(this, "Start calculating pixels: %d", pattern.Id);
                 pattern.edit()
@@ -127,32 +121,33 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                         .apply(false);
                 CalculatePixelsTask pixelsTask = new CalculatePixelsTask() {
                     @Override
-                    protected void onProgressUpdate(Integer... values) {
+                    public void onPublishProgress(Integer progress) {
                         pattern.edit()
-                                .setProgress(values[0] / 2 + 50)
+                                .setProgress(progress / 2 + 50)
                                 .apply(false);
                     }
-
-                    @Override
-                    protected void onPostExecute(int[][] pixels) {
-                        BetterLog.d(this, "CalcPixels finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
-                        if (pixels != null) {
-                            pattern.edit()
-                                    .setPixels(pixels)
-                                    .apply(false);
-                        }
-                    }
-
-                    @Override
-                    protected void onCancelled() {
-                        BetterLog.d(this, "CalcPixels cancelled: %d", pattern.Id);
-                        removeTask(pattern.Id);
-                    }
                 };
-                addTask(pattern.Id, pixelsTask);
-                pixelsTask.execute(this, pattern);
-            } break;
+                synchronized (currentProcess) {
+                    currentProcess.put(pattern.Id, pixelsTask);
+                }
+                int[][] pixels = pixelsTask.execute(this, pattern);
+                synchronized (currentProcess) {
+                    currentProcess.remove(pattern.Id);
+                }
+
+                if (pixelsTask.isCancelled()) {
+                    BetterLog.d(this, "CalcPixels cancelled: %d", pattern.Id);
+                    return;
+                }
+
+                BetterLog.d(this, "CalcPixels finished: %d", pattern.Id);
+                if (pixels != null) {
+                    pattern.edit()
+                            .setPixels(pixels)
+                            .apply(false);
+                }
+            }
+            break;
             case FLAG_PIXELS_CALCULATED: {
                 BetterLog.d(this, "Start storing PixelBitmap: %d", pattern.Id);
                 pattern.edit()
@@ -160,56 +155,45 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                         .apply(false);
                 PixelBitmapTask bitmapTask = new PixelBitmapTask() {
                     @Override
-                    protected void onPostExecute(Bitmap bitmap) {
-                        BetterLog.d(this, "PixelBitmap finished: %d", pattern.Id);
-                        removeTask(pattern.Id);
-                        if (bitmap != null) {
-                            String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, pattern.getFileName());
-                            pattern.edit()
-                                    .setFilePattern(patternName)
-                                    .apply(false);
-                        }
-                    }
-
-                    @Override
-                    protected void onCancelled() {
-                        BetterLog.d(this, "PixelBitmap cancelled: %d", pattern.Id);
-                        removeTask(pattern.Id);
+                    public void onPublishProgress(Object progress) {
                     }
                 };
-                addTask(pattern.Id, bitmapTask);
-                bitmapTask.execute(pattern);
+                synchronized (currentProcess) {
+                    currentProcess.put(pattern.Id, bitmapTask);
+                }
+                Bitmap bitmap = bitmapTask.execute(pattern);
+                synchronized (currentProcess) {
+                    currentProcess.remove(pattern.Id);
+                }
+
+                if (bitmapTask.isCancelled()) {
+                    BetterLog.d(this, "PixelBitmap cancelled: %d", pattern.Id);
+                    return;
+                }
+
+                BetterLog.d(this, "PixelBitmap finished: %d", pattern.Id);
+                if (bitmap != null) {
+                    String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, pattern.getFileName());
+                    pattern.edit()
+                            .setFilePattern(patternName)
+                            .apply(false);
+                }
             }
+        }
+
+        if (!mIsBound) {
+            stopSelf();
         }
     }
 
     private void cancelTask(int id) {
-        synchronized (runningTasks) {
-            if (runningTasks.containsKey(id)) {
+        synchronized (currentProcess) {
+            handler.removeMessages(id);
+            CancellableProcess<?, ?, ?> cancellableProcess = currentProcess.remove(id);
+            if (cancellableProcess != null) {
                 BetterLog.d(this, "Cancelling task: %d", id);
-                runningTasks.get(id).cancel(false);
+                cancellableProcess.cancel();
             }
-        }
-    }
-
-    private void addTask(int id, AsyncTask asyncTask) {
-        synchronized (runningTasks) {
-            while(runningTasks.containsKey(id)) {
-                BetterLog.d(this, "Waiting for task to finnish: %d", id);
-                try {
-                    runningTasks.wait(1000);
-                } catch (InterruptedException ignored) {
-                }
-            }
-            runningTasks.put(id, asyncTask);
-        }
-    }
-
-    private void removeTask(int id) {
-        BetterLog.d(this, "Processing finished: %d", id);
-        synchronized (runningTasks) {
-            runningTasks.remove(id);
-            runningTasks.notifyAll();
         }
     }
 
@@ -228,7 +212,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
             @Override
             public void onRemoved(int position, int count) {
-                for (int i = position; i < position + count; ++i){
+                for (int i = position; i < position + count; ++i) {
                     mCursor.moveToPosition(i);
                     Pattern pattern = new Pattern(CalculateService.this, mCursor);
                     BetterLog.d(this, "Removed %s", pattern.getTitle());
@@ -243,13 +227,13 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
             @Override
             public void onChanged(int position, int count, Object payload) {
-                for (int i = position; i < position + count; ++i){
+                for (int i = position; i < position + count; ++i) {
                     Bundle bundle = (Bundle) payload;
                     if (bundle != null && bundle.containsKey(DatabaseContract.PatternColumns.FLAG)) {
                         cursor.moveToPosition(-1);
                         int idColumn = mCursor.getColumnIndex(DatabaseContract.PatternColumns._ID);
                         int id = mCursor.getInt(idColumn);
-                        while (cursor.moveToNext() && cursor.getInt(idColumn) != id);
+                        while (cursor.moveToNext() && cursor.getInt(idColumn) != id) ;
                         if (cursor.getInt(idColumn) == id) {
                             handlePattern(new Pattern(CalculateService.this, cursor));
                         }
@@ -267,7 +251,8 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 || pattern.getFlag() == FLAG_COLORS_CALCULATED
                 || pattern.getFlag() == FLAG_PIXELS_CALCULATED) {
             BetterLog.d(this, "Loading %s, %d", pattern.getTitle(), pattern.Id);
-            Message message = handler.obtainMessage();
+            cancelTask(pattern.Id);
+            Message message = handler.obtainMessage(pattern.Id);
             message.obj = pattern;
             handler.sendMessage(message);
         }
@@ -278,6 +263,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     @Override
     public IBinder onBind(Intent intent) {
         startService(new Intent(this, CalculateService.class));
+        mIsBound = true;
         return new Binder();
     }
 
@@ -286,6 +272,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
         if (handler != null && handler.hasMessages(0)) {
             stop();
         }
+        mIsBound = false;
         return super.onUnbind(intent);
     }
 

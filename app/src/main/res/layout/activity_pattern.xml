@@ -64,6 +64,7 @@
                 android:layout_height="wrap_content">
 
                 <Button
+                    android:id="@+id/menu_change_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_accent"
@@ -79,6 +80,7 @@
                 android:layout_marginTop="@dimen/padding_tiny">
 
                 <Button
+                    android:id="@+id/menu_change_pixles"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_accent"
@@ -94,6 +96,7 @@
                 android:layout_marginTop="@dimen/padding_tiny">
 
                 <Button
+                    android:id="@+id/menu_change_colors"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_accent"
@@ -109,6 +112,7 @@
                 android:layout_marginTop="@dimen/padding_tiny">
 
                 <Button
+                    android:id="@+id/menu_change_size"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/button_accent"

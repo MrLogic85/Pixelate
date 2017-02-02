@@ -100,7 +100,6 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
             }
 
             mItemView.setTag(pattern);
-            mItemView.findViewById(R.id.header).setVisibility(View.GONE);
             mItemView.findViewById(R.id.card).setVisibility(View.VISIBLE);
 
             if (pattern.getState() == DatabaseContract.PatternColumns.STATE_COMPLETED) {

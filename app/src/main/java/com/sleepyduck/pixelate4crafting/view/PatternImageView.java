@@ -123,14 +123,16 @@ public class PatternImageView extends InteractiveImageView {
             // Draw colors
             for (int x = 0; x < pixelsWidth; ++x) {
                 for (int y = 0; y < pixelsHeight; ++y) {
-                    int pixel = mOrigBitmap.getPixel((int) (dRes * (x + .5f)), (int) (dRes * (y + .5f)));
-                    if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
-                        continue;
-                    }
-                    pixel = ColorUtil.getBestColorFor(pixel, mColors);
-                    for (int ix = x * pixelSize; ix < (x + 1) * pixelSize; ++ix) {
-                        for (int iy = y * pixelSize; iy < (y + 1) * pixelSize; ++iy) {
-                            pixelBitmap.setPixel(ix, iy, pixel);
+                    if ((int) (dRes * (x + .5f)) < mOrigBitmap.getWidth() && (int) (dRes * (y + .5f)) < mOrigBitmap.getHeight()) {
+                        int pixel = mOrigBitmap.getPixel((int) (dRes * (x + .5f)), (int) (dRes * (y + .5f)));
+                        if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
+                            continue;
+                        }
+                        pixel = ColorUtil.getBestColorFor(pixel, mColors);
+                        for (int ix = x * pixelSize; ix < (x + 1) * pixelSize; ++ix) {
+                            for (int iy = y * pixelSize; iy < (y + 1) * pixelSize; ++iy) {
+                                pixelBitmap.setPixel(ix, iy, pixel);
+                            }
                         }
                     }
                 }

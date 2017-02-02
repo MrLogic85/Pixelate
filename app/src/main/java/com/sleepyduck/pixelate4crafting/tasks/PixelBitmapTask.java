@@ -2,7 +2,6 @@ package com.sleepyduck.pixelate4crafting.tasks;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.os.AsyncTask;
 
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 
@@ -12,13 +11,13 @@ import java.util.Arrays;
  * Created by fredrikmetcalf on 26/01/17.
  */
 
-public class PixelBitmapTask extends AsyncTask<Object, Object, Bitmap> {
+public abstract class PixelBitmapTask extends CancellableProcess<Pattern, Object, Bitmap> {
     public static final int PIXEL_SIZE = 11; // 10 per pixel plus 1 for grid
     private final int[] pixelsSquare = new int[PIXEL_SIZE * PIXEL_SIZE];
 
     @Override
-    protected Bitmap doInBackground(Object... params) {
-        Pattern pattern = (Pattern) params[0];
+    public Bitmap execute(Pattern... params) {
+        Pattern pattern = params[0];
         int pixelsWidth = pattern.getPixelWidth();
         int pixelsHeight = pattern.getPixelHeight();
         int[][] pixels = pattern.getPixels(new int[pixelsWidth][pixelsHeight]);
