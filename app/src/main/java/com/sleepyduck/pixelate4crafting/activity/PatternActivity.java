@@ -63,7 +63,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     Pattern.Edit editPattern;
 
-    private InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
+    private final InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
             if (isEditMenuVisible

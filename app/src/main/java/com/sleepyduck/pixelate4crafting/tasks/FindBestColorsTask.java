@@ -27,16 +27,12 @@ public class FindBestColorsTask extends AsyncTask<Object, Integer, Map<Integer, 
 
             Map<Integer, Float> colorsCounted = new HashMap<>();
 
-            try {
-                MMCQ.CMap colors = MMCQ.computeMap(mBitmap, numColors);
-                for (int[] color : colors.palette()) {
-                    colorsCounted.put(Color.rgb(color[0], color[1], color[2]), 0f);
-                }
-                colorsCounted.put(Color.WHITE, 0f);
-                return colorsCounted;
-            } catch (IOException e) {
-                e.printStackTrace();
+            MMCQ.CMap colors = MMCQ.computeMap(mBitmap, numColors);
+            for (int[] color : colors.palette()) {
+                colorsCounted.put(Color.rgb(color[0], color[1], color[2]), 0f);
             }
+            colorsCounted.put(Color.WHITE, 0f);
+            return colorsCounted;
         }
         return null;
     }

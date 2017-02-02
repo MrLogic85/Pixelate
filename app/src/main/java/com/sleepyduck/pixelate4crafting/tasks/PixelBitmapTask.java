@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 public class PixelBitmapTask extends AsyncTask<Object, Object, Bitmap> {
     public static final int PIXEL_SIZE = 11; // 10 per pixel plus 1 for grid
-    private int[] pixelsSquare = new int[PIXEL_SIZE * PIXEL_SIZE];
+    private final int[] pixelsSquare = new int[PIXEL_SIZE * PIXEL_SIZE];
 
     @Override
     protected Bitmap doInBackground(Object... params) {

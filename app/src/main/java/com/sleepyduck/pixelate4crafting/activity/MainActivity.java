@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private SwipeCardAdapter mAdapter;
     private FirebaseLogger mFirebaseLogger;
 
-    private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Object tag = v.getTag();
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener mOnRightButtonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mOnRightButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Object tag = v.getTag();
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private View.OnClickListener mOnLeftButtonClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mOnLeftButtonClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Object tag = v.getTag();
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private ServiceConnection serviceConnection = new ServiceConnection() {
+    private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
 
@@ -147,11 +147,6 @@ public class MainActivity extends AppCompatActivity {
                 startService(serviceIntent);
             }
         }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     @Override

@@ -5,5 +5,5 @@ public class Constants {
 	public static final String FILE_THUMBNAIL = "_thumb";
 	public static final String FILE_PATTERN = "_pattern";
 	public static final Object DEFAULT_NUM_COLORS = 20;
-	public static int DEFAULT_WIDTH = 60;
+	public static final int DEFAULT_WIDTH = 60;
 }

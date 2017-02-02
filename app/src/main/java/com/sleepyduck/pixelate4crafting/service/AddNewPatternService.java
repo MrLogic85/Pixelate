@@ -25,15 +25,13 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 
 public class AddNewPatternService extends IntentService {
-    private final FirebaseLogger firebaseLogger;
-    Handler handler;
+    final Handler handler;
 
     public AddNewPatternService() {
         super(AddNewPatternService.class.getSimpleName());
         HandlerThread handlerThread = new HandlerThread(AddNewPatternService.class.getSimpleName());
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
-        firebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
     }
 
     @Override
@@ -57,8 +55,6 @@ public class AddNewPatternService extends IntentService {
                     .setTime(System.currentTimeMillis())
                     .setFlag(FLAG_STORING_IMAGE)
                     .apply(true);
-
-            firebaseLogger.patternCreated();
 
             handler.post(new Runnable() {
                 public void run() {

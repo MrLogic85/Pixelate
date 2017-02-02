@@ -1,26 +1,12 @@
 <resources>
     <string name="app_name">Pixelate 4 Crafting</string>
 
-    <string name="latest">Latest</string>
-    <string name="active">Active</string>
-    <string name="completed">Completed</string>
-
-    <string name="ok">OK</string>
-    <string name="back">BACK</string>
     <string name="done">DONE</string>
 
-    <string name="choose_image_description">Pick an image to create your pattern</string>
-
     <string name="choose_width_description">How many pixels wide do you want the pattern?</string>
-    <string name="analyzing_image">Analyzing colors!</string>
-    <string name="choose_color_count">About how many colors would you like to use?</string>
-    <string name="prepare_pattern">Preparing pattern</string>
     <string name="pick_color_from_here">Pick pattern colors from image</string>
     <string name="approximated_pattern">Pattern approximation</string>
     <string name="palette_with_text">Palette (Click on a color to remove it)</string>
-    <string name="change_parameters">Edit palette and size</string>
-    <string name="change_width">Change width</string>
-    <string name="change_name">Change name</string>
     <string name="undo">Undo</string>
     <string name="redo">Redo</string>
     <string name="main_banner_ad_unit_id">ca-app-pub-1586949106208904/3620012871</string>

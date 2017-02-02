@@ -17,13 +17,13 @@ public class MMCQ {
     private static final int MAX_ITERATIONS = 1000;
     private static final double FRACT_BY_POPULATION = 0.75;
 
-    public static CMap computeMap(Bitmap image, int maxcolors) throws IOException {
+    public static CMap computeMap(Bitmap image, int maxcolors) {
         List<int[]> pixels = getPixels(image);
         CMap map = quantize(pixels, maxcolors);
         return map;
     }
 
-    public static List<int[]> compute(Bitmap image, int maxcolors) throws IOException {
+    public static List<int[]> compute(Bitmap image, int maxcolors) {
         List<int[]> pixels = getPixels(image);
         return compute(pixels, maxcolors);
     }
@@ -36,8 +36,8 @@ public class MMCQ {
     private static List<int[]> getPixels(Bitmap image) {
         int width = image.getWidth();
         int height = image.getHeight();
-        List<int[]> res = new ArrayList<int[]>();
-        List<Integer> t = new ArrayList<Integer>();
+        List<int[]> res = new ArrayList<>();
+        List<Integer> t = new ArrayList<>();
         for (int row = 0; row < height; row++) {
             for (int col = 0; col < width; col++) {
                 t.add(image.getPixel(col, row));
@@ -96,7 +96,7 @@ public class MMCQ {
         private int[] _avg;
         private Integer _volume;
         private Integer _count;
-        private Map<Integer,Integer> histo = new HashMap<Integer,Integer>();
+        private Map<Integer,Integer> histo = new HashMap<>();
 
         public int getVolume(boolean recompute) {
             if (_volume == null || recompute) {
@@ -106,7 +106,7 @@ public class MMCQ {
         }
 
         public VBox clone() {
-            VBox clone = new VBox(r1, r2, g1, g2, b1, b2, new HashMap<Integer,Integer>(histo));
+            VBox clone = new VBox(r1, r2, g1, g2, b1, b2, new HashMap<>(histo));
             return clone;
         }
 
@@ -242,7 +242,7 @@ public class MMCQ {
     }
 
     public static class CMap {
-        private ArrayList<DenormalizedVBox> vboxes = new ArrayList<DenormalizedVBox>();
+        private final ArrayList<DenormalizedVBox> vboxes = new ArrayList<>();
 
         public void push(VBox box) {
             vboxes.add(new DenormalizedVBox(box, box.avg(false)));
@@ -251,7 +251,7 @@ public class MMCQ {
         public List<DenormalizedVBox> getBoxes() { return vboxes; };
 
         public List<int[]> palette() {
-            List<int[]> r = new ArrayList<int[]>();
+            List<int[]> r = new ArrayList<>();
             Iterator<DenormalizedVBox> it = vboxes.iterator();
             while (it.hasNext()) {
                 DenormalizedVBox denormalizedVBox = (DenormalizedVBox) it.next();
@@ -293,7 +293,7 @@ public class MMCQ {
 
     private static Map<Integer,Integer> getHisto(List<int[]> pixels) {
         //int histosize = 1 << (3 * SIGBITS);
-        Map<Integer,Integer> histo = new HashMap<Integer,Integer>();
+        Map<Integer,Integer> histo = new HashMap<>();
         int index, rval, gval, bval;
         Iterator<int[]> it = pixels.iterator();
         while (it.hasNext()) {
@@ -347,8 +347,8 @@ public class MMCQ {
         int rw = vbox.r2 - vbox.r1 + 1, gw = vbox.g2 - vbox.g1 + 1, bw = vbox.b2 - vbox.b1 + 1, maxw = Math.max(Math.max(rw, gw), bw);
 
         int total = 0, i, j, k, sum, index;
-        Map<Integer,Integer> partialsum = new HashMap<Integer,Integer>();
-        Map<Integer,Integer> lookaheadsum = new HashMap<Integer,Integer>();
+        Map<Integer,Integer> partialsum = new HashMap<>();
+        Map<Integer,Integer> lookaheadsum = new HashMap<>();
         if (maxw == rw) {
             for (i = vbox.r1; i <= vbox.r2; i++) {
                 sum = 0;
@@ -455,7 +455,7 @@ public class MMCQ {
         //histo.get(29628)
         //System.out.println("histo size: " + histo.size());
         VBox vbox = vboxFromPixels(pixels, histo);
-        List<VBox> pq = new ArrayList<VBox>();
+        List<VBox> pq = new ArrayList<>();
         pq.add(vbox);
         int niters = 0;
         nColors = 1;

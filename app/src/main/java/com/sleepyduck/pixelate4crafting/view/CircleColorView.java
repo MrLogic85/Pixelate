@@ -212,13 +212,6 @@ public class CircleColorView extends View {
         super.onDraw(canvas);
     }
 
-    public void setRawPos(float rawX, float rawY) {
-        int[] out = new int[2];
-        getLocationInWindow(out);
-        setTranslationX(rawX - getMeasuredWidth() / 2);
-        setTranslationY(rawY - getMeasuredHeight() / 2);
-    }
-
     // Used by ObjectAnimator
     @SuppressWarnings("unused")
     public void setScaleAnim(float scale) {
@@ -258,7 +251,6 @@ public class CircleColorView extends View {
     }
 
     public void setOnColorClickListener(final OnColorClickListener listener) {
-        OnColorClickListener listener1 = listener;
         final float[] touchPos = new float[2];
         setOnTouchListener(new OnTouchListener() {
             @Override

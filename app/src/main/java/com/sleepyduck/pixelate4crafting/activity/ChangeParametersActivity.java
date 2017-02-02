@@ -63,8 +63,8 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private GridView mPaletteGrid;
     private GridAdapter mGridAdapter;
     private int mState = STATE_FOCUSED_OFF;
-    private Stack<History> mHistory = new Stack<>();
-    private Stack<History> mUndoneHistory = new Stack<>();
+    private final Stack<History> mHistory = new Stack<>();
+    private final Stack<History> mUndoneHistory = new Stack<>();
     private Menu mOptionMenu;
     private int mOrigFlag;
     private FirebaseLogger mFirebaseLogger;
@@ -215,7 +215,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     }
 
-    private OnHistoryDo mDoHistory = new OnHistoryDo() {
+    private final OnHistoryDo mDoHistory = new OnHistoryDo() {
         @Override
         public void removeColor(int color) {
             mFirebaseLogger.colorRemoved();
@@ -245,7 +245,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     };
 
-    private AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
+    private final AdapterView.OnItemClickListener mItemClickListener = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             if (mState != STATE_FOCUSED_PALETTE) {
@@ -256,7 +256,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         }
     };
 
-    private InteractiveImageView.OnImageClickListener mOnImageClickListener = new InteractiveImageView.OnImageClickListener() {
+    private final InteractiveImageView.OnImageClickListener mOnImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(Bitmap bitmap, int x, int y, float rawX, float rawY) {
             int width = bitmap.getWidth();

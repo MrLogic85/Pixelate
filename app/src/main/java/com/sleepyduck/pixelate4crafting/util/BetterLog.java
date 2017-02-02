@@ -3,7 +3,7 @@ package com.sleepyduck.pixelate4crafting.util;
 import android.util.Log;
 
 public class BetterLog {
-    public static boolean DEBUG = true;
+    public static final boolean DEBUG = true;
 
     public static void d(Class<?> source, String text) {
         if (!DEBUG)

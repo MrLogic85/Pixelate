@@ -5,9 +5,7 @@ import android.support.v4.graphics.ColorUtils;
 import android.util.SparseArray;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 /**
  * Created by fredrikmetcalf on 13/04/16.
@@ -15,9 +13,9 @@ import java.util.List;
 public class ColorUtil {
     public static final int ALPHA_CHANNEL = 0xff000000;
 
-    private static double[] LabLeft = new double[3];
-    private static double[] LabRight = new double[3];
-    private static SparseArray<SparseArray<Double>> DiffMap = new SparseArray<>();
+    private static final double[] LabLeft = new double[3];
+    private static final double[] LabRight = new double[3];
+    private static final SparseArray<SparseArray<Double>> DiffMap = new SparseArray<>();
 
     synchronized public static double Diff(int left, int right) {
         int _left = Math.max(left, right);

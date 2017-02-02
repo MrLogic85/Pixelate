@@ -17,7 +17,7 @@ public class SwipeCard extends CardView {
     private final ViewConfiguration mViewConfig;
 
     private static final int[] ButtonIds = {R.id.button1, R.id.button2, R.id.button3};
-    private ImageButton[] mButtons = new ImageButton[3];
+    private final ImageButton[] mButtons = new ImageButton[3];
     private View mContentView;
 
     private float mStartDragPos;

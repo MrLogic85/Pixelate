@@ -21,7 +21,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
     protected Bitmap mImageBitmap;
     private OnImageClickListener mImageListener;
 
-    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
+    private final GestureDetector mGestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
         @Override
         public boolean onDown(MotionEvent e) {
             return true;
@@ -64,7 +64,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
         }
     });
 
-    private ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
+    private final ScaleGestureDetector mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleGestureDetector.OnScaleGestureListener() {
         float lastX, lastY;
 
         @Override

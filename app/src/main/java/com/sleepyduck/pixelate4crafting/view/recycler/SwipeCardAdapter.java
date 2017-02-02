@@ -62,7 +62,7 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        SwipeCard mItemView;
+        final SwipeCard mItemView;
 
         ViewHolder(SwipeCard itemView) {
             super(itemView);
