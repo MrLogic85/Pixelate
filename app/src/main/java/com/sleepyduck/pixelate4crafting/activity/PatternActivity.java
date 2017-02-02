@@ -25,11 +25,13 @@ import android.widget.EditText;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -52,6 +54,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private EditText mTitle;
     private int mLoaderId;
     private ColorEditList mColorEditListView;
+    private FirebaseLogger mFirebaseLogger;
 
     private int mMenuEditFlag = MENU_EDIT_DONE;
     private static final int MENU_EDIT_DONE = 0x00;
@@ -71,6 +74,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
+                mFirebaseLogger.pixelChanged();
                 switch (mColorEditListView.getState()) {
                     case COLOR:
                         mCanvas.setPixel(patternX, patternY, mColorEditListView.getColor());
@@ -96,6 +100,8 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pattern);
+
+        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -216,6 +222,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
                         , Constants.DEFAULT_WIDTH);
                 Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
+                mFirebaseLogger.sizeChanged(newWidth, pattern.getPixelWidth());
                 pattern.edit()
                         .setWidth(newWidth)
                         .apply(false);
@@ -296,6 +303,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     private void onDoneClicked(int flag) {
         if ((flag & MENU_EDIT_NAME) != 0) {
+            mFirebaseLogger.nameChanged();
             hideSoftKeyboard(mTitle);
             removeMenuEditFlag(MENU_EDIT_NAME);
         }

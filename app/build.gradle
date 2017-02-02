@@ -34,6 +34,8 @@ dependencies {
     compile 'com.github.supervital:swipenumberpicker:1.0.1'
     compile 'com.google.firebase:firebase-ads:10.0.1'
     compile 'com.google.firebase:firebase-crash:10.0.1'
+    compile 'com.google.firebase:firebase-core:10.0.1'
 }
+
 
 apply plugin: 'com.google.gms.google-services'

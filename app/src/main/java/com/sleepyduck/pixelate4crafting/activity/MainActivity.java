@@ -16,8 +16,10 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
+import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -38,6 +40,7 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
     private SwipeCardAdapter mAdapter;
+    private FirebaseLogger mFirebaseLogger;
 
     private View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
         @Override
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
                 pattern.delete(MainActivity.this);
+                mFirebaseLogger.patternDeleted();
             }
         }
     };
@@ -101,6 +105,8 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -133,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.getClipData() != null) {
+            mFirebaseLogger.logShareReceived(intent.getClipData().getItemCount());
             ClipData clipData = intent.getClipData();
             for (int i = 0; i < clipData.getItemCount(); ++i) {
                 Intent serviceIntent = new Intent(this, AddNewPatternService.class);
@@ -163,19 +170,23 @@ public class MainActivity extends AppCompatActivity {
             case FLAG_STORING_IMAGE:
             case FLAG_IMAGE_STORED: {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
-            } break;
+            }
+            break;
             case FLAG_COMPLETE: {
+                mFirebaseLogger.patternOpened();
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
                 intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
                 ActivityCompat.startActivity(this, intent, options.toBundle());
-            } break;
+            }
+            break;
             default: {
                 Intent intent = new Intent(this, ChangeParametersActivity.class);
                 intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
                 startActivity(intent);
-            } break;
+            }
+            break;
         }
     }
 

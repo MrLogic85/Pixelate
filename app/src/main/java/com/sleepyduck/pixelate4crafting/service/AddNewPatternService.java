@@ -6,8 +6,10 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
+import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.FindBestColorsTask;
@@ -23,6 +25,7 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 
 public class AddNewPatternService extends IntentService {
+    private final FirebaseLogger firebaseLogger;
     Handler handler;
 
     public AddNewPatternService() {
@@ -30,6 +33,7 @@ public class AddNewPatternService extends IntentService {
         HandlerThread handlerThread = new HandlerThread(AddNewPatternService.class.getSimpleName());
         handlerThread.start();
         handler = new Handler(handlerThread.getLooper());
+        firebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
     }
 
     @Override
@@ -53,6 +57,8 @@ public class AddNewPatternService extends IntentService {
                     .setTime(System.currentTimeMillis())
                     .setFlag(FLAG_STORING_IMAGE)
                     .apply(true);
+
+            firebaseLogger.patternCreated();
 
             handler.post(new Runnable() {
                 public void run() {

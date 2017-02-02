@@ -21,9 +21,11 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
+import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -65,11 +67,14 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private Stack<History> mUndoneHistory = new Stack<>();
     private Menu mOptionMenu;
     private int mOrigFlag;
+    private FirebaseLogger mFirebaseLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_paramerters);
+
+        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -213,6 +218,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private OnHistoryDo mDoHistory = new OnHistoryDo() {
         @Override
         public void removeColor(int color) {
+            mFirebaseLogger.colorRemoved();
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             pattern.edit()
                     .removeColor(color)
@@ -226,6 +232,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         @Override
         public void addColor(int color) {
+            mFirebaseLogger.colorAdded();
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             pattern.edit()
                     .addColor(color)
@@ -287,6 +294,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     };
 
     private void removeColor(int color) {
+        mFirebaseLogger.colorRemoved();
         Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
         pattern.edit()
                 .removeColor(color)
@@ -344,6 +352,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             if (requestCode == REQUEST_CHOOSE_COLOR) {
+                mFirebaseLogger.colorAdded();
                 int pixel = data.getIntExtra("pixel", 0);
                 pattern.edit()
                         .addColor(pixel)
@@ -373,6 +382,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
             mColors = new int[pattern.getColorCount()];
             pattern.getColors(mColors);
             Arrays.sort(mColors);
+            notifyDataSetChanged();
         }
 
         @Override

@@ -283,7 +283,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
     @Override
     synchronized public boolean onUnbind(Intent intent) {
-        if (handler.hasMessages(0)) {
+        if (handler != null && handler.hasMessages(0)) {
             stop();
         }
         return super.onUnbind(intent);
