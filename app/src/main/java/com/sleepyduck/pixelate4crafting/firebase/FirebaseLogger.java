@@ -3,6 +3,7 @@ package com.sleepyduck.pixelate4crafting.firebase;
 import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.sleepyduck.pixelate4crafting.BuildConfig;
 
 /**
  * Created by fredrikmetcalf on 02/02/17.
@@ -24,6 +25,7 @@ public class FirebaseLogger {
 
     public FirebaseLogger(FirebaseAnalytics instance) {
         mFirebase = instance;
+        mFirebase.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG);
     }
 
     public void patternCreated() {
