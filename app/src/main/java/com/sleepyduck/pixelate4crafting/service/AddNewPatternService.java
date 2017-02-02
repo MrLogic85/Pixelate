@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.sleepyduck.pixelate4crafting.activity.MainActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
 import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
@@ -55,6 +56,10 @@ public class AddNewPatternService extends IntentService {
                     .setTime(System.currentTimeMillis())
                     .setFlag(FLAG_STORING_IMAGE)
                     .apply(true);
+
+            if (MainActivity.FirebaseLogger != null) {
+                MainActivity.FirebaseLogger.patternCreated();
+            }
 
             handler.post(new Runnable() {
                 public void run() {

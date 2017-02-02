@@ -39,8 +39,9 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
+    public static FirebaseLogger FirebaseLogger;
+
     private SwipeCardAdapter mAdapter;
-    private FirebaseLogger mFirebaseLogger;
 
     private final View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
         @Override
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
                 pattern.delete(MainActivity.this);
-                mFirebaseLogger.patternDeleted();
+                FirebaseLogger.patternDeleted();
             }
         }
     };
@@ -106,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
+        FirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onNewIntent(Intent intent) {
         if (intent.getClipData() != null) {
-            mFirebaseLogger.logShareReceived(intent.getClipData().getItemCount());
+            FirebaseLogger.logShareReceived(intent.getClipData().getItemCount());
             ClipData clipData = intent.getClipData();
             for (int i = 0; i < clipData.getItemCount(); ++i) {
                 Intent serviceIntent = new Intent(this, AddNewPatternService.class);
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             }
             break;
             case FLAG_COMPLETE: {
-                mFirebaseLogger.patternOpened();
+                FirebaseLogger.patternOpened();
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);

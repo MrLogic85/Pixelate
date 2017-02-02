@@ -143,7 +143,7 @@ public class DatabaseManager {
         JSONObject json = new JSONObject();
         try {
             json.put("width", pixels.length);
-            json.put("height", pixels[0].length);
+            json.put("height", pixels.length > 0 ? pixels[0].length : 0);
             for (int w = 0; w < pixels.length; ++w) {
                 for (int h = 0; h < pixels[w].length; ++h) {
                     json.put("" + w + "," + h, pixels[w][h]);

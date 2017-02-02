@@ -48,13 +48,13 @@ import java.util.Random;
 
 public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int REQUEST_CHANGE_WIDTH = 1;
+    private static FirebaseLogger mFirebaseLogger;
 
     private int mPatternId;
     private PatternImageView mCanvas;
     private EditText mTitle;
     private int mLoaderId;
     private ColorEditList mColorEditListView;
-    private FirebaseLogger mFirebaseLogger;
 
     private int mMenuEditFlag = MENU_EDIT_DONE;
     private static final int MENU_EDIT_DONE = 0x00;
@@ -203,6 +203,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onDestroy() {
         getLoaderManager().destroyLoader(mLoaderId);
+        mFirebaseLogger = null;
         super.onDestroy();
     }
 
