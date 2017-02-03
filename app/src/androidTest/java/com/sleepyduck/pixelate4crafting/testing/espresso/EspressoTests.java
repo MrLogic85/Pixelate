@@ -146,26 +146,31 @@ public class EspressoTests {
         // Check that recycler is empty
         onView(withId(R.id.recycler)).check(matches(withSize(0)));
 
-        // Click add button
+        // Remove idling resource
+        Espresso.unregisterIdlingResources(idlingResource);
+
+        // Click add button twice
+        onView(withId(R.id.fab_add)).perform(click());
         onView(withId(R.id.fab_add)).perform(click());
 
-        // Verify that the intent sent to correct
-        intended(allOf(
-                hasAction(Intent.ACTION_GET_CONTENT),
-                hasCategories(GET_CONTENT_CATEGORIES),
-                hasType(GET_CONTENT_TYPE)));
+        // Readd idling resource
+        Espresso.registerIdlingResources(idlingResource);
+
+        // Check that a pattern was added
+        onView(withId(R.id.recycler)).check(matches(withSize(2)));
+
+        // Delete one
+        Pattern[] patterns = DatabaseManager.getPatterns(mMainActivityRule.getActivity());
+        patterns[1].delete();
+
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         // Check that a pattern was added
         onView(withId(R.id.recycler)).check(matches(withSize(1)));
-
-        // Check that a pattern was added
-        onView(withId(R.id.recycler)).check(matches(withSize(1)));
-
-        // Check that the progressbar is not displayed
-        onView(withId(R.id.progress_bar)).check(matches(not(isDisplayed())));
-
-        // Remove idling resource
-        Espresso.unregisterIdlingResources(Espresso.getIdlingResources().toArray(new IdlingResource[1]));
     }
 
     @Test

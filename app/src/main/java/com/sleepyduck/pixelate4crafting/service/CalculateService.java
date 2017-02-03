@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
+import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
@@ -73,6 +74,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     synchronized private void stop() {
+        Toast.makeText(this, "Stopping " + CalculateService.class.getSimpleName(), Toast.LENGTH_SHORT).show();
         stopSelf();
     }
 
@@ -190,7 +192,6 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
     private void cancelTask(int id) {
         synchronized (currentProcess) {
-            handler.removeMessages(id);
             CancellableProcess<?, ?, ?> cancellableProcess = currentProcess.remove(id);
             if (cancellableProcess != null) {
                 BetterLog.d(this, "Cancelling task: %d", id);
@@ -207,7 +208,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                 for (int i = position; i < position + count; ++i) {
                     cursor.moveToPosition(i);
                     Pattern pattern = new Pattern(CalculateService.this, cursor);
-                    BetterLog.d(this, "Inserted %s", pattern.getTitle());
+                    BetterLog.d(this, "Inserted \"%s\", ", pattern.getTitle(), pattern.Id);
                     if (pattern.getFlag() == FLAG_COLORS_CALCULATING
                             || pattern.getFlag() == FLAG_PIXELS_CALCULATING
                             || pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGING) {
@@ -238,16 +239,8 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
             @Override
             public void onChanged(int position, int count, Object payload) {
                 for (int i = position; i < position + count; ++i) {
-                    Bundle bundle = (Bundle) payload;
-                    if (bundle != null && bundle.containsKey(DatabaseContract.PatternColumns.FLAG)) {
-                        cursor.moveToPosition(-1);
-                        int idColumn = mCursor.getColumnIndex(DatabaseContract.PatternColumns._ID);
-                        int id = mCursor.getInt(idColumn);
-                        while (cursor.moveToNext() && cursor.getInt(idColumn) != id) ;
-                        if (cursor.getInt(idColumn) == id) {
-                            handlePattern(new Pattern(CalculateService.this, cursor));
-                        }
-                    }
+                    cursor.moveToPosition(position);
+                    handlePattern(new Pattern(CalculateService.this, cursor));
                 }
             }
         });
@@ -260,10 +253,11 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
         } else if (pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGED
                 || pattern.getFlag() == FLAG_COLORS_CALCULATED
                 || pattern.getFlag() == FLAG_PIXELS_CALCULATED) {
-            BetterLog.d(this, "Loading %s, %d", pattern.getTitle(), pattern.Id);
+            BetterLog.d(this, "Handling \"%s\", %d", pattern.getTitle(), pattern.Id);
             cancelTask(pattern.Id);
             Message message = handler.obtainMessage(pattern.Id);
             message.obj = pattern;
+            handler.removeMessages(pattern.Id);
             handler.sendMessage(message);
         }
     }
