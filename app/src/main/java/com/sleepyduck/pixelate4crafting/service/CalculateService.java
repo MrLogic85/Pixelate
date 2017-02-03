@@ -29,6 +29,7 @@ import java.util.Map;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATING;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PATTERN_DRAWING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
@@ -63,6 +64,8 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
     @Override
     public void onDestroy() {
+        handler.getLooper().quit();
+
         loader.unregisterListener(this);
         loader.cancelLoad();
         loader.stopLoading();
@@ -70,7 +73,6 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     synchronized private void stop() {
-        handler.getLooper().quit();
         stopSelf();
     }
 
@@ -182,7 +184,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
         }
 
         if (!mIsBound) {
-            stopSelf();
+            stop();
         }
     }
 
@@ -206,7 +208,15 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                     cursor.moveToPosition(i);
                     Pattern pattern = new Pattern(CalculateService.this, cursor);
                     BetterLog.d(this, "Inserted %s", pattern.getTitle());
-                    handlePattern(pattern);
+                    if (pattern.getFlag() == FLAG_COLORS_CALCULATING
+                            || pattern.getFlag() == FLAG_PIXELS_CALCULATING
+                            || pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGING) {
+                        pattern.edit()
+                                .setFlag(FLAG_SIZE_OR_COLOR_CHANGED)
+                                .apply(false);
+                    } else {
+                        handlePattern(pattern);
+                    }
                 }
             }
 

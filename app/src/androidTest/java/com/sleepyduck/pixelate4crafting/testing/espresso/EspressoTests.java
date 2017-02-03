@@ -553,8 +553,7 @@ public class EspressoTests {
         }
 
         // Verify that pattern was added
-        Pattern[] patterns = DatabaseManager.getPatterns(mMainActivityRule.getActivity());
-        assertTrue(patterns.length == 1);
+        onView(withId(R.id.recycler)).check(matches(withSize(1)));
     }
 
     @Test

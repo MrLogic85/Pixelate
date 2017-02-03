@@ -8,18 +8,6 @@
     android:keepScreenOn="true"
     tools:context=".activity.PatternActivity">
 
-    <android.support.design.widget.AppBarLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
-
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/toolbar"
-            app:layout_scrollFlags="scroll|enterAlways" />
-
-    </android.support.design.widget.AppBarLayout>
-
     <com.sleepyduck.pixelate4crafting.view.PatternImageView
         android:id="@+id/canvas"
         android:layout_width="match_parent"
@@ -28,17 +16,6 @@
         android:scaleType="matrix"
         android:transitionName="@string/transitionImage"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
-
-    <com.sleepyduck.pixelate4crafting.view.CircleColorView
-        android:id="@+id/circle_color_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"
-        app:colorRadius="@dimen/color_radius"
-        app:innerCircleColorCount="8"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:testColorCount="21"
-        tools:visibility="visible" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/edit_menu_card"
@@ -124,16 +101,6 @@
         </LinearLayout>
     </android.support.v7.widget.CardView>
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onOpenEditMenuClicked"
-        android:src="@drawable/ic_editor_mode_edit"
-        app:layout_anchor="@id/toolbar"
-        app:layout_anchorGravity="bottom|end"
-        app:useCompatPadding="true" />
-
     <android.support.v7.widget.CardView
         android:id="@+id/color_edit_list_view_card"
         android:layout_width="wrap_content"
@@ -151,6 +118,39 @@
             android:paddingTop="@dimen/padding_tiny"
             tools:ignore="UselessLeaf" />
     </android.support.v7.widget.CardView>
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar"
+            app:layout_scrollFlags="scroll|enterAlways" />
+
+    </android.support.design.widget.AppBarLayout>
+
+    <com.sleepyduck.pixelate4crafting.view.CircleColorView
+        android:id="@+id/circle_color_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        app:colorRadius="@dimen/color_radius"
+        app:innerCircleColorCount="8"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:testColorCount="21"
+        tools:visibility="visible" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="onOpenEditMenuClicked"
+        android:src="@drawable/ic_editor_mode_edit"
+        app:layout_anchor="@id/toolbar"
+        app:layout_anchorGravity="bottom|end"
+        app:useCompatPadding="true" />
 
     <com.google.android.gms.ads.AdView
         android:id="@+id/adView"

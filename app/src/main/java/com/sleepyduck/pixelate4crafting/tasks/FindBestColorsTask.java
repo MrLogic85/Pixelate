@@ -23,6 +23,10 @@ public abstract class FindBestColorsTask extends CancellableProcess<Object, Inte
             int numColors = (int) params[2];
             Bitmap mBitmap = BitmapHandler.getFromFileName(context, fileName);
 
+            if (mBitmap == null) {
+                return null;
+            }
+
             Map<Integer, Float> colorsCounted = new HashMap<>();
 
             MMCQ.CMap colors = MMCQ.computeMap(mBitmap, numColors);
