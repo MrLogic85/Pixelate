@@ -3,20 +3,23 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "23.0.3"
+
     defaultConfig {
         applicationId "com.sleepyduck.pixelate4crafting"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 23
-        versionName "1.2.2"
+        versionCode 24
+        versionName "1.2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    //testBuildType "release"
 
     lintOptions {
         checkReleaseBuilds false

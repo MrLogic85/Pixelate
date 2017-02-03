@@ -23,13 +23,28 @@ public class DatabaseManager {
     public static Pattern getPattern(Context context, int id) {
         try (Cursor cursor = context.getContentResolver()
                 .query(ContentUris.withAppendedId(PatternColumns.URI, id),
-                null, null, null, null)) {
+                        null, null, null, null)) {
             if (cursor != null && cursor.moveToFirst()) {
                 return getPattern(context, cursor);
             }
         }
 
         return new Pattern.Empty(context);
+    }
+
+    public static Pattern[] getPatterns(Context context) {
+        try (Cursor cursor = context.getContentResolver().query(PatternColumns.URI, null, null, null, null)) {
+            if (cursor != null) {
+                Pattern[] result = new Pattern[cursor.getCount()];
+                int i = 0;
+                while (cursor.moveToNext()) {
+                    result[i++] = new Pattern(context, cursor);
+                }
+                return result;
+            }
+        }
+
+        return new Pattern[0];
     }
 
     public static Pattern getPattern(Context context, Cursor cursor) {

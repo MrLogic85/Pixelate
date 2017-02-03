@@ -34,6 +34,7 @@ public class CircleColorView extends View {
     private final ObjectAnimator hideAnimator = ObjectAnimator.ofFloat(this, "scaleAnim", 1f, 0f);
     private float scaleAnim = 1;
     private Integer selectColor = null;
+    private OnColorClickListener listener;
 
     public CircleColorView(Context context) {
         this(context, null);
@@ -251,6 +252,7 @@ public class CircleColorView extends View {
     }
 
     public void setOnColorClickListener(final OnColorClickListener listener) {
+        this.listener = listener;
         final float[] touchPos = new float[2];
         setOnTouchListener(new OnTouchListener() {
             @Override
@@ -302,6 +304,15 @@ public class CircleColorView extends View {
             closestDistance = Math.min(closestDistance, dist);
         }
         return closestDistance;
+    }
+
+    public void selectColor(int index) {
+        if (index >= 0) {
+            selectColor = index;
+            hide(listener);
+        } else {
+            hide();
+        }
     }
 
     public interface OnColorClickListener {

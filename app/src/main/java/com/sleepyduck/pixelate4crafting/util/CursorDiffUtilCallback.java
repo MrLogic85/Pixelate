@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 
 import java.util.Arrays;
@@ -37,8 +38,12 @@ public class CursorDiffUtilCallback extends DiffUtil.Callback {
 
         final int prevPosition = c.getPosition();
 
-        c.moveToPosition(position);
-        final long id = c.getLong(c.getColumnIndexOrThrow(BaseColumns._ID));
+        final long id;
+        if (c.moveToPosition(position)) {
+            id = c.getLong(c.getColumnIndexOrThrow(BaseColumns._ID));
+        } else {
+            id = RecyclerView.NO_ID;
+        }
 
         // Restore previous position.
         c.moveToPosition(prevPosition);

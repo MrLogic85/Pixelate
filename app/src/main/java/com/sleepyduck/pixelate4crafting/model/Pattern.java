@@ -315,9 +315,9 @@ public class Pattern implements Comparable<Pattern> {
         return new Edit(this);
     }
 
-    public void delete(Context context) {
-        destroy(context);
-        DatabaseManager.deletePattern(context.getContentResolver(), Id);
+    public void delete() {
+        destroy(mContext);
+        DatabaseManager.deletePattern(mContext.getContentResolver(), Id);
     }
 
     public static class Empty extends Pattern {

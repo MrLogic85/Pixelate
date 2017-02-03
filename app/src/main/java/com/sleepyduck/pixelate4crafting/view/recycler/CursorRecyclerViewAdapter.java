@@ -38,8 +38,10 @@ public abstract class CursorRecyclerViewAdapter<T extends RecyclerView.ViewHolde
             return RecyclerView.NO_ID;
         }
 
-        mCursor.moveToPosition(position);
-        return mCursor.getLong(mCursor.getColumnIndexOrThrow(BaseColumns._ID));
+        if (mCursor.moveToPosition(position)) {
+            return mCursor.getLong(mCursor.getColumnIndexOrThrow(BaseColumns._ID));
+        }
+        return super.getItemId(position);
     }
 
     @Override

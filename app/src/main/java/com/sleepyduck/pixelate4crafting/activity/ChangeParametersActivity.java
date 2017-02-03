@@ -301,6 +301,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                 .apply(false);
         addHistory(new RemoveColor(color));
+        pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
         mGridAdapter.updateColors(pattern);
         mGridAdapter.notifyDataSetChanged();
         pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);

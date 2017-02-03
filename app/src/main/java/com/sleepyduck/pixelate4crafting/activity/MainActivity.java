@@ -84,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             Object tag = v.getTag();
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
-                pattern.delete(MainActivity.this);
+                pattern.delete();
                 FirebaseLogger.patternDeleted();
             }
         }
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    public void onNewIntent(Intent intent) {
         if (intent.getClipData() != null) {
             FirebaseLogger.logShareReceived(intent.getClipData().getItemCount());
             ClipData clipData = intent.getClipData();

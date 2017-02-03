@@ -223,10 +223,10 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 int newWidth = data.getIntExtra(ConfigurationWidthActivity.EXTRA_WIDTH
                         , Constants.DEFAULT_WIDTH);
                 Pattern pattern = DatabaseManager.getPattern(this, mPatternId);
-                mFirebaseLogger.sizeChanged(newWidth, pattern.getPixelWidth());
                 pattern.edit()
                         .setWidth(newWidth)
                         .apply(false);
+                mFirebaseLogger.sizeChanged(newWidth, pattern.getPixelWidth());
             }
         }
     }

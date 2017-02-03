@@ -108,6 +108,10 @@ public class ColorEditList extends LinearLayout {
         }
     }
 
+    public void selectItem(int index) {
+        getChildAt(index).findViewById(R.id.color_item_select).performClick();
+    }
+
     public void selectColor(int color) {
         selectColor(color, false);
     }
