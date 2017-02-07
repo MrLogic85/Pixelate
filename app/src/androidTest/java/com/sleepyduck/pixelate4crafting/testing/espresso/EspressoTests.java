@@ -2,10 +2,14 @@ package com.sleepyduck.pixelate4crafting.testing.espresso;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.app.Service;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingPolicies;
@@ -20,6 +24,7 @@ import com.sleepyduck.pixelate4crafting.activity.MainActivity;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.service.CalculateService;
 import com.sleepyduck.pixelate4crafting.util.Callback;
 
 import org.hamcrest.Matcher;
@@ -113,6 +118,18 @@ public class EspressoTests {
     public void tearDown() {
         idlingResource.stopLoader();
         Espresso.unregisterIdlingResources(idlingResource);
+        mMainActivityRule.getActivity().bindService(new Intent(mMainActivityRule.getActivity(), CalculateService.class), new ServiceConnection() {
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder binder) {
+                ((CalculateService.Binder) binder).getService().stop();
+                mMainActivityRule.getActivity().unbindService(this);
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+        }, Service.BIND_AUTO_CREATE);
     }
 
     private void clearPatterns() {

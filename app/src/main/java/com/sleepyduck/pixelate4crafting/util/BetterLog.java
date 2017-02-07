@@ -5,7 +5,7 @@ import android.util.Log;
 public class BetterLog {
     public static final boolean DEBUG = true;
 
-    public static void d(Class<?> source, String text) {
+    public static <T> void d(Class<T> source, String text) {
         if (!DEBUG)
             return;
 
@@ -22,12 +22,12 @@ public class BetterLog {
         for (StackTraceElement element : stackTrace) {
             if (element.getClassName().equals(source.getName())) {
 
-                Log.d(element.getMethodName() + " (" + element.getFileName() + ":" + element.getLineNumber() + ")", text);
+                Log.d("BetterLog: " + element.getMethodName() + " (" + element.getFileName() + ":" + element.getLineNumber() + ")", text);
                 return;
             }
         }
 
-        Log.d(simpleName, text);
+        Log.d("BetterLog", simpleName + ": " + text);
     }
 
     public static void d(Object source, String text) {

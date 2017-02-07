@@ -88,10 +88,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private CalculateService calculateService = null;
     private final ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-
+        public void onServiceConnected(ComponentName componentName, IBinder binder) {
+            calculateService = ((CalculateService.Binder) binder).getService();
         }
 
         @Override
@@ -154,6 +155,42 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    protected void onDestroy() {
+        unbindService(serviceConnection);
+        super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (calculateService != null) {
+            calculateService.stop();
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        BetterLog.d(this, "onActivityResult(%d, %d, data)", requestCode, resultCode);
+
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case REQUEST_NEW_PATTERN:
+                    if (data != null && data.getData() != null) {
+                        FirebaseLogger.getInstance(this).patternCreated();
+                        Intent intent = new Intent(this, AddNewPatternService.class);
+                        intent.setData(data.getData());
+                        startService(intent);
+                    }
+                    break;
+                default:
+                    launch(data.getIntExtra(Pattern.INTENT_EXTRA_ID, 0), null);
+                    break;
+            }
+        }
+    }
+
     public void onAddClicked(View view) {
         createPattern();
     }
@@ -184,38 +221,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        unbindService(serviceConnection);
-        super.onDestroy();
-    }
-
     private void createPattern() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("image/*");
         startActivityForResult(intent, REQUEST_NEW_PATTERN);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        BetterLog.d(this, "onActivityResult(%d, %d, data)", requestCode, resultCode);
-
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case REQUEST_NEW_PATTERN:
-                    if (data != null && data.getData() != null) {
-                        FirebaseLogger.getInstance(this).patternCreated();
-                        Intent intent = new Intent(this, AddNewPatternService.class);
-                        intent.setData(data.getData());
-                        startService(intent);
-                    }
-                    break;
-                default:
-                    launch(data.getIntExtra(Pattern.INTENT_EXTRA_ID, 0), null);
-                    break;
-            }
-        }
     }
 }

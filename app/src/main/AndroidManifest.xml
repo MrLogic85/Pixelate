@@ -73,6 +73,7 @@
         <service
             android:name=".service.CalculateService"
             android:enabled="true"
+            android:stopWithTask="true"
             android:exported="false"/>
     </application>
 
