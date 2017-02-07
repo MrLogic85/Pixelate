@@ -7,12 +7,14 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
+import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -67,25 +69,31 @@ public class Pattern implements Comparable<Pattern> {
 
         String pixels = cursor.getString(cursor.getColumnIndex(PatternColumns.PIXELS));
         if (pixels != null && !pixels.isEmpty()) {
-            JSONObject json = null;
-            int width = 0;
-            int height = 0;
-            try {
-                json = new JSONObject(pixels);
-                width = json.getInt("width");
-                height = json.getInt("height");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            mPixels = new int[width][height];
-            try {
-                for (int w = 0; w < width; ++w) {
-                    for (int h = 0; h < height; ++h) {
-                        mPixels[w][h] = json.getInt("" + w + "," + h);
-                    }
+            File file = new File(pixels);
+            if (!file.exists() && mFlag == PatternColumns.FLAG_COMPLETE) {
+                mPixels = new int[mPixelWidth][mPixelHeight];
+                edit().setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED).apply(false);
+            } else {
+                JSONObject json = null;
+                int width = 0;
+                int height = 0;
+                try {
+                    json = new JSONObject(DataManager.LoadPixels(mContext, Id));
+                    width = json.getInt("width");
+                    height = json.getInt("height");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
+                mPixels = new int[width][height];
+                try {
+                    for (int w = 0; w < width; ++w) {
+                        for (int h = 0; h < height; ++h) {
+                            mPixels[w][h] = json.getInt("" + w + "," + h);
+                        }
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         } else {
             mPixels = new int[0][0];
@@ -173,6 +181,7 @@ public class Pattern implements Comparable<Pattern> {
         if (mFileNamePattern != null && mFileNamePattern.length() > 0) {
             BitmapHandler.removeFileOfName(context, mFileNamePattern);
         }
+        DataManager.DestroyPixels(mContext, Id);
     }
 
     @Override
@@ -549,7 +558,7 @@ public class Pattern implements Comparable<Pattern> {
         }
 
         public int apply(boolean createIfEmpty) {
-            return DatabaseManager.update(mContext.getContentResolver(), this);
+            return DatabaseManager.update(mContext, this);
         }
     }
 

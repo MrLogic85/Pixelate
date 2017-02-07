@@ -35,6 +35,14 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("UPDATE " + PatternColumns.TABLE_NAME
+                + " SET " + PatternColumns.PIXELS + "=''"
+                + " WHERE LENGTH(" + PatternColumns.PIXELS + ") > 10000");
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == newVersion) {
             return;

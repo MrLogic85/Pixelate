@@ -203,19 +203,13 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, "Image processing, please stand by...", Toast.LENGTH_LONG).show();
             }
             break;
-            case FLAG_COMPLETE: {
+            default: {
                 FirebaseLogger.getInstance(this).patternOpened();
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
                 intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
                 ActivityCompat.startActivity(this, intent, options.toBundle());
-            }
-            break;
-            default: {
-                Intent intent = new Intent(this, ChangeParametersActivity.class);
-                intent.putExtra(Pattern.INTENT_EXTRA_ID, patternId);
-                startActivity(intent);
             }
             break;
         }

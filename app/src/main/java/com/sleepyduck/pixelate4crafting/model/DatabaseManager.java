@@ -6,9 +6,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.widget.Toast;
 
+import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.DebugToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,7 +54,7 @@ public class DatabaseManager {
         return new Pattern(context, cursor);
     }
 
-    public static int update(ContentResolver resolver, Pattern.Edit edit) {
+    public static int update(Context context, Pattern.Edit edit) {
         ContentValues values = new ContentValues();
 
         for (String key : edit.getChangeKeys()) {
@@ -91,7 +94,9 @@ public class DatabaseManager {
                     }
                     @SuppressWarnings("unchecked")
                     String pixels = pixelsToString((int[][]) value);
-                    values.put(key, pixels);
+                    String path = DataManager.SavePixels(context, edit.Id, pixels);
+                    BetterLog.d(DatabaseManager.class, "Storing pixels of size %d", pixels.length());
+                    values.put(key, path);
                     break;
                 }
                 case PatternColumns.CHANGED_PIXELS: {
@@ -109,7 +114,7 @@ public class DatabaseManager {
         }
 
         int id = edit.getInt(PatternColumns._ID);
-        resolver.update(ContentUris.withAppendedId(PatternColumns.URI, id), values, null, null);
+        context.getContentResolver().update(ContentUris.withAppendedId(PatternColumns.URI, id), values, null, null);
         return id;
     }
 

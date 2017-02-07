@@ -4,92 +4,66 @@ import android.content.Context;
 
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 import java.util.Map;
 
 /**
  * Created by fredrik.metcalf on 2016-04-13.
  */
 public class DataManager {
-    private static final String COLOR_FILE = "COLORS";
     private static final String PIXEL_FILE = "PIXELS";
 
-    public static void SaveColors(Context context, int patternId, Map<Integer, Float> colors) {
-        SaveData(context, patternId, COLOR_FILE, colors);
+    public static String SavePixels(Context context, int patternId, String data) {
+        return SaveData(context, patternId, PIXEL_FILE, data);
     }
 
-    public static void SavePixels(Context context, int patternId, int[][] pixels) {
-        SaveData(context, patternId, PIXEL_FILE, pixels);
-    }
-
-    public static Map<Integer, Float> LoadColors(Context context, int patternId) {
+    public static String LoadPixels(Context context, int patternId) {
         try {
-            return (Map<Integer, Float>) LoadData(context, patternId, COLOR_FILE);
+            return LoadData(context, patternId, PIXEL_FILE);
         } catch (ClassCastException e) {
             e.printStackTrace();
             return null;
         }
     }
 
-    public static int[][] LoadPixels(Context context, int patternId) {
-        try {
-            return (int[][]) LoadData(context, patternId, PIXEL_FILE);
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static boolean DestroyPixels(Context context, int patternId) {
+        return DestroyDataFile(context, patternId, PIXEL_FILE);
     }
 
-    private static void SaveData(Context context, int patternId, String prefix, Object data) {
+    private static String SaveData(Context context, int patternId, String prefix, String data) {
         File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new FileOutputStream(file));
-            oos.writeObject(data);
+        try (PrintWriter writer = new PrintWriter(file)) {
+            writer.print(data);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return file.getPath();
+    }
+
+    private static String LoadData(Context context, int patternId, String prefix) {
+        File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            return reader.readLine();
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            if (oos != null) {
-                try {
-                    oos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
+        return "";
     }
 
-    private static Object LoadData(Context context, int patternId, String prefix) {
-        File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
-        ObjectInputStream ois = null;
-        Object result = null;
-        try {
-            ois = new ObjectInputStream(new FileInputStream(file));
-            result = ois.readObject();
-        } catch (IOException
-                | ClassNotFoundException
-                | ClassCastException e) {
-            e.printStackTrace();
-        } finally {
-            if (ois != null) {
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return result;
-    }
-
-    private static void DestroyColors(Context context, int patternId, String prefix) {
+    private static boolean DestroyDataFile(Context context, int patternId, String prefix) {
         File file = new File(context.getFilesDir(), prefix + String.format("%8x", patternId));
         BetterLog.d(DataManager.class, "Destroying data file " + prefix + String.format("%8x", patternId));
-        file.delete();
+        return file.delete();
     }
 }
