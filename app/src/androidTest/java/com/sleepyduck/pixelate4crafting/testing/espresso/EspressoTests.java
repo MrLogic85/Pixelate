@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingPolicies;
-import android.support.test.espresso.IdlingResource;
 import android.support.test.espresso.ViewInteraction;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
@@ -38,14 +37,12 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.Espresso.closeSoftKeyboard;
-import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.pressBack;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
 import static android.support.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.intent.Intents.intended;
 import static android.support.test.espresso.intent.Intents.intending;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasAction;
 import static android.support.test.espresso.intent.matcher.IntentMatchers.hasCategories;
@@ -82,14 +79,18 @@ public class EspressoTests {
         GET_CONTENT_CATEGORIES.add(Intent.CATEGORY_OPENABLE);
     }
 
+    public ViewInteraction onView(Matcher<View> matcher) {
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return Espresso.onView(matcher);
+    }
+
     @Rule
     public IntentsTestRule<MainActivity> mMainActivityRule =
             new IntentsTestRule<>(MainActivity.class);
-
-    @Before
-    public void grantPermissions() {
-
-    }
 
     @Before
     public void setup() {

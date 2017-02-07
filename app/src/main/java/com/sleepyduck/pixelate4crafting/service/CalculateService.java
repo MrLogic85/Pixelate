@@ -15,6 +15,7 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 import android.widget.Toast;
 
+import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
@@ -24,6 +25,7 @@ import com.sleepyduck.pixelate4crafting.tasks.CountColorsTask;
 import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
+import com.sleepyduck.pixelate4crafting.util.DebugToast;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +33,7 @@ import java.util.Map;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COLORS_CALCULATING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
+import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PATTERN_DRAWING;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_PIXELS_CALCULATING;
@@ -74,7 +77,7 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     }
 
     synchronized private void stop() {
-        Toast.makeText(this, "Stopping " + CalculateService.class.getSimpleName(), Toast.LENGTH_SHORT).show();
+        DebugToast.makeText(this, "Stopping " + CalculateService.class.getSimpleName());
         stopSelf();
     }
 
@@ -209,7 +212,8 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
                     cursor.moveToPosition(i);
                     Pattern pattern = new Pattern(CalculateService.this, cursor);
                     BetterLog.d(this, "Inserted \"%s\", ", pattern.getTitle(), pattern.Id);
-                    if (pattern.getFlag() == FLAG_COLORS_CALCULATING
+                    if (pattern.getFlag() == FLAG_IMAGE_STORED
+                            ||pattern.getFlag() == FLAG_COLORS_CALCULATING
                             || pattern.getFlag() == FLAG_PIXELS_CALCULATING
                             || pattern.getFlag() == FLAG_SIZE_OR_COLOR_CHANGING) {
                         pattern.edit()

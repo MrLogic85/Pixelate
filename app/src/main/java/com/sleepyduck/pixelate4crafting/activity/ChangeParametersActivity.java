@@ -67,14 +67,12 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private final Stack<History> mUndoneHistory = new Stack<>();
     private Menu mOptionMenu;
     private int mOrigFlag;
-    private FirebaseLogger mFirebaseLogger;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_paramerters);
-
-        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
+        FirebaseLogger.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -218,7 +216,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private final OnHistoryDo mDoHistory = new OnHistoryDo() {
         @Override
         public void removeColor(int color) {
-            mFirebaseLogger.colorRemoved();
+            FirebaseLogger.getInstance(ChangeParametersActivity.this).colorRemoved();
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             pattern.edit()
                     .removeColor(color)
@@ -232,7 +230,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
 
         @Override
         public void addColor(int color) {
-            mFirebaseLogger.colorAdded();
+            FirebaseLogger.getInstance(ChangeParametersActivity.this).colorAdded();
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             pattern.edit()
                     .addColor(color)
@@ -294,7 +292,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     };
 
     private void removeColor(int color) {
-        mFirebaseLogger.colorRemoved();
+        FirebaseLogger.getInstance(this).colorRemoved();
         Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
         pattern.edit()
                 .removeColor(color)
@@ -353,7 +351,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Pattern pattern = DatabaseManager.getPattern(ChangeParametersActivity.this, mPatternId);
             if (requestCode == REQUEST_CHOOSE_COLOR) {
-                mFirebaseLogger.colorAdded();
+                FirebaseLogger.getInstance(this).colorAdded();
                 int pixel = data.getIntExtra("pixel", 0);
                 pattern.edit()
                         .addColor(pixel)

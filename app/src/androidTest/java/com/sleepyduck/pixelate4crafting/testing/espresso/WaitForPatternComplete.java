@@ -19,6 +19,7 @@ import java.util.List;
 
 class WaitForPatternComplete implements IdlingResource {
 
+    private boolean isIdle;
     private Context context;
     private int flagSum = 0;
 
@@ -42,18 +43,7 @@ class WaitForPatternComplete implements IdlingResource {
 
     @Override
     public boolean isIdleNow() {
-        String[] PROJ = {DatabaseContract.PatternColumns.FLAG};
-        try (Cursor cursor = context.getContentResolver().query(DatabaseContract.PatternColumns.URI, PROJ, null, null, null)) {
-            if (cursor != null) {
-                boolean isIdle = true;
-                while (cursor.moveToNext()) {
-                    isIdle &= IdleFlags.contains(cursor.getInt(0));
-                }
-                return isIdle;
-            }
-        } catch (Exception ignored) {
-        }
-        return false;
+        return isIdle;
     }
 
     @Override
@@ -80,6 +70,7 @@ class WaitForPatternComplete implements IdlingResource {
                 if (isIdle) {
                     callback.onTransitionToIdle();
                 }
+                WaitForPatternComplete.this.isIdle = isIdle;
             }
         });
         loader.startLoading();

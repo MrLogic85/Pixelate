@@ -25,7 +25,6 @@ import android.widget.EditText;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.configuration.ConfigurationWidthActivity;
@@ -48,7 +47,6 @@ import java.util.Random;
 
 public class PatternActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int REQUEST_CHANGE_WIDTH = 1;
-    private static FirebaseLogger mFirebaseLogger;
 
     private int mPatternId;
     private PatternImageView mCanvas;
@@ -74,7 +72,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
-                mFirebaseLogger.pixelChanged();
+                FirebaseLogger.getInstance(PatternActivity.this).pixelChanged();
                 switch (mColorEditListView.getState()) {
                     case COLOR:
                         mCanvas.setPixel(patternX, patternY, mColorEditListView.getColor());
@@ -100,8 +98,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_pattern);
-
-        mFirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
+        FirebaseLogger.getInstance(this);
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -203,7 +200,6 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     @Override
     protected void onDestroy() {
         getLoaderManager().destroyLoader(mLoaderId);
-        mFirebaseLogger = null;
         super.onDestroy();
     }
 
@@ -226,7 +222,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                 pattern.edit()
                         .setWidth(newWidth)
                         .apply(false);
-                mFirebaseLogger.sizeChanged(newWidth, pattern.getPixelWidth());
+                FirebaseLogger.getInstance(this).sizeChanged(newWidth, pattern.getPixelWidth());
             }
         }
     }
@@ -304,7 +300,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
     private void onDoneClicked(int flag) {
         if ((flag & MENU_EDIT_NAME) != 0) {
-            mFirebaseLogger.nameChanged();
+            FirebaseLogger.getInstance(this).nameChanged();
             hideSoftKeyboard(mTitle);
             removeMenuEditFlag(MENU_EDIT_NAME);
         }

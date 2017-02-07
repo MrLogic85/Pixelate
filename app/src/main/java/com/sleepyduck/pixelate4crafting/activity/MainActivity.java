@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.BuildConfig;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
@@ -39,7 +38,6 @@ import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternCol
  */
 public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
-    public static FirebaseLogger FirebaseLogger;
 
     private SwipeCardAdapter mAdapter;
 
@@ -85,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             if (tag != null && tag instanceof Pattern) {
                 Pattern pattern = (Pattern) tag;
                 pattern.delete();
-                FirebaseLogger.patternDeleted();
+                FirebaseLogger.getInstance(MainActivity.this).patternDeleted();
             }
         }
     };
@@ -106,8 +104,7 @@ public class MainActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        FirebaseLogger = new FirebaseLogger(FirebaseAnalytics.getInstance(this));
+        FirebaseLogger.getInstance(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -140,9 +137,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onNewIntent(Intent intent) {
         if (intent.getClipData() != null) {
-            FirebaseLogger.logShareReceived(intent.getClipData().getItemCount());
+            FirebaseLogger.getInstance(this).logShareReceived(intent.getClipData().getItemCount());
             ClipData clipData = intent.getClipData();
             for (int i = 0; i < clipData.getItemCount(); ++i) {
+                FirebaseLogger.getInstance(this).patternCreated();
                 Intent serviceIntent = new Intent(this, AddNewPatternService.class);
                 serviceIntent.setData(clipData.getItemAt(i).getUri());
                 startService(serviceIntent);
@@ -169,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
             }
             break;
             case FLAG_COMPLETE: {
-                FirebaseLogger.patternOpened();
+                FirebaseLogger.getInstance(this).patternOpened();
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);
@@ -208,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
             switch (requestCode) {
                 case REQUEST_NEW_PATTERN:
                     if (data != null && data.getData() != null) {
+                        FirebaseLogger.getInstance(this).patternCreated();
                         Intent intent = new Intent(this, AddNewPatternService.class);
                         intent.setData(data.getData());
                         startService(intent);

@@ -1,5 +1,7 @@
 package com.sleepyduck.pixelate4crafting.firebase;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
@@ -23,7 +25,11 @@ public class FirebaseLogger {
     private static final String PARAM_WIDTH_NEW = "width_new";
     private final FirebaseAnalytics mFirebase;
 
-    public FirebaseLogger(FirebaseAnalytics instance) {
+    public static FirebaseLogger getInstance(Activity activity) {
+        return new FirebaseLogger(FirebaseAnalytics.getInstance(activity));
+    }
+
+    private FirebaseLogger(FirebaseAnalytics instance) {
         mFirebase = instance;
         mFirebase.setAnalyticsCollectionEnabled(!BuildConfig.DEBUG);
     }

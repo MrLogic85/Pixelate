@@ -37,6 +37,12 @@ public class AddNewPatternService extends IntentService {
     }
 
     @Override
+    public void onDestroy() {
+        handler.getLooper().quitSafely();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onHandleIntent(Intent intent) {
         BetterLog.d(this, "New pattern %s", intent);
 
@@ -56,10 +62,6 @@ public class AddNewPatternService extends IntentService {
                 .setTime(System.currentTimeMillis())
                 .setFlag(FLAG_STORING_IMAGE)
                 .apply(true);
-
-        if (MainActivity.FirebaseLogger != null) {
-            MainActivity.FirebaseLogger.patternCreated();
-        }
 
         handler.post(new Runnable() {
             public void run() {
