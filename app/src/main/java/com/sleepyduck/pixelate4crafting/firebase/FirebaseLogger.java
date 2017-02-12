@@ -1,7 +1,6 @@
 package com.sleepyduck.pixelate4crafting.firebase;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 
 import com.google.firebase.analytics.FirebaseAnalytics;

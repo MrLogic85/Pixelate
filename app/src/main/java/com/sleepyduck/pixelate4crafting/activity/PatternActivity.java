@@ -41,7 +41,7 @@ import com.sleepyduck.pixelate4crafting.util.ListUpdateCallbackAdaptor;
 import com.sleepyduck.pixelate4crafting.view.CircleColorView;
 import com.sleepyduck.pixelate4crafting.view.ColorEditList;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
-import com.sleepyduck.pixelate4crafting.view.PatternImageView;
+import com.sleepyduck.pixelate4crafting.view.PatternInteractiveView;
 
 import java.util.Random;
 
@@ -49,7 +49,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private static final int REQUEST_CHANGE_WIDTH = 1;
 
     private int mPatternId;
-    private PatternImageView mCanvas;
+    private PatternInteractiveView mCanvas;
     private EditText mTitle;
     private int mLoaderId;
     private ColorEditList mColorEditListView;
@@ -157,7 +157,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(mTitle.getWindowToken(), 0);
 
-        mCanvas = (PatternImageView) findViewById(R.id.canvas);
+        mCanvas = (PatternInteractiveView) findViewById(R.id.canvas);
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getPatternFileName()));
         mCanvas.setOnImageClickListener(mImageClickListener);
 
@@ -270,6 +270,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         if (bundle.getInt(PatternColumns.FLAG) == PatternColumns.FLAG_COMPLETE) {
                             Pattern pattern = new Pattern(PatternActivity.this, cursor);
                             mCanvas.setImageBitmap(BitmapHandler.getFromFileName(PatternActivity.this, pattern.getPatternFileName()));
+                            mCanvas.setImageAlpha(0xff);
                         } else {
                             // TODO Update some progress bar
                             mCanvas.setImageAlpha(0xff / 2);

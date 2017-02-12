@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.util.ListUpdateCallback;
 

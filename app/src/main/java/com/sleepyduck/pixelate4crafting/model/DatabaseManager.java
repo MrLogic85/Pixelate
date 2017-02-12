@@ -6,12 +6,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.widget.Toast;
 
 import com.sleepyduck.pixelate4crafting.control.DataManager;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.util.DebugToast;
 
 import org.json.JSONException;
 import org.json.JSONObject;

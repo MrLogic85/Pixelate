@@ -53,7 +53,7 @@
                 android:padding="@dimen/padding_small"
                 android:text="@string/approximated_pattern"/>
 
-            <com.sleepyduck.pixelate4crafting.view.PatternImageView
+            <com.sleepyduck.pixelate4crafting.view.ApproxPatternImageView
                 android:id="@+id/image_approximated"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

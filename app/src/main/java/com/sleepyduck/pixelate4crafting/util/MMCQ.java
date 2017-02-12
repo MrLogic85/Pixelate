@@ -1,7 +1,7 @@
 package com.sleepyduck.pixelate4crafting.util;
+
 import android.graphics.Bitmap;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

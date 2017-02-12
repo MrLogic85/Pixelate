@@ -18,10 +18,11 @@ import java.util.Map;
  * Created by fredrik.metcalf on 2016-04-12.
  */
 public abstract class CalculatePixelsTask extends CancellableProcess<Object, Integer, int[][]> {
-    private Map<Integer, Float> mColors;
+    private Map<Integer, Float> mColorsMap;
     private Bitmap mBitmap;
     private int mWidth;
     private int mHeight;
+    private int[] mColors;
 
     @Override
     public int[][] execute(Object... params) {
@@ -30,16 +31,22 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
             Context context = (Context) params[0];
             Pattern pattern = (Pattern) params[1];
             mBitmap = BitmapHandler.getFromFileName(context, pattern.getFileName());
-            mColors = new HashMap<>();
+            mColorsMap = new HashMap<>();
             for (int color : pattern.getColors(new int[pattern.getColorCount()])) {
-                mColors.put(color, pattern.getColorWeight(color));
+                mColorsMap.put(color, pattern.getColorWeight(color));
             }
             mWidth = pattern.getPixelWidth();
             mHeight = pattern.getPixelHeight();
 
-            if (mColors.size() == 0) {
-                mColors.put(Color.BLACK, 1f);
-                mColors.put(Color.WHITE, 1f);
+            if (mColorsMap.size() == 0) {
+                mColorsMap.put(Color.BLACK, 1f);
+                mColorsMap.put(Color.WHITE, 1f);
+            }
+
+            mColors = new int[mColorsMap.size()];
+            final Object[] colorObjects = mColorsMap.keySet().toArray();
+            for (int i = 0; i < mColors.length; ++i) {
+                mColors[i] = (int) colorObjects[i];
             }
 
             return calculatePixels(pattern);
@@ -92,18 +99,13 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
         int y = Math.round(dy);
         int width = Math.round(dx+pixelSize) - x;
         int height = Math.round(dy+pixelSize) - y;
-        int[] colors = new int[mColors.size()];
-        final Object[] pixelObjects = mColors.keySet().toArray();
-        for (int i = 0; i < colors.length; ++i) {
-            colors[i] = (int) pixelObjects[i];
-        }
 
         SparseArray<Float> countPixelColors = new SparseArray<>();
         float resInv = 1f / (float)(width*height);
         initializeTime += SystemClock.currentThreadTimeMillis() - initializeStart;
         long countStart = SystemClock.currentThreadTimeMillis();
-        for (int i = 0; i < width; i += 1) {
-            for (int j = 0; j < height; j += 1) {
+        for (int i = 0; i <= width; i += 1) {
+            for (int j = 0; j <= height; j += 1) {
                 if (i+x < mBitmap.getWidth() && j+y < mBitmap.getHeight()) {
                     long getPixelStart = SystemClock.currentThreadTimeMillis();
                     int pixel = mBitmap.getPixel(i + x, j + y);
@@ -111,7 +113,7 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
                     if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                         continue;
                     }
-                    Integer color = ColorUtil.getBestColorFor(id, pixel, colors);
+                    Integer color = ColorUtil.getBestColorFor(id, pixel, mColors);
                     Float weight = countPixelColors.get(color, 0f);
                     countPixelColors.put(color, weight + resInv);
                 } else {
@@ -121,7 +123,7 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
         }
         countTime += SystemClock.currentThreadTimeMillis() - countStart;
         long findBestStart = SystemClock.currentThreadTimeMillis();
-        Map<Integer, Float> colorMap = mColors;
+        Map<Integer, Float> colorMap = mColorsMap;
         if (countPixelColors.size() > 0) {
             int bestColor = Color.TRANSPARENT;
             float bestWeight = Float.MIN_VALUE, weight;

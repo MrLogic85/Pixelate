@@ -17,7 +17,7 @@ import android.widget.ImageView;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
 public class InteractiveImageView extends ImageView implements View.OnTouchListener {
-    private Matrix mMatrix;
+    protected Matrix mMatrix;
     protected Bitmap mImageBitmap;
     private OnImageClickListener mImageListener;
 

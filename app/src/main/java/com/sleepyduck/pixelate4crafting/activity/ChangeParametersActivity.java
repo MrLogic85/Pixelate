@@ -21,7 +21,6 @@ import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.sleepyduck.pixelate4crafting.R;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.ChooseColorDialog;
@@ -36,8 +35,8 @@ import com.sleepyduck.pixelate4crafting.util.history.AddColor;
 import com.sleepyduck.pixelate4crafting.util.history.History;
 import com.sleepyduck.pixelate4crafting.util.history.OnHistoryDo;
 import com.sleepyduck.pixelate4crafting.util.history.RemoveColor;
+import com.sleepyduck.pixelate4crafting.view.ApproxPatternImageView;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
-import com.sleepyduck.pixelate4crafting.view.PatternImageView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +58,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
     private static final int REQUEST_CHOOSE_COLOR = 2;
 
     private int mPatternId;
-    private PatternImageView mPatternApproxImage;
+    private ApproxPatternImageView mPatternApproxImage;
     private GridView mPaletteGrid;
     private GridAdapter mGridAdapter;
     private int mState = STATE_FOCUSED_OFF;
@@ -92,7 +91,7 @@ public class ChangeParametersActivity extends AppCompatActivity {
                 .setFlag(DatabaseContract.PatternColumns.FLAG_SIZE_OR_COLOR_CHANGING)
                 .apply(false);
 
-        mPatternApproxImage = (PatternImageView) findViewById(R.id.image_approximated);
+        mPatternApproxImage = (ApproxPatternImageView) findViewById(R.id.image_approximated);
         mPatternApproxImage.setPattern(pattern);
 
         InteractiveImageView originalImage = (InteractiveImageView) findViewById(R.id.image_original);
