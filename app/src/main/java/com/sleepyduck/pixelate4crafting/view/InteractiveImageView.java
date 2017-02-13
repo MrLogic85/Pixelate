@@ -33,7 +33,7 @@ public class InteractiveImageView extends ImageView implements View.OnTouchListe
 
         @Override
         public boolean onSingleTapUp(MotionEvent ev) {
-            if (mImageListener != null) {
+            if (mImageListener != null && mMatrix != null) {
                 Matrix inv = new Matrix();
                 mMatrix.invert(inv);
                 float[] point = {ev.getX(), ev.getY()};
