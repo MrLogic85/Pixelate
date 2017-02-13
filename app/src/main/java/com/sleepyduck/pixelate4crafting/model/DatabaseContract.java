@@ -72,5 +72,7 @@ public final class DatabaseContract {
         public static final String TIME = "time";
 
         public static final String PROGRESS = "progress";
+
+        public static final String PENDING_DELETE = "pending_delete";
     }
 }

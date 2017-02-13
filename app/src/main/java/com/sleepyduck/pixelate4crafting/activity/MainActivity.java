@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.design.widget.BaseTransientBottomBar;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -26,10 +29,11 @@ import com.sleepyduck.pixelate4crafting.service.AddNewPatternService;
 import com.sleepyduck.pixelate4crafting.service.CalculateService;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.ItemAnimator;
+import com.sleepyduck.pixelate4crafting.view.SwipeCardItemTouchHelperCallback;
 import com.sleepyduck.pixelate4crafting.view.recycler.PatternLoader;
 import com.sleepyduck.pixelate4crafting.view.recycler.SwipeCardAdapter;
+import com.sleepyduck.pixelate4crafting.view.recycler.SwipeCardAdapter.OnSwipeListener;
 
-import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_STORING_IMAGE;
 
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_NEW_PATTERN = 1;
 
     private SwipeCardAdapter mAdapter;
+    private CoordinatorLayout mCoordinatorLayout;
 
     private final View.OnClickListener mOnItemClickListener = new View.OnClickListener() {
         @Override
@@ -52,12 +57,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private final View.OnClickListener mOnRightButtonClickListener = new View.OnClickListener() {
+    private final OnSwipeListener mOnLeftSwipeListener = new OnSwipeListener() {
         @Override
-        public void onClick(View v) {
-            Object tag = v.getTag();
-            if (tag != null && tag instanceof Pattern) {
-                Pattern pattern = (Pattern) tag;
+        public void onSwipe(Pattern pattern) {
+            if (pattern != null) {
                 switch (pattern.getState()) {
                     case DatabaseContract.PatternColumns.STATE_LATEST:
                     case DatabaseContract.PatternColumns.STATE_ACTIVE:
@@ -76,13 +79,27 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private final View.OnClickListener mOnLeftButtonClickListener = new View.OnClickListener() {
+    public final OnSwipeListener mOnRightSwipeListener = new OnSwipeListener() {
         @Override
-        public void onClick(View v) {
-            Object tag = v.getTag();
-            if (tag != null && tag instanceof Pattern) {
-                Pattern pattern = (Pattern) tag;
-                pattern.delete();
+        public void onSwipe(final Pattern pattern) {
+            if (pattern != null) {
+                pattern.edit().setPendingDelete(true).apply(false);
+                Snackbar.make(mCoordinatorLayout, "Pattern deleted", Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Undo", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                pattern.edit().setPendingDelete(false).apply(false);
+                            }
+                        })
+                        .addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                            @Override
+                            public void onDismissed(Snackbar transientBottomBar, int event) {
+                                if (event == BaseTransientBottomBar.BaseCallback.DISMISS_EVENT_SWIPE) {
+                                    pattern.delete();
+                                }
+                            }
+                        })
+                        .show();
                 FirebaseLogger.getInstance(MainActivity.this).patternDeleted();
             }
         }
@@ -117,10 +134,11 @@ public class MainActivity extends AppCompatActivity {
         if (recyclerView.getAdapter() == null) {
             mAdapter = new SwipeCardAdapter(this);
             mAdapter.setOnItemClickListener(mOnItemClickListener);
-            mAdapter.setOnRightButtonClickListener(mOnRightButtonClickListener);
-            mAdapter.setOnLeftButtonClickListener(mOnLeftButtonClickListener);
+            mAdapter.setOnRightSwipeListener(mOnRightSwipeListener);
+            mAdapter.setOnLeftSwipeListener(mOnLeftSwipeListener);
             recyclerView.setAdapter(mAdapter);
             recyclerView.setItemAnimator(new ItemAnimator());
+            new SwipeCardItemTouchHelperCallback(mAdapter, recyclerView);
             new PatternLoader(this, mAdapter);
         }
 
@@ -131,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         }
         AdRequest adRequest = adRequestBuilder.build();
         adView.loadAd(adRequest);
+
+        mCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.coordinator_layout);
 
         onNewIntent(getIntent());
     }
@@ -205,6 +225,10 @@ public class MainActivity extends AppCompatActivity {
             break;
             default: {
                 FirebaseLogger.getInstance(this).patternOpened();
+                DatabaseManager.getPattern(this, patternId)
+                        .edit()
+                        .setTime(System.currentTimeMillis())
+                        .apply(false);
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                         this, transitionView, getString(R.string.transitionImage));
                 Intent intent = new Intent(this, PatternActivity.class);

@@ -12,7 +12,11 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import java.util.Random;
 
 public class PatternLoader implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String SORT_ORDER = DatabaseContract.PatternColumns.TIME + " DESC";
+    private static final String SORT_ORDER =
+            DatabaseContract.PatternColumns.STATE + " ASC, "
+                    + DatabaseContract.PatternColumns.TIME + " DESC";
+    private static final String SELECTION = String.format("%s = 0",
+            DatabaseContract.PatternColumns.PENDING_DELETE);
 
     private final SwipeCardAdapter mAdapter;
     private final int mLoaderId;
@@ -28,7 +32,8 @@ public class PatternLoader implements LoaderManager.LoaderCallbacks<Cursor> {
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
         return new CursorLoader(mActivity,
-                DatabaseContract.PatternColumns.URI, null, null, null, SORT_ORDER);
+                DatabaseContract.PatternColumns.URI, null, SELECTION, null, SORT_ORDER);
+        //        DatabaseContract.PatternColumns.URI, null, null, null, SORT_ORDER);
     }
 
     @Override

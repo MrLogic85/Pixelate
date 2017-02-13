@@ -68,7 +68,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                     && x > PixelBitmapTask.PIXEL_SIZE
                     && y > PixelBitmapTask.PIXEL_SIZE
                     && x < bitmap.getWidth()
-                    && y < bitmap.getWidth()) {
+                    && y < bitmap.getHeight()) {
                 Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
                 int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
                 int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;

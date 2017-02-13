@@ -48,8 +48,11 @@ class WaitForPatternComplete implements IdlingResource {
 
     @Override
     public void registerIdleTransitionCallback(final ResourceCallback callback) {
-        String[] PROJ = {DatabaseContract.PatternColumns.FLAG};
-        loader = new CursorLoader(context, DatabaseContract.PatternColumns.URI, PROJ, null, null, null);
+        String[] PROJ = {DatabaseContract.PatternColumns.FLAG,
+                DatabaseContract.PatternColumns.PENDING_DELETE};
+        final String SELECTION = String.format("%s = 0",
+                DatabaseContract.PatternColumns.PENDING_DELETE);
+        loader = new CursorLoader(context, DatabaseContract.PatternColumns.URI, PROJ, SELECTION, null, null);
         loader.registerListener(0, new Loader.OnLoadCompleteListener<Cursor>() {
             @Override
             public void onLoadComplete(Loader<Cursor> loader, Cursor data) {
@@ -64,7 +67,7 @@ class WaitForPatternComplete implements IdlingResource {
                     isIdle &= IdleFlags.contains(flag);
                 }
                 if (flagSum != newFlagSum) {
-                    Toast.makeText(context, "Pattern flags are " + Arrays.toString(flags), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Pattern (" + (isIdle ? "idle" : "not idle") + ") flags are " + Arrays.toString(flags), Toast.LENGTH_SHORT).show();
                     flagSum = newFlagSum;
                 }
                 if (isIdle) {

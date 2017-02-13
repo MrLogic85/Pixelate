@@ -1,13 +1,16 @@
 package com.sleepyduck.pixelate4crafting.view.recycler;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sleepyduck.pixelate4crafting.R;
@@ -15,16 +18,20 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
+import com.sleepyduck.pixelate4crafting.util.BetterLog;
+import com.sleepyduck.pixelate4crafting.util.DebugToast;
 import com.sleepyduck.pixelate4crafting.view.LineProgressBar;
 import com.sleepyduck.pixelate4crafting.view.SwipeCard;
+
+import java.util.List;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 
 public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter.ViewHolder> {
     private final Context mContext;
     private View.OnClickListener mOnItemClickListener;
-    private View.OnClickListener mOnRightButtonClickListener;
-    private View.OnClickListener mOnLeftButtonClickListener;
+    private OnSwipeListener mOnRightSwipeListener;
+    private OnSwipeListener mOnLeftSwipeListener;
 
     public SwipeCardAdapter(Context context) {
         super();
@@ -36,9 +43,6 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
         SwipeCard card = (SwipeCard) LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.swipe_card, parent, false);
         card.setOnClickListener(mOnItemClickListener);
-        card.setOnClickListener(mOnLeftButtonClickListener, 0);
-        card.setOnClickListener(mOnRightButtonClickListener, 1);
-        card.setOnClickListener(mOnRightButtonClickListener, 2);
         return new ViewHolder(card);
     }
 
@@ -53,16 +57,40 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
         mOnItemClickListener = onClickListener;
     }
 
-    public void setOnRightButtonClickListener(View.OnClickListener l) {
-        mOnRightButtonClickListener = l;
+    public void setOnRightSwipeListener(OnSwipeListener l) {
+        mOnRightSwipeListener = l;
     }
 
-    public void setOnLeftButtonClickListener(View.OnClickListener l) {
-        mOnLeftButtonClickListener = l;
+    public void setOnLeftSwipeListener(OnSwipeListener l) {
+        mOnLeftSwipeListener = l;
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    public void swipeRight(final ViewHolder viewHolder) {
+        mOnRightSwipeListener.onSwipe(viewHolder.pattern);
+        new Handler(mContext.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                viewHolder.setTranslation(0);
+            }
+        }, 500);
+    }
+
+    public void swipeLeft(ViewHolder viewHolder) {
+        mOnLeftSwipeListener.onSwipe(viewHolder.pattern);
+    }
+
+    public boolean onMove(ViewHolder from, ViewHolder to) {
+        // TODO
+        return false;
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
         final SwipeCard mItemView;
+        private Pattern pattern;
+        private View content;
+        private View buttonRight1;
+        private View buttonRight2;
+        private View alignLayout;
 
         ViewHolder(SwipeCard itemView) {
             super(itemView);
@@ -70,6 +98,17 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
         }
 
         public void setData(Pattern pattern) {
+            this.pattern = pattern;
+
+            content = mItemView.findViewById(R.id.content);
+            buttonRight1 = mItemView.findViewById(R.id.imageRight1);
+            buttonRight2 = mItemView.findViewById(R.id.imageRight2);
+            alignLayout = mItemView.findViewById(R.id.align_layout);
+
+            mItemView.findViewById(R.id.check_mark).setVisibility(
+                    pattern.getState() == DatabaseContract.PatternColumns.STATE_COMPLETED ?
+                            View.VISIBLE: View.INVISIBLE);
+
             ImageView icon = (ImageView) mItemView.findViewById(R.id.icon);
             if (pattern.getFileNameThumbnail() != null
                     && pattern.getFileNameThumbnail().length() > 0) {
@@ -102,15 +141,37 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
             mItemView.setTag(pattern);
             mItemView.findViewById(R.id.card).setVisibility(View.VISIBLE);
 
-            if (pattern.getState() == DatabaseContract.PatternColumns.STATE_COMPLETED) {
-                mItemView.findViewById(R.id.button2).setVisibility(View.GONE);
-                mItemView.findViewById(R.id.button3).setVisibility(View.VISIBLE);
-            } else {
-                mItemView.findViewById(R.id.button2).setVisibility(View.VISIBLE);
-                mItemView.findViewById(R.id.button3).setVisibility(View.GONE);
+            boolean show1 = pattern.getState() != DatabaseContract.PatternColumns.STATE_COMPLETED;
+            if (show1 ^ buttonRight1.getVisibility() == View.VISIBLE) {
+                ValueAnimator animator = ValueAnimator.ofFloat(content.getTranslationX(), 0);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        setTranslation((Float) animation.getAnimatedValue());
+                    }
+                });
+                animator.start();
             }
-
-            mItemView.restore();
+            buttonRight1.setVisibility(show1 ? View.VISIBLE : View.INVISIBLE);
+            buttonRight2.setVisibility(show1 ? View.INVISIBLE : View.VISIBLE);
         }
+
+        public void setTranslation(float dX) {
+            RelativeLayout.LayoutParams alignParams = (RelativeLayout.LayoutParams) alignLayout.getLayoutParams();
+            if (dX > 0) {
+                alignParams.addRule(RelativeLayout.ALIGN_PARENT_END);
+                alignParams.removeRule(RelativeLayout.ALIGN_PARENT_START);
+            } else {
+                alignParams.addRule(RelativeLayout.ALIGN_PARENT_START);
+                alignParams.removeRule(RelativeLayout.ALIGN_PARENT_END);
+            }
+            alignParams.width = (int) (mItemView.getWidth() - Math.abs(dX));
+            alignLayout.setLayoutParams(alignParams);
+            content.setTranslationX(dX);
+        }
+    }
+
+    public interface OnSwipeListener {
+        void onSwipe(Pattern pattern);
     }
 }

@@ -70,6 +70,7 @@ public class DatabaseManager {
                 case PatternColumns.HEIGHT:
                 case PatternColumns.FLAG:
                 case PatternColumns.PROGRESS:
+                case PatternColumns.PENDING_DELETE:
                     values.put(key, edit.getInt(key));
                     break;
                 case PatternColumns.TIME:

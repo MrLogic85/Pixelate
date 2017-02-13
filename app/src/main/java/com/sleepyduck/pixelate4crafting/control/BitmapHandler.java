@@ -121,7 +121,7 @@ public class BitmapHandler {
 
 			listener.onFileStored(fileName, fileName + Constants.FILE_THUMBNAIL);
 		} catch (Exception e) {
-			e.printStackTrace();
+			BetterLog.e(BitmapHandler.class, e);
 		}
 	}
 

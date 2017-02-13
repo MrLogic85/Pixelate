@@ -82,7 +82,7 @@ public class Pattern implements Comparable<Pattern> {
                     width = json.getInt("width");
                     height = json.getInt("height");
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
                 mPixels = new int[width][height];
                 try {
@@ -92,7 +92,7 @@ public class Pattern implements Comparable<Pattern> {
                         }
                     }
                 } catch (JSONException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
         } else {
@@ -205,6 +205,10 @@ public class Pattern implements Comparable<Pattern> {
         return mTitle;
     }
 
+    public long getTime() {
+        return mWeight;
+    }
+
     public int getPixelWidth() {
         return mPixelWidth;
     }
@@ -282,6 +286,19 @@ public class Pattern implements Comparable<Pattern> {
     public int getChangedPixelAt(int x, int y) {
         synchronized (mChangedPixels) {
             return mChangedPixels.containsKey(x) ? mChangedPixels.get(x).get(y) : 0;
+        }
+    }
+
+    public int getChangedPixelsCount() {
+        synchronized (mChangedPixels) {
+            final int[] count = {0};
+            foreachChangedPixel(new PixelCallback() {
+                @Override
+                public void execute(int x, int y, int color) {
+                    count[0]++;
+                }
+            });
+            return count[0];
         }
     }
 
@@ -420,6 +437,11 @@ public class Pattern implements Comparable<Pattern> {
             return this;
         }
 
+        public Edit setPendingDelete(boolean delete) {
+            set(PatternColumns.PENDING_DELETE, delete ? 1 : 0, -1);
+            return this;
+        }
+
         public Edit removeColor(int color) {
             synchronized (mColors) {
                 @SuppressWarnings("unchecked")
@@ -536,6 +558,8 @@ public class Pattern implements Comparable<Pattern> {
                         return mPixelHeight;
                     case PatternColumns.FLAG:
                         return mFlag;
+                    case PatternColumns.PENDING_DELETE:
+                        return 0;
                 }
             }
             return 0;

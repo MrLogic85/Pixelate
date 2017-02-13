@@ -8,12 +8,14 @@ import android.content.ClipDescription;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.IBinder;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.IdlingPolicies;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.espresso.intent.rule.IntentsTestRule;
 import android.support.test.filters.LargeTest;
 import android.support.test.runner.AndroidJUnit4;
@@ -62,7 +64,9 @@ import static com.sleepyduck.pixelate4crafting.testing.espresso.CustomEspresso.c
 import static com.sleepyduck.pixelate4crafting.testing.espresso.CustomEspresso.deleteText;
 import static com.sleepyduck.pixelate4crafting.testing.espresso.CustomEspresso.getCount;
 import static com.sleepyduck.pixelate4crafting.testing.espresso.CustomEspresso.withSize;
+import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.core.AllOf.allOf;
 import static org.hamcrest.core.IsNot.not;
@@ -315,7 +319,7 @@ public class EspressoTests {
         onView(withId(R.id.color_edit_list_view)).check(matches(isDisplayed()));
 
         // Click on a color
-        onView(withId(R.id.circle_color_view)).perform(clickOnColor(0));
+        onView(withId(R.id.circle_color_view)).perform(clickOnColor(7));
 
         // Verify Color Palette closed
         onView(withId(R.id.circle_color_view)).check(matches(not(isDisplayed())));
@@ -363,18 +367,28 @@ public class EspressoTests {
         onView(withId(R.id.color_edit_list_view)).perform(clickOnColor(2));
 
         // Paint pixels
-        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.01f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.01f, 0.5f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.01f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.1f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.2f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.3f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.4f));
         onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.2f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.3f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.4f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.6f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.7f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.8f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.9f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.99f, 0.5f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.6f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.8f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.9f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.99f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.01f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.2f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.3f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.4f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.6f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.7f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.8f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.9f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.99f, 0.7f));
 
         // Press done
         onView(withId(R.id.fab)).perform(click());
@@ -383,6 +397,7 @@ public class EspressoTests {
         Pattern[] patterns = DatabaseManager.getPatterns(mMainActivityRule.getActivity());
         assertTrue(patterns.length == 1);
         assertTrue(patterns[0].hasChangedPixels());
+        assertEquals(14, patterns[0].getChangedPixelsCount());
 
         // Open menu
         onView(withId(R.id.fab)).perform(click());
@@ -394,18 +409,28 @@ public class EspressoTests {
         onView(withId(R.id.color_edit_list_view)).perform(clickOnColor(1));
 
         // Erase pixels
-        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.01f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.01f, 0.5f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.01f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.1f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.2f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.3f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.4f));
         onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.2f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.3f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.4f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.6f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.7f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.8f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.9f, 0.5f));
-        onView(withId(R.id.canvas)).perform(clickXY(0.99f, 0.5f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.6f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.8f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.9f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.99f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.01f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.1f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.2f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.3f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.4f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.5f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.6f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.7f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.8f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.9f, 0.7f));
+        onView(withId(R.id.canvas)).perform(clickXY(0.99f, 0.7f));
 
         // Press done
         onView(withId(R.id.fab)).perform(click());
@@ -593,12 +618,55 @@ public class EspressoTests {
     }
 
     @Test
-    public void testX_deletePattern() {
-        // Delete pattern
-        onView(withId(R.id.card)).perform(swipeRight());
-        onView(withId(R.id.button1)).perform(click());
+    public void textX_deletePattern() {
+        // Check that a pattern was added
+        onView(withId(R.id.recycler)).check(matches(withSize(1)));
 
-        // Check that recycler is empty
+        // Swipe delete
+        mMainActivityRule.getActivity().mOnRightSwipeListener.onSwipe(DatabaseManager.getPatterns(mMainActivityRule.getActivity())[0]);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Verify snackbar shown
+        onView(withId(android.support.design.R.id.snackbar_text)).check(matches(isDisplayed()));
+
+        // Verify pattern not shown
         onView(withId(R.id.recycler)).check(matches(withSize(0)));
+
+        // Verify pattern exists and is pending delete
+        try (Cursor cursor = mMainActivityRule.getActivity().getContentResolver().query(DatabaseContract.PatternColumns.URI, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(1, cursor.getCount());
+            cursor.moveToFirst();
+            assertEquals(1, cursor.getInt(cursor.getColumnIndex(DatabaseContract.PatternColumns.PENDING_DELETE)));
+        }
+
+        // Undo
+        onView(withId(android.support.design.R.id.snackbar_action)).perform(click());
+
+        // Verify pattern visible
+        onView(withId(R.id.recycler)).check(matches(withSize(1)));
+
+        // Swipe delete
+        mMainActivityRule.getActivity().mOnRightSwipeListener.onSwipe(DatabaseManager.getPatterns(mMainActivityRule.getActivity())[0]);
+
+        // Dismiss snackbar
+        onView(withId(android.support.design.R.id.snackbar_text)).perform(swipeRight());
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Verify pattern deleted
+        try (Cursor cursor = mMainActivityRule.getActivity().getContentResolver().query(DatabaseContract.PatternColumns.URI, null, null, null, null)) {
+            assertNotNull(cursor);
+            assertEquals(0, cursor.getCount());
+        }
     }
 }
