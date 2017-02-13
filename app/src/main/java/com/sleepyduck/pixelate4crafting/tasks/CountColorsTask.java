@@ -46,14 +46,14 @@ public abstract class CountColorsTask extends CancellableProcess<Object, Integer
             }
 
             // Count the colors
-            countColors(bitmap, colors);
+            countColors(pattern.Id, bitmap, colors);
 
             return colors;
         }
         return null;
     }
 
-    private void countColors(final Bitmap mBitmap, final Map<Integer, Float> colorMap) {
+    private void countColors(final int id, final Bitmap mBitmap, final Map<Integer, Float> colorMap) {
         long timeStart = SystemClock.currentThreadTimeMillis();
         long timeGetPixel = 0, timeGetPixelStart, timeDiff = 0, timeDiffStart;
         double diff, bestDiff;
@@ -86,7 +86,7 @@ public abstract class CountColorsTask extends CancellableProcess<Object, Integer
             bestDiff = Integer.MAX_VALUE;
             timeDiffStart = SystemClock.currentThreadTimeMillis();
             for (i = 0; i < size; ++i) {
-                diff = ColorUtil.Diff(pixels[p], colors[i]);
+                diff = ColorUtil.Diff(id, pixels[p], colors[i]);
                 if (diff < bestDiff) {
                     bestDiff = diff;
                     bestColor = i;

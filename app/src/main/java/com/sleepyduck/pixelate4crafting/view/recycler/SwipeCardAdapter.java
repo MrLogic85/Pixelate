@@ -87,7 +87,7 @@ public class SwipeCardAdapter extends CursorRecyclerViewAdapter<SwipeCardAdapter
             title.setText(pattern.getTitle());
 
             RecyclerView recyclerView = (RecyclerView) mItemView.findViewById(R.id.color_recycler);
-            recyclerView.setAdapter(new ColorsAdapter(
+            recyclerView.setAdapter(new ColorsAdapter(pattern.Id,
                     pattern.getColors(new int[pattern.getColorCount()])));
 
             LineProgressBar lineProgressBar = (LineProgressBar) mItemView.findViewById(R.id.progress_bar);

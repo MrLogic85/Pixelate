@@ -42,12 +42,12 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
                 mColors.put(Color.WHITE, 1f);
             }
 
-            return calculatePixels();
+            return calculatePixels(pattern);
         }
         return null;
     }
 
-    private int[][] calculatePixels() {
+    private int[][] calculatePixels(Pattern pattern) {
         long timeStart = SystemClock.currentThreadTimeMillis();
         float pixelSize = (float) mBitmap.getWidth() / (float) mWidth;
         int width = mWidth;
@@ -63,7 +63,7 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
             for (int y = 0; y < height; ++y) {
                 dx = pixelSize * (float) x;
                 dy = pixelSize * (float) y;
-                pixels[x][y] = findColorForPixel(dx, dy, pixelSize);
+                pixels[x][y] = findColorForPixel(pattern.Id, dx, dy, pixelSize);
             }
         }
         BetterLog.d(
@@ -86,7 +86,7 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
      * Find the dominant color in the pixel, comparing the color weight in the pixel compared to
      * the entire image
      */
-    private int findColorForPixel(float dx, float dy, float pixelSize) {
+    private int findColorForPixel(int id, float dx, float dy, float pixelSize) {
         long initializeStart = SystemClock.currentThreadTimeMillis();
         int x = Math.round(dx);
         int y = Math.round(dy);
@@ -111,7 +111,7 @@ public abstract class CalculatePixelsTask extends CancellableProcess<Object, Int
                     if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                         continue;
                     }
-                    Integer color = ColorUtil.getBestColorFor(pixel, colors);
+                    Integer color = ColorUtil.getBestColorFor(id, pixel, colors);
                     Float weight = countPixelColors.get(color, 0f);
                     countPixelColors.put(color, weight + resInv);
                 } else {

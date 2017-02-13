@@ -128,7 +128,7 @@ public class PatternImageView extends InteractiveImageView {
                         if ((pixel & ColorUtil.ALPHA_CHANNEL) != ColorUtil.ALPHA_CHANNEL) {
                             continue;
                         }
-                        pixel = ColorUtil.getBestColorFor(pixel, mColors);
+                        pixel = ColorUtil.getBestColorFor(mPattern.Id, pixel, mColors);
                         for (int ix = x * pixelSize; ix < (x + 1) * pixelSize; ++ix) {
                             for (int iy = y * pixelSize; iy < (y + 1) * pixelSize; ++iy) {
                                 pixelBitmap.setPixel(ix, iy, pixel);

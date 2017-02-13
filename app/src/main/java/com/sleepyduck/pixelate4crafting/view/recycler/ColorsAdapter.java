@@ -17,12 +17,12 @@ class ColorsAdapter extends RecyclerView.Adapter<ColorsAdapter.ViewHolder> {
 
     private final Integer[] colors;
 
-    ColorsAdapter(int[] colors) {
+    ColorsAdapter(int patternId, int[] colors) {
         this.colors = new Integer[colors.length];
         for (int i = 0;i < colors.length; ++i) {
             this.colors[i] = colors[i];
         }
-        ColorUtil.Sort(this.colors);
+        ColorUtil.Sort(patternId, this.colors);
     }
 
     @Override

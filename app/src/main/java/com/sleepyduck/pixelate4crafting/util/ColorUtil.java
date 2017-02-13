@@ -13,36 +13,41 @@ import java.util.Comparator;
 public class ColorUtil {
     public static final int ALPHA_CHANNEL = 0xff000000;
 
-    private static final double[] LabLeft = new double[3];
-    private static final double[] LabRight = new double[3];
+    private static final double[] LabX = new double[3];
+    private static final double[] LabY = new double[3];
     private static final SparseArray<SparseArray<Double>> DiffMap = new SparseArray<>();
+    private static int oldId = -1;
 
-    synchronized public static double Diff(int left, int right) {
-        int _left = Math.max(left, right);
-        int _right = Math.min(left, right);
-        SparseArray<Double> map = DiffMap.get(_left);
+    synchronized public static double Diff(final int id, final int x, final int y) {
+        if (oldId != id) {
+            DiffMap.clear();
+            oldId = id;
+        }
+        final int _x = Math.max(x, y);
+        final int _y = Math.min(x, y);
+        SparseArray<Double> map = DiffMap.get(_x);
         if (map != null) {
-            Double diff = map.get(_right);
+            Double diff = map.get(_y);
             if (diff != null) {
                 return diff;
             }
         }
-        ColorUtils.colorToLAB(_left, LabLeft);
-        ColorUtils.colorToLAB(_right, LabRight);
-        double diff = ColorUtils.distanceEuclidean(LabLeft, LabRight);
+        ColorUtils.colorToLAB(_x, LabX);
+        ColorUtils.colorToLAB(_y, LabY);
+        final double diff = ColorUtils.distanceEuclidean(LabX, LabY);
         if (map == null) {
             map = new SparseArray<>();
-            DiffMap.put(_left, map);
+            DiffMap.put(_x, map);
         }
-        map.put(_right, diff);
+        map.put(_y, diff);
         return diff;
     }
 
-    public static int getBestColorFor(int pixel, int[] colors) {
+    public static int getBestColorFor(final int id, final int pixel, final int[] colors) {
         double diff, minDiff = Integer.MAX_VALUE;
         int bestColor = 0;
         for (int color : colors) {
-            diff = ColorUtil.Diff(color, pixel);
+            diff = ColorUtil.Diff(id, color, pixel);
             if (diff < minDiff) {
                 minDiff = diff;
                 bestColor = color;
@@ -51,11 +56,11 @@ public class ColorUtil {
         return bestColor;
     }
 
-    public static int[] splitColor(int pixel) {
+    public static int[] splitColor(final int pixel) {
         return new int[] {Color.red(pixel), Color.green(pixel), Color.blue(pixel)};
     }
 
-    public static void Sort(Integer[] colors) {
+    public static void Sort(final int id, final Integer[] colors) {
         final Integer[] sortBy = {
                 Color.BLACK,
                 Color.WHITE,
@@ -66,16 +71,16 @@ public class ColorUtil {
         };
         Arrays.sort(colors, new Comparator<Integer>() {
             @Override
-            public int compare(Integer left, Integer right) {
-                return (int) (diff(right) - diff(left));
+            public int compare(final Integer x, final Integer y) {
+                return (int) (diff(y) - diff(x));
             }
 
-            private double diff(Integer color) {
-                double[] diffs = new double[sortBy.length];
+            private double diff(final Integer color) {
+                final double[] diffs = new double[sortBy.length];
                 double smallestDiff = Double.MAX_VALUE;
                 int sortByI = -1;
                 for (int i = 0; i < sortBy.length; ++i) {
-                    diffs[i] = ColorUtil.Diff(color, sortBy[i]);
+                    diffs[i] = ColorUtil.Diff(id, color, sortBy[i]);
                     if (diffs[i] < smallestDiff) {
                         smallestDiff = diffs[i];
                         sortByI = i;
