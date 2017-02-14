@@ -91,15 +91,19 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
     @Override
     public void onDestroy() {
         DebugToast.makeText(this, "Destroying " + CalculateService.class.getSimpleName());
-        handler.getLooper().quit();
+        if (handler != null && handler.getLooper() != null) {
+            handler.getLooper().quit();
+        }
         isDestroyed = true;
         synchronized (mutex) {
             mutex.notifyAll();
         }
 
-        loader.unregisterListener(this);
-        loader.cancelLoad();
-        loader.stopLoading();
+        if (loader != null) {
+            loader.unregisterListener(this);
+            loader.cancelLoad();
+            loader.stopLoading();
+        }
         super.onDestroy();
     }
 
