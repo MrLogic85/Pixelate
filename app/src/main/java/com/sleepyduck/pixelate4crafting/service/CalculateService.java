@@ -141,8 +141,11 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                 BetterLog.d(this, "CountColors finished: %d", pattern.Id);
                 if (colors != null) {
-                    pattern.edit().setColors(colors).setFlag(FLAG_COLORS_CALCULATED).apply(false);
-                    handlePattern(DatabaseManager.getPattern(this, pattern.Id));
+                    final Pattern endPattern = DatabaseManager.getPattern(this, patternId);
+                    if (endPattern.getFlag() == FLAG_COLORS_CALCULATING) {
+                        endPattern.edit().setColors(colors).setFlag(FLAG_COLORS_CALCULATED).apply(false);
+                        handlePattern(DatabaseManager.getPattern(this, patternId));
+                    }
                 }
             }
             break;
@@ -171,8 +174,11 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                 BetterLog.d(this, "CalcPixels finished: %d", pattern.Id);
                 if (pixels != null) {
-                    pattern.edit().setPixels(pixels).apply(true);
-                    handlePattern(DatabaseManager.getPattern(this, pattern.Id));
+                    final Pattern endPattern = DatabaseManager.getPattern(this, patternId);
+                    if (endPattern.getFlag() == FLAG_PIXELS_CALCULATING) {
+                        endPattern.edit().setPixels(pixels).apply(true);
+                        handlePattern(DatabaseManager.getPattern(this, patternId));
+                    }
                 }
             }
             break;
@@ -200,9 +206,12 @@ public class CalculateService extends Service implements Loader.OnLoadCompleteLi
 
                 BetterLog.d(this, "PixelBitmap finished: %d", pattern.Id);
                 if (bitmap != null) {
-                    String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, pattern.getFileName());
-                    pattern.edit().setFilePattern(patternName).apply(false);
-                    handlePattern(DatabaseManager.getPattern(this, pattern.Id));
+                    final Pattern endPattern = DatabaseManager.getPattern(this, patternId);
+                    if (endPattern.getFlag() == FLAG_PATTERN_DRAWING) {
+                        String patternName = BitmapHandler.storePattern(CalculateService.this, bitmap, endPattern.getFileName());
+                        endPattern.edit().setFilePattern(patternName).apply(false);
+                        handlePattern(DatabaseManager.getPattern(this, patternId));
+                    }
                 }
             }
             break;
