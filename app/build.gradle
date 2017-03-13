@@ -8,8 +8,8 @@ android {
         applicationId "com.sleepyduck.pixelate4crafting"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 27
-        versionName "1.2.8"
+        versionCode 28
+        versionName "1.2.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
