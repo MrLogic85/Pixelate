@@ -12,7 +12,7 @@ import java.util.Arrays;
  */
 
 public abstract class PixelBitmapTask extends CancellableProcess<Pattern, Object, Bitmap> {
-    public static final int PIXEL_SIZE = 11; // 10 per pixel plus 1 for grid
+    public static final int PIXEL_SIZE = 1;//11; // 10 per pixel plus 1 for grid
     private final int[] pixelsSquare = new int[PIXEL_SIZE * PIXEL_SIZE];
 
     @Override
@@ -40,9 +40,9 @@ public abstract class PixelBitmapTask extends CancellableProcess<Pattern, Object
             }
         }
 
-        if (!isCancelled()) {
+        /*if (!isCancelled()) {
             drawGrid(pixelBitmap);
-        }
+        }*/
 
         return pixelBitmap;
     }

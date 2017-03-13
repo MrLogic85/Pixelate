@@ -6,17 +6,13 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
-import com.sleepyduck.pixelate4crafting.activity.MainActivity;
 import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.control.Constants;
-import com.sleepyduck.pixelate4crafting.firebase.FirebaseLogger;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.FindBestColorsTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 
-import java.io.File;
 import java.util.Map;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_IMAGE_STORED;

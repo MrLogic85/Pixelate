@@ -15,21 +15,21 @@ import com.sleepyduck.pixelate4crafting.util.ColorUtil;
 
 import java.util.Arrays;
 
-public class PatternImageView extends InteractiveImageView {
+public class ApproxPatternImageView extends InteractiveImageView {
     private AsyncTask<Object, Object, Bitmap> mBitmapAsyncTask;
     private Pattern mPattern;
     private Bitmap mOrigBitmap;
     private boolean mScaleToFitNewImage = false;
 
-    public PatternImageView(Context context, AttributeSet attrs, int defStyle) {
+    public ApproxPatternImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public PatternImageView(Context context, AttributeSet attrs) {
+    public ApproxPatternImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public PatternImageView(Context context) {
+    public ApproxPatternImageView(Context context) {
         super(context);
     }
 

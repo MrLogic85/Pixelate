@@ -18,12 +18,8 @@ import com.sleepyduck.pixelate4crafting.control.BitmapHandler;
 import com.sleepyduck.pixelate4crafting.model.DatabaseContract;
 import com.sleepyduck.pixelate4crafting.model.DatabaseManager;
 import com.sleepyduck.pixelate4crafting.model.Pattern;
-import com.sleepyduck.pixelate4crafting.util.BetterLog;
-import com.sleepyduck.pixelate4crafting.util.DebugToast;
 import com.sleepyduck.pixelate4crafting.view.LineProgressBar;
 import com.sleepyduck.pixelate4crafting.view.SwipeCard;
-
-import java.util.List;
 
 import static com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns.FLAG_COMPLETE;
 

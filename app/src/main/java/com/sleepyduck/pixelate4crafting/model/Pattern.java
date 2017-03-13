@@ -36,7 +36,8 @@ public class Pattern implements Comparable<Pattern> {
     protected final int mProgress;
     protected final long mWeight;
 
-    protected final int[][] mPixels;
+    protected final String mPixelsPath;
+    protected int[][] mPixels;
     protected final Map<Integer, Float> mColors = new HashMap<>();
     protected final Map<Integer, Map<Integer, Integer>> mChangedPixels = new HashMap<>();
 
@@ -67,37 +68,8 @@ public class Pattern implements Comparable<Pattern> {
             }
         }
 
-        String pixels = cursor.getString(cursor.getColumnIndex(PatternColumns.PIXELS));
-        if (pixels != null && !pixels.isEmpty()) {
-            File file = new File(pixels);
-            if (!file.exists() && mFlag == PatternColumns.FLAG_COMPLETE) {
-                mPixels = new int[mPixelWidth][mPixelHeight];
-                edit().setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED).apply(false);
-            } else {
-                JSONObject json = null;
-                int width = 0;
-                int height = 0;
-                try {
-                    json = new JSONObject(DataManager.LoadPixels(mContext, Id));
-                    width = json.getInt("width");
-                    height = json.getInt("height");
-                } catch (JSONException e) {
-                    //e.printStackTrace();
-                }
-                mPixels = new int[width][height];
-                try {
-                    for (int w = 0; w < width; ++w) {
-                        for (int h = 0; h < height; ++h) {
-                            mPixels[w][h] = json.getInt("" + w + "," + h);
-                        }
-                    }
-                } catch (JSONException e) {
-                    //e.printStackTrace();
-                }
-            }
-        } else {
-            mPixels = new int[0][0];
-        }
+        mPixelsPath = cursor.getString(cursor.getColumnIndex(PatternColumns.PIXELS));
+        mPixels = new int[0][0];
 
         String changedPixels = cursor.getString(cursor.getColumnIndex(PatternColumns.CHANGED_PIXELS));
         if (changedPixels != null && changedPixels.length() > 0) {
@@ -132,6 +104,7 @@ public class Pattern implements Comparable<Pattern> {
         mPixelHeight = 2;
         mProgress = 0;
         mWeight = SystemClock.elapsedRealtime();
+        mPixelsPath = "";
         mPixels = new int[0][0];
     }
 
@@ -161,6 +134,7 @@ public class Pattern implements Comparable<Pattern> {
             }
         }
 
+        mPixelsPath = other.mPixelsPath;
         if (other.mPixels.length > 0) {
             mPixels = new int[other.mPixels.length][other.mPixels[0].length];
             for (int x = 0; x < other.mPixels.length; ++x) {
@@ -248,8 +222,42 @@ public class Pattern implements Comparable<Pattern> {
         }
     }
 
+    protected void loadPixels() {
+        synchronized (mPixels) {
+            if (mPixels.length == 0 && mPixelsPath.length() > 0) {
+                File file = new File(mPixelsPath);
+                if (!file.exists() && mFlag == PatternColumns.FLAG_COMPLETE) {
+                    mPixels = new int[mPixelWidth][mPixelHeight];
+                    edit().setFlag(PatternColumns.FLAG_SIZE_OR_COLOR_CHANGED).apply(false);
+                } else {
+                    JSONObject json = null;
+                    int width = 0;
+                    int height = 0;
+                    try {
+                        json = new JSONObject(DataManager.LoadPixels(mContext, Id));
+                        width = json.getInt("width");
+                        height = json.getInt("height");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    mPixels = new int[width][height];
+                    try {
+                        for (int w = 0; w < width; ++w) {
+                            for (int h = 0; h < height; ++h) {
+                                mPixels[w][h] = json.getInt("" + w + "," + h);
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
     public int[][] getPixels(int[][] outPixels) {
         synchronized (mPixels) {
+            loadPixels();
             for (int x = 0; x < mPixels.length; ++x) {
                 System.arraycopy(mPixels[x], 0, outPixels[x], 0, mPixels[x].length);
             }
@@ -259,6 +267,7 @@ public class Pattern implements Comparable<Pattern> {
 
     public int getPixel(int x, int y) {
         synchronized (mPixels) {
+            loadPixels();
             return mPixels[x][y];
         }
     }
@@ -573,6 +582,7 @@ public class Pattern implements Comparable<Pattern> {
                     case PatternColumns.COLORS:
                         return mColors;
                     case PatternColumns.PIXELS:
+                        loadPixels();
                         return mPixels;
                     case PatternColumns.CHANGED_PIXELS:
                         return mChangedPixels;

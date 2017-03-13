@@ -25,5 +25,7 @@
     <dimen name="color_card_select_radius">20dp</dimen>
     <dimen name="color_card_color_radius">18dp</dimen>
     <dimen name="color_card_icon">24dp</dimen>
+
+    <dimen name="pattern_line_thickness">2dp</dimen>
 </resources>
 
