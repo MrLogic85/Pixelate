@@ -251,7 +251,7 @@ public class Pattern implements Comparable<Pattern> {
     public int[][] getPixels(int[][] outPixels) {
         synchronized (mPixels) {
             for (int x = 0; x < mPixels.length; ++x) {
-                outPixels[x] = Arrays.copyOf(mPixels[x], mPixels[x].length);
+                System.arraycopy(mPixels[x], 0, outPixels[x], 0, mPixels[x].length);
             }
         }
         return outPixels;
