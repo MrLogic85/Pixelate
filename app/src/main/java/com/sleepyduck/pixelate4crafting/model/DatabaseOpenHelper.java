@@ -10,7 +10,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -37,17 +37,6 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-        try {
-            db.execSQL("UPDATE " + PatternColumns.TABLE_NAME
-                    + " SET " + PatternColumns.PIXELS + "=''"
-                    + " WHERE LENGTH(" + PatternColumns.PIXELS + ") > 10000");
-        } catch (SQLiteException ignored) {
-        }
-    }
-
-    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == newVersion) {
             return;
@@ -60,6 +49,13 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
             case 5:
                 db.execSQL("ALTER TABLE " + PatternColumns.TABLE_NAME +
                         " ADD " + PatternColumns.PENDING_DELETE + " INTEGER DEFAULT 0");
+                db.execSQL("UPDATE " + PatternColumns.TABLE_NAME
+                        + " SET " + PatternColumns.PIXELS + "=''"
+                        + " WHERE LENGTH(" + PatternColumns.PIXELS + ") > 10000");
+            case 6:
+                db.execSQL("UPDATE " + PatternColumns.TABLE_NAME
+                        + " SET " + PatternColumns.FLAG + "=" + PatternColumns.FLAG_PIXELS_CALCULATED
+                        + " WHERE " + PatternColumns.FLAG + " = " + PatternColumns.FLAG_COMPLETE);
         }
 
     }
