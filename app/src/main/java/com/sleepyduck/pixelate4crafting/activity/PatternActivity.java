@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -18,6 +20,7 @@ import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.transition.Transition;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -37,11 +40,13 @@ import com.sleepyduck.pixelate4crafting.model.Pattern;
 import com.sleepyduck.pixelate4crafting.tasks.PixelBitmapTask;
 import com.sleepyduck.pixelate4crafting.util.BetterLog;
 import com.sleepyduck.pixelate4crafting.util.CursorDiffUtilCallback;
+import com.sleepyduck.pixelate4crafting.util.DebugToast;
 import com.sleepyduck.pixelate4crafting.util.ListUpdateCallbackAdaptor;
 import com.sleepyduck.pixelate4crafting.view.CircleColorView;
 import com.sleepyduck.pixelate4crafting.view.ColorEditList;
 import com.sleepyduck.pixelate4crafting.view.InteractiveImageView;
 import com.sleepyduck.pixelate4crafting.view.PatternInteractiveView;
+import com.sleepyduck.pixelate4crafting.view.TransitionListenerAdapter;
 
 import java.util.Random;
 
@@ -64,14 +69,14 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     private final InteractiveImageView.OnImageClickListener mImageClickListener = new InteractiveImageView.OnImageClickListener() {
         @Override
         public void onImageClicked(final Bitmap bitmap, final int x, final int y, float posX, float posY) {
+            int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
+            int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
+            Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
             if (isEditMenuVisible
-                    && x > PixelBitmapTask.PIXEL_SIZE
-                    && y > PixelBitmapTask.PIXEL_SIZE
+                    && x >= PixelBitmapTask.PIXEL_SIZE
+                    && y >= PixelBitmapTask.PIXEL_SIZE
                     && x < bitmap.getWidth()
                     && y < bitmap.getHeight()) {
-                Pattern pattern = DatabaseManager.getPattern(PatternActivity.this, mPatternId);
-                int patternX = x / PixelBitmapTask.PIXEL_SIZE - 1;
-                int patternY = y / PixelBitmapTask.PIXEL_SIZE - 1;
                 FirebaseLogger.getInstance(PatternActivity.this).pixelChanged();
                 switch (mColorEditListView.getState()) {
                     case COLOR:
@@ -89,6 +94,15 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         }
                         editPattern.eraseChangedPixelAt(patternX, patternY);
                         break;
+                }
+            } else {
+                if (x >= PixelBitmapTask.PIXEL_SIZE
+                        && y >= PixelBitmapTask.PIXEL_SIZE
+                        && x < bitmap.getWidth()
+                        && y < bitmap.getHeight()) {
+                    DebugToast.makeText(PatternActivity.this, "Set marker at %d, %d", patternX, patternY);
+                    mCanvas.setMarker(patternX, patternY);
+                    pattern.edit().setMarker(patternX, patternY).apply(false);
                 }
             }
         }
@@ -159,7 +173,19 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
 
         mCanvas = (PatternInteractiveView) findViewById(R.id.canvas);
         mCanvas.setImageBitmap(BitmapHandler.getFromFileName(this, pattern.getPatternFileName()));
+        mCanvas.setMarker(pattern.getMarkerX(), pattern.getMarkerY());
         mCanvas.setOnImageClickListener(mImageClickListener);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().getSharedElementEnterTransition().addListener(new TransitionListenerAdapter() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                        mCanvas.enableGridLines(true);
+                    getWindow().getSharedElementEnterTransition().removeListener(this);
+                }
+            });
+        }
 
         mColorEditListView = (ColorEditList) findViewById(R.id.color_edit_list_view);
         mColorEditListView.setOnColorEditListListener(new ColorEditList.OnColorEditListClickListener() {
@@ -206,6 +232,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
     @Override
     public void onBackPressed() {
         if (mMenuEditFlag == MENU_EDIT_DONE) {
+            mCanvas.enableGridLines(false);
             super.onBackPressed();
         } else {
             onDoneClicked(mMenuEditFlag);
@@ -270,6 +297,7 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                         if (bundle.getInt(PatternColumns.FLAG) == PatternColumns.FLAG_COMPLETE) {
                             Pattern pattern = new Pattern(PatternActivity.this, cursor);
                             mCanvas.setImageBitmap(BitmapHandler.getFromFileName(PatternActivity.this, pattern.getPatternFileName()));
+                            mCanvas.setMarker(pattern.getMarkerX(), pattern.getMarkerY());
                             mCanvas.setImageAlpha(0xff);
                         } else {
                             // TODO Update some progress bar

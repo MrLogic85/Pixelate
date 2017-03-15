@@ -35,6 +35,8 @@ public class Pattern implements Comparable<Pattern> {
     protected final int mPixelHeight;
     protected final int mProgress;
     protected final long mWeight;
+    protected final int mMarkerX;
+    protected final int mMarkerY;
 
     protected final String mPixelsPath;
     protected int[][] mPixels;
@@ -54,6 +56,16 @@ public class Pattern implements Comparable<Pattern> {
         mWeight = cursor.getLong(cursor.getColumnIndex(PatternColumns.TIME));
         mFlag = cursor.getInt(cursor.getColumnIndex(PatternColumns.FLAG));
         mProgress = cursor.getInt(cursor.getColumnIndex(PatternColumns.PROGRESS));
+
+        String marker = cursor.getString(cursor.getColumnIndex(PatternColumns.MARKER));
+        if (marker != null && marker.length() > 0 && marker.contains(":")) {
+            String[] markerXY = marker.split(":");
+            mMarkerX = Integer.valueOf(markerXY[0]);
+            mMarkerY = Integer.valueOf(markerXY[1]);
+        } else {
+            mMarkerX = 0;
+            mMarkerY = 0;
+        }
 
         String colors = cursor.getString(cursor.getColumnIndex(PatternColumns.COLORS));
         if (colors != null && !colors.isEmpty()) {
@@ -106,6 +118,8 @@ public class Pattern implements Comparable<Pattern> {
         mWeight = SystemClock.elapsedRealtime();
         mPixelsPath = "";
         mPixels = new int[0][0];
+        mMarkerX = 0;
+        mMarkerY = 0;
     }
 
     private Pattern(Pattern other) {
@@ -121,6 +135,8 @@ public class Pattern implements Comparable<Pattern> {
         mPixelHeight = other.mPixelHeight;
         mProgress = other.mProgress;
         mWeight = other.mWeight;
+        mMarkerX = other.mMarkerX;
+        mMarkerY = other.mMarkerY;
 
         for (Map.Entry<Integer, Float> entry : other.mColors.entrySet()) {
             mColors.put(entry.getKey(), entry.getValue());
@@ -333,6 +349,14 @@ public class Pattern implements Comparable<Pattern> {
         return mFileNamePattern;
     }
 
+    public int getMarkerX() {
+        return mMarkerX;
+    }
+
+    public int getMarkerY() {
+        return mMarkerY;
+    }
+
     public int getProgress() {
         return mProgress;
     }
@@ -519,6 +543,11 @@ public class Pattern implements Comparable<Pattern> {
             return this;
         }
 
+        public Edit setMarker(int x, int y) {
+            set(PatternColumns.MARKER, "" +  x + ":" + y, "" +  mMarkerX + ":" + mMarkerY);
+            return this;
+        }
+
         public Edit setProgress(int progress) {
             set(PatternColumns.PROGRESS, progress, mProgress);
             return this;
@@ -537,6 +566,8 @@ public class Pattern implements Comparable<Pattern> {
                         return mFileNameThumb;
                     case PatternColumns.FILE_PATTERN:
                         return mFileNamePattern;
+                    case PatternColumns.MARKER:
+                        return "" + mMarkerX + ":" + mMarkerY;
                 }
             }
             return null;

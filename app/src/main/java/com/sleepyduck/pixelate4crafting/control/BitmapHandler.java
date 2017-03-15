@@ -98,6 +98,7 @@ public class BitmapHandler {
 					pixels /= 4;
 				}
 			}
+
 			//--- Store image ---
 			try (InputStream is = openStream(context, uri)) {
 				options.inJustDecodeBounds = false;
@@ -111,7 +112,8 @@ public class BitmapHandler {
 			//--- Store thumbnail ---
 			try (InputStream is = openStream(context, uri)) {
 				int thumbSize = (int) context.getResources().getDimension(R.dimen.small_picture_size);
-				Bitmap thumb = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeStream(is), thumbSize, thumbSize);
+				Bitmap orig = BitmapFactory.decodeStream(is);
+				Bitmap thumb = ThumbnailUtils.extractThumbnail(orig, thumbSize, thumbSize * orig.getHeight() / orig.getWidth());
 				try (FileOutputStream fos = new FileOutputStream(new File(context.getFilesDir(), fileName + Constants.FILE_THUMBNAIL))) {
 					thumb.compress(CompressFormat.PNG, 100, fos);
 					thumb.recycle();

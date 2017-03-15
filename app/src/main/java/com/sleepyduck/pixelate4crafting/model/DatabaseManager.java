@@ -61,6 +61,7 @@ public class DatabaseManager {
                 case PatternColumns.FILE:
                 case PatternColumns.FILE_THUMB:
                 case PatternColumns.FILE_PATTERN:
+                case PatternColumns.MARKER:
                     values.put(key, edit.getString(key));
                     break;
                 case PatternColumns.STATE:

@@ -10,7 +10,7 @@ import com.sleepyduck.pixelate4crafting.model.DatabaseContract.PatternColumns;
 public class DatabaseOpenHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "database.db";
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
 
     public DatabaseOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -33,6 +33,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 PatternColumns.TIME + " BIGINT, " +
                 PatternColumns.FLAG + " INTEGER, " +
                 PatternColumns.PROGRESS + " INTEGER, " +
+                PatternColumns.MARKER + " TEXT DEFAULT '0:0', " +
                 PatternColumns.PENDING_DELETE + " INTEGER DEFAULT 0)");
     }
 
@@ -56,6 +57,9 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
                 db.execSQL("UPDATE " + PatternColumns.TABLE_NAME
                         + " SET " + PatternColumns.FLAG + "=" + PatternColumns.FLAG_PIXELS_CALCULATED
                         + " WHERE " + PatternColumns.FLAG + " = " + PatternColumns.FLAG_COMPLETE);
+            case 7:
+                db.execSQL("ALTER TABLE " + PatternColumns.TABLE_NAME +
+                        " ADD " + PatternColumns.MARKER + " TEXT DEFAULT '0:0'");
         }
 
     }

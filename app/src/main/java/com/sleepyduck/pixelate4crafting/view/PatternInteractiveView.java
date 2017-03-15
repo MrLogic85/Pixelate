@@ -18,6 +18,10 @@ public class PatternInteractiveView extends InteractiveImageView {
     private float[] canvasTopLeft = new float[2], canvasBottomRight = new float[2];
     private Matrix invertMatrix = new Matrix();
     private Paint paint = new Paint();
+    private int mMarkerX = 0;
+    private int mMarkerY = 0;
+    private int mMarkerColor = 0xFFFFFF;
+    private boolean mDrawLines = false;
 
     {
         paint.setAntiAlias(false);
@@ -45,7 +49,12 @@ public class PatternInteractiveView extends InteractiveImageView {
 
     public PatternInteractiveView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        lineThickness = context.getResources().getDimension(R.dimen.pattern_line_thickness);
+        if (isInEditMode()) {
+            lineThickness = 1;
+        } else {
+            lineThickness = context.getResources().getDimension(R.dimen.pattern_line_thickness);
+            mMarkerColor = getResources().getColor(R.color.accent_a200);
+        }
     }
 
     public PatternInteractiveView(Context context, AttributeSet attrs) {
@@ -63,8 +72,14 @@ public class PatternInteractiveView extends InteractiveImageView {
         }
     }
 
+    public void setMarker(int markerX, int markerY) {
+        mMarkerX = ++markerX;
+        mMarkerY = ++markerY;
+        invalidate();
+    }
+
     private synchronized void drawLines(Canvas canvas) {
-        if (mMatrix == null) {
+        if (mImageBitmap == null) {
             return;
         }
 
@@ -73,7 +88,7 @@ public class PatternInteractiveView extends InteractiveImageView {
         bottomRight[0] = canvas.getWidth();
         bottomRight[1] = canvas.getHeight();
 
-        mMatrix.invert(invertMatrix);
+        getImageMatrix().invert(invertMatrix);
         invertMatrix.mapPoints(topLeft);
         invertMatrix.mapPoints(bottomRight);
 
@@ -81,11 +96,11 @@ public class PatternInteractiveView extends InteractiveImageView {
         int endX = Math.min((int) Math.ceil(bottomRight[0]), mImageBitmap.getWidth());
         int startY = Math.max((int) topLeft[1], 1);
         int endY = Math.min((int) Math.ceil(bottomRight[1]), mImageBitmap.getHeight());
+        float lineThicknessScale = Math.min(1f, 30f / Math.max(bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]));
 
+        // Draw grid
         for (int i = LAYER_BEVEL; i <= LAYER_GRID; ++i) {
             layerPaint[i].setAlpha(getImageAlpha());
-            float lineThicknessScale = Math.min(1f, 30f / (float) Math.max(bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]));
-
             if (drawLayer[i]) {
                 for (int x = startX; x <= endX; ++x) {
                     canvasTopLeft[0] = x;
@@ -96,8 +111,8 @@ public class PatternInteractiveView extends InteractiveImageView {
                     }
                     canvasBottomRight[0] = x;
                     canvasBottomRight[1] = endY;
-                    mMatrix.mapPoints(canvasTopLeft);
-                    mMatrix.mapPoints(canvasBottomRight);
+                    getImageMatrix().mapPoints(canvasTopLeft);
+                    getImageMatrix().mapPoints(canvasBottomRight);
 
                     float extraThickness = x % 10 == 1 ? layerLineThicknessScaleExtra[i] : layerLineThicknessScale[i];
                     layerPaint[i].setStrokeWidth(lineThickness * lineThicknessScale * extraThickness);
@@ -112,8 +127,8 @@ public class PatternInteractiveView extends InteractiveImageView {
                     canvasTopLeft[1] = y;
                     canvasBottomRight[0] = endX;
                     canvasBottomRight[1] = y;
-                    mMatrix.mapPoints(canvasTopLeft);
-                    mMatrix.mapPoints(canvasBottomRight);
+                    getImageMatrix().mapPoints(canvasTopLeft);
+                    getImageMatrix().mapPoints(canvasBottomRight);
 
                     float extraThickness = y % 10 == 1 ? layerLineThicknessScaleExtra[i] : layerLineThicknessScale[i];
                     layerPaint[i].setStrokeWidth(lineThickness * lineThicknessScale * extraThickness);
@@ -121,14 +136,44 @@ public class PatternInteractiveView extends InteractiveImageView {
                 }
             }
         }
+
+        // Draw marker
+        if (drawLayer[LAYER_GRID]) {
+            layerPaint[LAYER_GRID].setStrokeWidth(lineThickness * lineThicknessScale * layerLineThicknessScaleExtra[LAYER_GRID]);
+            layerPaint[LAYER_GRID].setColor(mMarkerColor);
+
+            canvasTopLeft[0] = mMarkerX;
+            canvasTopLeft[1] = 0;
+            canvasBottomRight[0] = mMarkerX;
+            canvasBottomRight[1] = endY;
+            getImageMatrix().mapPoints(canvasTopLeft);
+            getImageMatrix().mapPoints(canvasBottomRight);
+            canvas.drawLine(canvasTopLeft[0], canvasTopLeft[1], canvasBottomRight[0], canvasBottomRight[1], layerPaint[LAYER_GRID]);
+
+            canvasTopLeft[0] = 0;
+            canvasTopLeft[1] = mMarkerY;
+            canvasBottomRight[0] = endX;
+            canvasBottomRight[1] = mMarkerY;
+            getImageMatrix().mapPoints(canvasTopLeft);
+            getImageMatrix().mapPoints(canvasBottomRight);
+            canvas.drawLine(canvasTopLeft[0], canvasTopLeft[1], canvasBottomRight[0], canvasBottomRight[1], layerPaint[LAYER_GRID]);
+
+            layerPaint[LAYER_GRID].setColor(Color.BLACK);
+        }
     }
 
     @Override
     protected synchronized void onDraw(Canvas canvas) {
-        if (mMatrix != null) {
-            paint.setAlpha(getImageAlpha());
-            canvas.drawBitmap(mImageBitmap, mMatrix, paint);
+        paint.setAlpha(getImageAlpha());
+        if (mImageBitmap != null) {
+            canvas.drawBitmap(mImageBitmap, getImageMatrix(), paint);
+        }
+        if (mDrawLines) {
             drawLines(canvas);
         }
+    }
+
+    public void enableGridLines(boolean enable) {
+        mDrawLines = enable;
     }
 }

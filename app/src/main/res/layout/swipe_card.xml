@@ -70,12 +70,12 @@
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/padding_small">
 
-                <ImageView
+                <com.sleepyduck.pixelate4crafting.view.BlurredImageView
                     android:id="@+id/icon"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_launcher"
+                    android:src="@drawable/launcher"
                     android:transitionName="@string/transitionImage" />
 
                 <ImageView
