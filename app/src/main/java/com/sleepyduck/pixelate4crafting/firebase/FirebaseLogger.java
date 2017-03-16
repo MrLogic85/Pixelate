@@ -19,6 +19,7 @@ public class FirebaseLogger {
     private static final String EVENT_COLOR_ADDED = "color_added";
     private static final String EVENT_NAME_CHANGED = "name_changed";
     private static final String EVENT_SIZE_CHANGED = "size_changed";
+    private static final String EVENT_RECEIVE_IMAGE = "receive_image";
 
     private static final String PARAM_WIDTH_OLD = "width_old";
     private static final String PARAM_WIDTH_NEW = "width_new";
@@ -71,6 +72,6 @@ public class FirebaseLogger {
     public void logShareReceived(int itemCount) {
         Bundle bundle = new Bundle();
         bundle.putInt(FirebaseAnalytics.Param.VALUE, itemCount);
-        mFirebase.logEvent(FirebaseAnalytics.Event.SHARE, bundle);
+        mFirebase.logEvent(EVENT_RECEIVE_IMAGE, bundle);
     }
 }
