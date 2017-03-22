@@ -33,6 +33,12 @@ public class BlurredImageView extends android.support.v7.widget.AppCompatImageVi
     }
 
     @Override
+    public void setImageBitmap(Bitmap bm) {
+        super.setImageBitmap(bm);
+        zoom = null;
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         Drawable drawable = getDrawable();
         if (drawable == null) {

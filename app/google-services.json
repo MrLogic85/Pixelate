@@ -15,11 +15,19 @@
       },
       "oauth_client": [
         {
+          "client_id": "267489560129-sqoccu80vrcqsec4ncmg2p80uopv2oqo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sleepyduck.pixelate4crafting",
+            "certificate_hash": "d48609221bd506578ab107898c7accd9e3254564"
+          }
+        },
+        {
           "client_id": "267489560129-004jmv1rrfhbnouii64m2074ie2f16vv.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.sleepyduck.pixelate4crafting",
-            "certificate_hash": "4B8E5CB5562580A49780EE48507761E045B6F86F"
+            "certificate_hash": "4b8e5cb5562580a49780ee48507761e045b6f86f"
           }
         },
         {
