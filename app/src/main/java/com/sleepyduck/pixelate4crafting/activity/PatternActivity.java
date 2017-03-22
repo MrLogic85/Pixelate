@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -185,6 +186,8 @@ public class PatternActivity extends AppCompatActivity implements LoaderManager.
                     getWindow().getSharedElementEnterTransition().removeListener(this);
                 }
             });
+        } else {
+            mCanvas.enableGridLines(true);
         }
 
         mColorEditListView = (ColorEditList) findViewById(R.id.color_edit_list_view);
