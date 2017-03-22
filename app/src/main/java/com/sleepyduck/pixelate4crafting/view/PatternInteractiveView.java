@@ -24,7 +24,7 @@ public class PatternInteractiveView extends InteractiveImageView {
     private boolean mDrawLines = false;
 
     {
-        paint.setAntiAlias(false);
+        //paint.setAntiAlias(false);
         paint.setFilterBitmap(false);
     }
 
@@ -41,6 +41,8 @@ public class PatternInteractiveView extends InteractiveImageView {
 
         layerPaint[LAYER_BEVEL].setColor(Color.WHITE);
         layerPaint[LAYER_GRID].setColor(Color.BLACK);
+
+        layerPaint[LAYER_GRID].setAntiAlias(true);
 
     }
 
@@ -115,7 +117,7 @@ public class PatternInteractiveView extends InteractiveImageView {
                     getImageMatrix().mapPoints(canvasBottomRight);
 
                     float extraThickness = x % 10 == 1 ? layerLineThicknessScaleExtra[i] : layerLineThicknessScale[i];
-                    layerPaint[i].setStrokeWidth(lineThickness * lineThicknessScale * extraThickness);
+                    layerPaint[i].setStrokeWidth(Math.max(lineThickness * lineThicknessScale * extraThickness, 1));
                     canvas.drawLine(canvasTopLeft[0], canvasTopLeft[1], canvasBottomRight[0], canvasBottomRight[1], layerPaint[i]);
                 }
                 for (int y = startY; y <= endY; ++y) {
@@ -131,7 +133,7 @@ public class PatternInteractiveView extends InteractiveImageView {
                     getImageMatrix().mapPoints(canvasBottomRight);
 
                     float extraThickness = y % 10 == 1 ? layerLineThicknessScaleExtra[i] : layerLineThicknessScale[i];
-                    layerPaint[i].setStrokeWidth(lineThickness * lineThicknessScale * extraThickness);
+                    layerPaint[i].setStrokeWidth(Math.max(lineThickness * lineThicknessScale * extraThickness, 1));
                     canvas.drawLine(canvasTopLeft[0], canvasTopLeft[1], canvasBottomRight[0], canvasBottomRight[1], layerPaint[i]);
                 }
             }
@@ -139,7 +141,7 @@ public class PatternInteractiveView extends InteractiveImageView {
 
         // Draw marker
         if (drawLayer[LAYER_GRID]) {
-            layerPaint[LAYER_GRID].setStrokeWidth(lineThickness * lineThicknessScale * layerLineThicknessScaleExtra[LAYER_GRID]);
+            layerPaint[LAYER_GRID].setStrokeWidth(Math.max(lineThickness * lineThicknessScale * layerLineThicknessScaleExtra[LAYER_GRID], 1));
             layerPaint[LAYER_GRID].setColor(mMarkerColor);
 
             canvasTopLeft[0] = mMarkerX;
